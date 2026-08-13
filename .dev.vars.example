@@ -1,0 +1,18 @@
+# Local development variables. Copy to .dev.vars and fill in real values.
+# Never commit .dev.vars. Production secrets are set with `wrangler secret put`.
+
+# OpenNext loads .env.development* files when running `wrangler dev`
+NEXTJS_ENV=development
+
+# Better Auth
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=generate-with-openssl-rand-base64-32
+# Google OAuth — https://console.cloud.google.com/apis/credentials
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Media metadata providers
+# TMDB — https://www.themoviedb.org/settings/api
+TMDB_API_KEY=
+# OMDb — https://www.omdbapi.com/apikey.aspx
+OMDB_API_KEY=
