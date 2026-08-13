@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { MEDIA_TYPE_LABELS, tmdbBackdropUrl, tmdbPosterUrl, tmdbProfileUrl, type MediaDetail } from "@/lib/tmdb";
 import type { OmdbRatings } from "@/lib/omdb";
+import type { BookmarkState } from "@/lib/bookmarks";
+import { BookmarkPanel } from "./bookmark-panel";
 
 function ScoreBadge({ label, value }: { label: string; value: string }) {
 	return (
@@ -10,7 +12,17 @@ function ScoreBadge({ label, value }: { label: string; value: string }) {
 	);
 }
 
-export function MediaDetailView({ media, ratings }: { media: MediaDetail; ratings: OmdbRatings }) {
+export function MediaDetailView({
+	media,
+	ratings,
+	bookmark,
+	isSignedIn,
+}: {
+	media: MediaDetail;
+	ratings: OmdbRatings;
+	bookmark: BookmarkState | null;
+	isSignedIn: boolean;
+}) {
 	const backdrop = tmdbBackdropUrl(media.backdropPath);
 	const poster = tmdbPosterUrl(media.posterPath, "w342");
 
@@ -74,6 +86,12 @@ export function MediaDetailView({ media, ratings }: { media: MediaDetail; rating
 								))}
 							</ul>
 						) : null}
+						<BookmarkPanel
+							mediaType={media.type}
+							mediaId={media.id}
+							initialBookmark={bookmark}
+							isSignedIn={isSignedIn}
+						/>
 						<p className="max-w-3xl text-sm leading-relaxed text-foreground">{media.overview}</p>
 					</div>
 				</div>
