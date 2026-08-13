@@ -1,12 +1,22 @@
 const TMDB_API_BASE_URL = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 
-export type MediaType = "movie" | "tv";
+export type MediaType = "movie" | "series";
+
+export const MEDIA_TYPE_LABELS: Record<MediaType, string> = {
+	movie: "Movie",
+	series: "Series",
+};
+
+const TMDB_MEDIA_TYPE: Record<MediaType, string> = {
+	movie: "movie",
+	series: "tv",
+};
 
 export interface MediaSummary {
 	id: number;
 	type: MediaType;
-	title: string;
+	name: string;
 	overview: string;
 	posterPath: string | null;
 	backdropPath: string | null;
@@ -41,7 +51,7 @@ function toMediaSummary(item: TmdbTrendingItem, type: MediaType): MediaSummary {
 	return {
 		id: item.id,
 		type,
-		title: item.title ?? item.name ?? "Untitled",
+		name: item.title ?? item.name ?? "Untitled",
 		overview: item.overview,
 		posterPath: item.poster_path,
 		backdropPath: item.backdrop_path,
@@ -57,7 +67,7 @@ export async function getTrending(type: MediaType): Promise<MediaSummary[]> {
 		return [];
 	}
 	try {
-		const url = new URL(`${TMDB_API_BASE_URL}/trending/${type}/week`);
+		const url = new URL(`${TMDB_API_BASE_URL}/trending/${TMDB_MEDIA_TYPE[type]}/week`);
 		url.searchParams.set("api_key", apiKey);
 		url.searchParams.set("language", "en-US");
 		const response = await fetch(url, { cache: "no-store" });

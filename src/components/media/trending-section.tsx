@@ -4,7 +4,7 @@ import { MediaEmptyState } from "./media-empty-state";
 
 const SECTION_TITLES = {
 	movie: "Trending movies",
-	tv: "Trending series",
+	series: "Trending series",
 } as const;
 
 export async function TrendingSection({ type }: { type: MediaType }) {
