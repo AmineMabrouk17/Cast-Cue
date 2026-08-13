@@ -24,7 +24,7 @@ export interface MediaSummary {
 	year: number | null;
 }
 
-interface TmdbTrendingItem {
+interface TmdbMediaItem {
 	id: number;
 	title?: string;
 	name?: string;
@@ -36,8 +36,8 @@ interface TmdbTrendingItem {
 	first_air_date?: string;
 }
 
-interface TmdbTrendingResponse {
-	results: TmdbTrendingItem[];
+interface TmdbResultsResponse {
+	results: TmdbMediaItem[];
 }
 
 export function tmdbPosterUrl(posterPath: string | null, size = "w342"): string | null {
@@ -45,7 +45,7 @@ export function tmdbPosterUrl(posterPath: string | null, size = "w342"): string 
 	return `${TMDB_IMAGE_BASE_URL}/${size}${posterPath}`;
 }
 
-function toMediaSummary(item: TmdbTrendingItem, type: MediaType): MediaSummary {
+function toMediaSummary(item: TmdbMediaItem, type: MediaType): MediaSummary {
 	const date = type === "movie" ? item.release_date : item.first_air_date;
 	const year = date ? Number.parseInt(date.slice(0, 4), 10) : NaN;
 	return {
@@ -60,25 +60,42 @@ function toMediaSummary(item: TmdbTrendingItem, type: MediaType): MediaSummary {
 	};
 }
 
-export async function getTrending(type: MediaType): Promise<MediaSummary[]> {
+async function fetchTmdbResults(
+	path: string,
+	params: Record<string, string>,
+	type: MediaType,
+): Promise<MediaSummary[]> {
 	const apiKey = process.env.TMDB_API_KEY;
 	if (!apiKey) {
-		console.error("TMDB_API_KEY is not set; skipping trending fetch.");
+		console.error("TMDB_API_KEY is not set; skipping TMDB request.");
 		return [];
 	}
 	try {
-		const url = new URL(`${TMDB_API_BASE_URL}/trending/${TMDB_MEDIA_TYPE[type]}/week`);
+		const url = new URL(`${TMDB_API_BASE_URL}${path}`);
 		url.searchParams.set("api_key", apiKey);
 		url.searchParams.set("language", "en-US");
+		for (const [key, value] of Object.entries(params)) {
+			url.searchParams.set(key, value);
+		}
 		const response = await fetch(url, { cache: "no-store" });
 		if (!response.ok) {
-			console.error(`TMDB trending ${type} failed with status ${response.status}.`);
+			console.error(`TMDB ${path} failed with status ${response.status}.`);
 			return [];
 		}
-		const data = (await response.json()) as TmdbTrendingResponse;
+		const data = (await response.json()) as TmdbResultsResponse;
 		return data.results.map((item) => toMediaSummary(item, type));
 	} catch (error) {
-		console.error(`TMDB trending ${type} request failed:`, error);
+		console.error(`TMDB ${path} request failed:`, error);
 		return [];
 	}
+}
+
+export async function getTrending(type: MediaType): Promise<MediaSummary[]> {
+	return fetchTmdbResults(`/trending/${TMDB_MEDIA_TYPE[type]}/week`, {}, type);
+}
+
+export async function searchTmdb(query: string, type: MediaType): Promise<MediaSummary[]> {
+	const trimmed = query.trim();
+	if (!trimmed) return [];
+	return fetchTmdbResults(`/search/${TMDB_MEDIA_TYPE[type]}`, { query: trimmed }, type);
 }
