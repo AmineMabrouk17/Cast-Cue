@@ -40,6 +40,12 @@ interface TmdbResultsResponse {
 	results: TmdbMediaItem[];
 }
 
+function toYear(date: string | undefined): number | null {
+	if (!date) return null;
+	const year = Number.parseInt(date.slice(0, 4), 10);
+	return Number.isNaN(year) ? null : year;
+}
+
 export function tmdbPosterUrl(posterPath: string | null, size = "w342"): string | null {
 	if (!posterPath) return null;
 	return `${TMDB_IMAGE_BASE_URL}/${size}${posterPath}`;
@@ -124,8 +130,6 @@ export async function getMediaDetail(type: MediaType, id: number): Promise<Media
 			return null;
 		}
 		const data = (await response.json()) as TmdbDetailResponse;
-		const date = type === "movie" ? data.release_date : data.first_air_date;
-		const year = date ? Number.parseInt(date.slice(0, 4), 10) : NaN;
 		return {
 			id: data.id,
 			type,
@@ -134,7 +138,7 @@ export async function getMediaDetail(type: MediaType, id: number): Promise<Media
 			posterPath: data.poster_path,
 			backdropPath: data.backdrop_path,
 			voteAverage: data.vote_average,
-			year: Number.isNaN(year) ? null : year,
+			year: toYear(type === "movie" ? data.release_date : data.first_air_date),
 			genres: data.genres.map((genre) => genre.name),
 			trailerKey: pickTrailer(data.videos.results)?.key ?? null,
 			cast: data.credits.cast.slice(0, 10).map((member) => ({
@@ -150,8 +154,6 @@ export async function getMediaDetail(type: MediaType, id: number): Promise<Media
 }
 
 function toMediaSummary(item: TmdbMediaItem, type: MediaType): MediaSummary {
-	const date = type === "movie" ? item.release_date : item.first_air_date;
-	const year = date ? Number.parseInt(date.slice(0, 4), 10) : NaN;
 	return {
 		id: item.id,
 		type,
@@ -160,7 +162,7 @@ function toMediaSummary(item: TmdbMediaItem, type: MediaType): MediaSummary {
 		posterPath: item.poster_path,
 		backdropPath: item.backdrop_path,
 		voteAverage: item.vote_average,
-		year: Number.isNaN(year) ? null : year,
+		year: toYear(type === "movie" ? item.release_date : item.first_air_date),
 	};
 }
 

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { MEDIA_TYPE_LABELS, tmdbBackdropUrl, tmdbPosterUrl, tmdbProfileUrl, type MediaDetail } from "@/lib/tmdb";
-import type { OmdbScores } from "@/lib/omdb";
+import type { OmdbRatings } from "@/lib/omdb";
 
 function ScoreBadge({ label, value }: { label: string; value: string }) {
 	return (
@@ -10,7 +10,7 @@ function ScoreBadge({ label, value }: { label: string; value: string }) {
 	);
 }
 
-export function MediaDetailView({ media, scores }: { media: MediaDetail; scores: OmdbScores }) {
+export function MediaDetailView({ media, ratings }: { media: MediaDetail; ratings: OmdbRatings }) {
 	const backdrop = tmdbBackdropUrl(media.backdropPath);
 	const poster = tmdbPosterUrl(media.posterPath, "w342");
 
@@ -56,9 +56,9 @@ export function MediaDetailView({ media, scores }: { media: MediaDetail; scores:
 						</div>
 						<div className="flex flex-wrap items-center gap-2">
 							<ScoreBadge label="TMDB" value={media.voteAverage.toFixed(1)} />
-							{scores.imdb ? <ScoreBadge label="IMDb" value={scores.imdb} /> : null}
-							{scores.rottenTomatoes ? (
-								<ScoreBadge label="RT" value={scores.rottenTomatoes} />
+							{ratings.imdb ? <ScoreBadge label="IMDb" value={ratings.imdb} /> : null}
+							{ratings.rottenTomatoes ? (
+								<ScoreBadge label="RT" value={ratings.rottenTomatoes} />
 							) : null}
 							<span className="text-sm font-medium text-muted">{MEDIA_TYPE_LABELS[media.type]}</span>
 						</div>

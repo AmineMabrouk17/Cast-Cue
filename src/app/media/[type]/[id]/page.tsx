@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getMediaDetail, type MediaType } from "@/lib/tmdb";
-import { getOmdbScores } from "@/lib/omdb";
+import { getOmdbRatings } from "@/lib/omdb";
 import { MediaDetailView } from "@/components/media/media-detail";
 
 export const dynamic = "force-dynamic";
@@ -18,8 +18,8 @@ export default async function MediaDetailPage({
 	if (!isMediaType(type)) {
 		notFound();
 	}
-	const mediaId = Number.parseInt(id, 10);
-	if (!Number.isInteger(mediaId)) {
+	const mediaId = Number(id);
+	if (!Number.isSafeInteger(mediaId) || mediaId <= 0) {
 		notFound();
 	}
 
@@ -28,7 +28,7 @@ export default async function MediaDetailPage({
 		notFound();
 	}
 
-	const scores = await getOmdbScores(media.name, media.year, type);
+	const ratings = await getOmdbRatings(media.name, media.year, type);
 
-	return <MediaDetailView media={media} scores={scores} />;
+	return <MediaDetailView media={media} ratings={ratings} />;
 }

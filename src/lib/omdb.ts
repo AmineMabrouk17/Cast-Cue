@@ -7,7 +7,7 @@ const OMDB_TYPE: Record<MediaType, string> = {
 	series: "series",
 };
 
-export interface OmdbScores {
+export interface OmdbRatings {
 	imdb: string | null;
 	rottenTomatoes: string | null;
 }
@@ -22,11 +22,11 @@ interface OmdbResponse {
 	Ratings?: OmdbRating[];
 }
 
-export async function getOmdbScores(
+export async function getOmdbRatings(
 	name: string,
 	year: number | null,
 	type: MediaType,
-): Promise<OmdbScores> {
+): Promise<OmdbRatings> {
 	const apiKey = process.env.OMDB_API_KEY;
 	if (!apiKey) {
 		console.error("OMDB_API_KEY is not set; skipping OMDb request.");
@@ -49,16 +49,16 @@ export async function getOmdbScores(
 		if (data.Response === "False" || !data.Ratings) {
 			return { imdb: null, rottenTomatoes: null };
 		}
-		const scores: OmdbScores = { imdb: null, rottenTomatoes: null };
+		const ratings: OmdbRatings = { imdb: null, rottenTomatoes: null };
 		for (const rating of data.Ratings) {
 			if (rating.Source === "Internet Movie Database") {
-				scores.imdb = rating.Value.replace(/\/10$/, "");
+				ratings.imdb = rating.Value.replace(/\/10$/, "");
 			}
 			if (rating.Source === "Rotten Tomatoes") {
-				scores.rottenTomatoes = rating.Value;
+				ratings.rottenTomatoes = rating.Value;
 			}
 		}
-		return scores;
+		return ratings;
 	} catch (error) {
 		console.error("OMDb request failed:", error);
 		return { imdb: null, rottenTomatoes: null };
