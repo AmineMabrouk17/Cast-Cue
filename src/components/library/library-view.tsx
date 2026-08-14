@@ -128,7 +128,7 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 					))}
 				</Tabs.List>
 			</Tabs.ListContainer>
-			<Tabs.Panel className="pt-6">
+			<Tabs.Panel id={selectedKey} className="pt-6">
 				{filtered.length > 0 ? (
 					<div className={MEDIA_GRID_CLASS}>
 						{filtered.map((item) => (
