@@ -3,6 +3,10 @@ import type { MediaType } from "@/lib/tmdb";
 export const BOOKMARK_STATUSES = ["watchlist", "watching", "completed", "dropped"] as const;
 export type BookmarkStatus = (typeof BOOKMARK_STATUSES)[number];
 
+export function isBookmarkStatus(value: string): value is BookmarkStatus {
+	return (BOOKMARK_STATUSES as readonly string[]).includes(value);
+}
+
 export const BOOKMARK_STATUS_LABELS: Record<BookmarkStatus, string> = {
 	watchlist: "Watchlist",
 	watching: "Watching",
@@ -36,6 +40,11 @@ interface BookmarkRow {
 	note: string | null;
 }
 
+interface BookmarkReferenceRow extends BookmarkRow {
+	mediaType: MediaType;
+	mediaId: number;
+}
+
 function toState(row: BookmarkRow): BookmarkState {
 	return {
 		status: row.status,
@@ -43,6 +52,37 @@ function toState(row: BookmarkRow): BookmarkState {
 		rating: row.rating,
 		note: row.note,
 	};
+}
+
+export interface BookmarkReference extends BookmarkState {
+	mediaType: MediaType;
+	mediaId: number;
+}
+
+export async function listBookmarks(db: D1Database, userId: string): Promise<BookmarkReference[]> {
+	const rows = await db
+		.prepare(
+			"SELECT mediaType, mediaId, status, favorite FROM bookmarks WHERE userId = ? ORDER BY updatedAt DESC",
+		)
+		.bind(userId)
+		.all<BookmarkReferenceRow>();
+	return rows.results.map((row) => ({
+		mediaType: row.mediaType,
+		mediaId: row.mediaId,
+		...toState(row),
+	}));
+}
+
+export async function removeBookmark(
+	db: D1Database,
+	userId: string,
+	mediaType: MediaType,
+	mediaId: number,
+): Promise<void> {
+	await db
+		.prepare("DELETE FROM bookmarks WHERE userId = ? AND mediaType = ? AND mediaId = ?")
+		.bind(userId, mediaType, mediaId)
+		.run();
 }
 
 export async function getBookmark(

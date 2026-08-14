@@ -4,22 +4,18 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
-	BOOKMARK_STATUSES,
 	addBookmark,
+	isBookmarkStatus,
 	isHalfStepRating,
+	removeBookmark,
 	setBookmarkNote,
 	setBookmarkRating,
 	setBookmarkStatus,
 	toggleBookmarkFavorite,
 	type BookmarkState,
-	type BookmarkStatus,
 } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
 import type { MediaType } from "@/lib/tmdb";
-
-function isBookmarkStatus(value: string): value is BookmarkStatus {
-	return (BOOKMARK_STATUSES as readonly string[]).includes(value);
-}
 
 async function requireSession() {
 	const session = await getServerSession();
@@ -34,6 +30,7 @@ export async function addToLibrary(mediaType: MediaType, mediaId: number): Promi
 	const db = getCloudflareContext().env.DB;
 	const bookmark = await addBookmark(db, session.user.id, mediaType, mediaId);
 	revalidatePath(`/media/${mediaType}/${mediaId}`);
+	revalidatePath("/dashboard/library");
 	return bookmark;
 }
 
@@ -52,6 +49,7 @@ export async function setStatus(
 		throw new Error("Bookmark not found");
 	}
 	revalidatePath(`/media/${mediaType}/${mediaId}`);
+	revalidatePath("/dashboard/library");
 	return bookmark;
 }
 
@@ -63,7 +61,16 @@ export async function toggleFavorite(mediaType: MediaType, mediaId: number): Pro
 		throw new Error("Bookmark not found");
 	}
 	revalidatePath(`/media/${mediaType}/${mediaId}`);
+	revalidatePath("/dashboard/library");
 	return bookmark;
+}
+
+export async function removeFromLibrary(mediaType: MediaType, mediaId: number): Promise<void> {
+	const session = await requireSession();
+	const db = getCloudflareContext().env.DB;
+	await removeBookmark(db, session.user.id, mediaType, mediaId);
+	revalidatePath(`/media/${mediaType}/${mediaId}`);
+	revalidatePath("/dashboard/library");
 }
 
 export async function setRating(mediaType: MediaType, mediaId: number, rating: number): Promise<BookmarkState> {
