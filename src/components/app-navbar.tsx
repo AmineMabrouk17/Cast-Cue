@@ -58,7 +58,7 @@ export function AppNavbar() {
 								<DropdownItem id="dashboard" onAction={() => router.push("/dashboard")}>
 									Dashboard
 								</DropdownItem>
-								<DropdownItem id="library" onAction={() => router.push("/library")}>
+								<DropdownItem id="library" onAction={() => router.push("/dashboard/library")}>
 									Library
 								</DropdownItem>
 								<DropdownItem id="signout" variant="danger" onAction={handleSignOut}>

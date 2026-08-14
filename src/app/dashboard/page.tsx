@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { buttonVariants } from "@heroui/styles";
 import { getServerSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +15,9 @@ export default async function DashboardPage() {
 			<p className="text-muted">
 				Welcome back, {session.user.name}. Your library is waiting.
 			</p>
+			<Link href="/dashboard/library" className={buttonVariants({ variant: "primary", size: "md" })}>
+				Open your library
+			</Link>
 		</main>
 	);
 }
