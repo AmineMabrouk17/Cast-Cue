@@ -7,6 +7,15 @@ import { Providers } from "./providers";
 export const metadata: Metadata = {
 	title: "Cast n Cue",
 	description: "Track the movies, series, and episodes you watch.",
+	applicationName: "Cast n Cue",
+	manifest: "/site.webmanifest",
+	icons: {
+		icon: [
+			{ url: "/favicon.ico", sizes: "any" },
+			{ url: "/icon.png", sizes: "512x512", type: "image/png" },
+		],
+		apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+	},
 };
 
 export default function RootLayout({
