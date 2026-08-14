@@ -6,7 +6,10 @@ import { redirect } from "next/navigation";
 import {
 	addBookmark,
 	isBookmarkStatus,
+	isHalfStepRating,
 	removeBookmark,
+	setBookmarkNote,
+	setBookmarkRating,
 	setBookmarkStatus,
 	toggleBookmarkFavorite,
 	type BookmarkState,
@@ -68,4 +71,29 @@ export async function removeFromLibrary(mediaType: MediaType, mediaId: number): 
 	await removeBookmark(db, session.user.id, mediaType, mediaId);
 	revalidatePath(`/media/${mediaType}/${mediaId}`);
 	revalidatePath("/dashboard/library");
+}
+
+export async function setRating(mediaType: MediaType, mediaId: number, rating: number): Promise<BookmarkState> {
+	const session = await requireSession();
+	if (!isHalfStepRating(rating)) {
+		throw new Error(`Invalid rating: ${rating}`);
+	}
+	const db = getCloudflareContext().env.DB;
+	const bookmark = await setBookmarkRating(db, session.user.id, mediaType, mediaId, rating);
+	if (!bookmark) {
+		throw new Error("Bookmark not found");
+	}
+	revalidatePath(`/media/${mediaType}/${mediaId}`);
+	return bookmark;
+}
+
+export async function saveNote(mediaType: MediaType, mediaId: number, note: string): Promise<BookmarkState> {
+	const session = await requireSession();
+	const db = getCloudflareContext().env.DB;
+	const bookmark = await setBookmarkNote(db, session.user.id, mediaType, mediaId, note);
+	if (!bookmark) {
+		throw new Error("Bookmark not found");
+	}
+	revalidatePath(`/media/${mediaType}/${mediaId}`);
+	return bookmark;
 }

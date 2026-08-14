@@ -22,7 +22,7 @@ async function LibraryContent() {
 				if (!media) return null;
 				return {
 					media,
-					bookmark: { status: reference.status, favorite: reference.favorite },
+					bookmark: reference,
 				};
 			}),
 		)

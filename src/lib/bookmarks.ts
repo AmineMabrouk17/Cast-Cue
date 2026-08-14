@@ -14,14 +14,30 @@ export const BOOKMARK_STATUS_LABELS: Record<BookmarkStatus, string> = {
 	dropped: "Dropped",
 };
 
+export const MAX_RATING = 5;
+export const RATING_STEP = 0.5;
+
+export function isHalfStepRating(value: number): boolean {
+	return (
+		Number.isFinite(value) &&
+		value >= 0 &&
+		value <= MAX_RATING &&
+		Number.isInteger(value / RATING_STEP)
+	);
+}
+
 export interface BookmarkState {
 	status: BookmarkStatus;
 	favorite: boolean;
+	rating: number | null;
+	note: string | null;
 }
 
 interface BookmarkRow {
 	status: BookmarkStatus;
 	favorite: number;
+	rating: number | null;
+	note: string | null;
 }
 
 interface BookmarkReferenceRow extends BookmarkRow {
@@ -30,7 +46,12 @@ interface BookmarkReferenceRow extends BookmarkRow {
 }
 
 function toState(row: BookmarkRow): BookmarkState {
-	return { status: row.status, favorite: row.favorite === 1 };
+	return {
+		status: row.status,
+		favorite: row.favorite === 1,
+		rating: row.rating,
+		note: row.note,
+	};
 }
 
 export interface BookmarkReference extends BookmarkState {
@@ -71,7 +92,7 @@ export async function getBookmark(
 	mediaId: number,
 ): Promise<BookmarkState | null> {
 	const row = await db
-		.prepare("SELECT status, favorite FROM bookmarks WHERE userId = ? AND mediaType = ? AND mediaId = ?")
+		.prepare("SELECT status, favorite, rating, note FROM bookmarks WHERE userId = ? AND mediaType = ? AND mediaId = ?")
 		.bind(userId, mediaType, mediaId)
 		.first<BookmarkRow>();
 	return row ? toState(row) : null;
@@ -124,6 +145,39 @@ export async function toggleBookmarkFavorite(
 	await db
 		.prepare("UPDATE bookmarks SET favorite = 1 - favorite, updatedAt = ? WHERE userId = ? AND mediaType = ? AND mediaId = ?")
 		.bind(now, userId, mediaType, mediaId)
+		.run();
+	return getBookmark(db, userId, mediaType, mediaId);
+}
+
+export async function setBookmarkRating(
+	db: D1Database,
+	userId: string,
+	mediaType: MediaType,
+	mediaId: number,
+	rating: number,
+): Promise<BookmarkState | null> {
+	if (!isHalfStepRating(rating)) {
+		throw new Error(`Invalid rating: ${rating}`);
+	}
+	const now = new Date().toISOString();
+	await db
+		.prepare("UPDATE bookmarks SET rating = ?, updatedAt = ? WHERE userId = ? AND mediaType = ? AND mediaId = ?")
+		.bind(rating, now, userId, mediaType, mediaId)
+		.run();
+	return getBookmark(db, userId, mediaType, mediaId);
+}
+
+export async function setBookmarkNote(
+	db: D1Database,
+	userId: string,
+	mediaType: MediaType,
+	mediaId: number,
+	note: string,
+): Promise<BookmarkState | null> {
+	const now = new Date().toISOString();
+	await db
+		.prepare("UPDATE bookmarks SET note = ?, updatedAt = ? WHERE userId = ? AND mediaType = ? AND mediaId = ?")
+		.bind(note, now, userId, mediaType, mediaId)
 		.run();
 	return getBookmark(db, userId, mediaType, mediaId);
 }
