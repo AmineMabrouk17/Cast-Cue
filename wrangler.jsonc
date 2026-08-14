@@ -7,6 +7,7 @@
 	"name": "cast-cue",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2026-08-13",
+	"keep_names": false,
 	"compatibility_flags": [
 		"global_fetch_strictly_public",
 		"nodejs_compat"
