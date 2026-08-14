@@ -8,6 +8,7 @@ import { BOOKMARK_STATUS_LABELS, BOOKMARK_STATUSES, type BookmarkState } from "@
 import type { MediaType } from "@/lib/tmdb";
 import { addToLibrary, setStatus, toggleFavorite } from "@/app/media/actions";
 import { RatingWidget } from "./rating-widget";
+import { NotesEditor } from "./notes-editor";
 
 function HeartIcon({ filled }: { filled: boolean }) {
 	return (
@@ -101,6 +102,7 @@ export function BookmarkPanel({
 				))}
 			</div>
 			<RatingWidget mediaType={mediaType} mediaId={mediaId} value={bookmark.rating} />
+			<NotesEditor mediaType={mediaType} mediaId={mediaId} initialNote={bookmark.note} />
 			{error ? <p className="text-xs text-danger">{error}</p> : null}
 		</div>
 	);
