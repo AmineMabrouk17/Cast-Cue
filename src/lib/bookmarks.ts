@@ -280,15 +280,11 @@ interface UserBookmarkRow {
 	updatedAt: string;
 }
 
-export async function listUserBookmarks(db: D1Database, userId: string): Promise<UserBookmark[]> {
-	const rows = await db
-		.prepare(
-			`SELECT id, mediaType, mediaId, seriesId, seasonNumber, episodeNumber, status, favorite, rating, note, updatedAt
-			 FROM bookmarks WHERE userId = ? ORDER BY updatedAt DESC`,
-		)
-		.bind(userId)
-		.all<UserBookmarkRow>();
-	return rows.results.map((row) => ({
+const USER_BOOKMARK_COLUMNS =
+	"id, mediaType, mediaId, seriesId, seasonNumber, episodeNumber, status, favorite, rating, note, updatedAt";
+
+function toUserBookmark(row: UserBookmarkRow): UserBookmark {
+	return {
 		id: row.id,
 		mediaType: row.mediaType,
 		mediaId: row.mediaId,
@@ -300,5 +296,27 @@ export async function listUserBookmarks(db: D1Database, userId: string): Promise
 		rating: row.rating,
 		note: row.note,
 		updatedAt: row.updatedAt,
-	}));
+	};
+}
+
+export async function listUserBookmarks(db: D1Database, userId: string): Promise<UserBookmark[]> {
+	const rows = await db
+		.prepare(
+			`SELECT ${USER_BOOKMARK_COLUMNS}
+			 FROM bookmarks WHERE userId = ? ORDER BY updatedAt DESC`,
+		)
+		.bind(userId)
+		.all<UserBookmarkRow>();
+	return rows.results.map(toUserBookmark);
+}
+
+export async function listUserBookmarksWithNotes(db: D1Database, userId: string): Promise<UserBookmark[]> {
+	const rows = await db
+		.prepare(
+			`SELECT ${USER_BOOKMARK_COLUMNS}
+			 FROM bookmarks WHERE userId = ? AND note IS NOT NULL AND trim(note) != '' ORDER BY updatedAt DESC`,
+		)
+		.bind(userId)
+		.all<UserBookmarkRow>();
+	return rows.results.map(toUserBookmark);
 }
