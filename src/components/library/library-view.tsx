@@ -2,16 +2,36 @@
 
 import { useMemo, useState } from "react";
 import { Tabs } from "@heroui/react/tabs";
-import { BOOKMARK_STATUSES, BOOKMARK_STATUS_LABELS, isBookmarkStatus, type BookmarkState, type BookmarkStatus } from "@/lib/bookmarks";
+import {
+	BOOKMARK_STATUSES,
+	BOOKMARK_STATUS_LABELS,
+	isBookmarkStatus,
+	type BookmarkState,
+	type BookmarkStatus,
+	type EpisodeBookmarkKey,
+} from "@/lib/bookmarks";
 import type { MediaSummary } from "@/lib/tmdb";
 import { MEDIA_GRID_CLASS } from "@/components/media/media-grid";
 import { MediaEmptyState } from "@/components/media/media-empty-state";
 import { LibraryCard } from "./library-card";
 
-export interface LibraryItem {
+export interface TitleLibraryItem {
+	kind: "title";
 	media: MediaSummary;
 	bookmark: BookmarkState;
 }
+
+export interface EpisodeLibraryItem {
+	kind: "episode";
+	key: EpisodeBookmarkKey;
+	href: string;
+	title: string;
+	subtitle: string;
+	imageUrl: string | null;
+	bookmark: BookmarkState;
+}
+
+export type LibraryItem = TitleLibraryItem | EpisodeLibraryItem;
 
 export type LibraryTab = "all" | BookmarkStatus | "favorites";
 
@@ -24,7 +44,7 @@ const TABS: { id: LibraryTab; label: string }[] = [
 const EMPTY_STATES: Record<LibraryTab, { title: string; message: string }> = {
 	all: {
 		title: "Your library is empty",
-		message: "Bookmark movies and series to start tracking them here.",
+		message: "Bookmark movies, series, and episodes to start tracking them here.",
 	},
 	watchlist: {
 		title: "Nothing on your watchlist",
@@ -44,7 +64,7 @@ const EMPTY_STATES: Record<LibraryTab, { title: string; message: string }> = {
 	},
 	favorites: {
 		title: "No favorites yet",
-		message: "Tap the heart on any bookmarked media to mark it as a favorite.",
+		message: "Tap the heart on any bookmarked media or episode to mark it as a favorite.",
 	},
 };
 
@@ -113,9 +133,8 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 					<div className={MEDIA_GRID_CLASS}>
 						{filtered.map((item) => (
 							<LibraryCard
-								key={`${item.media.type}-${item.media.id}`}
-								media={item.media}
-								bookmark={item.bookmark}
+								key={item.kind === "episode" ? item.href : `${item.media.type}-${item.media.id}`}
+								item={item}
 								onBookmarkChange={(bookmark) => updateBookmark(item, bookmark)}
 								onRemove={() => removeItem(item)}
 							/>
