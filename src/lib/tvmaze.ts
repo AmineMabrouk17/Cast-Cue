@@ -26,6 +26,25 @@ interface TvmazeEpisodeResponse {
 	runtime: number | null;
 }
 
+export interface TvmazeEpisodeSearchHit {
+	showName: string;
+	premiered: string | null;
+	episode: TvmazeEpisode;
+}
+
+export interface TvmazeEpisodeSearch {
+	ok: boolean;
+	hits: TvmazeEpisodeSearchHit[];
+}
+
+interface TvmazeEpisodeSearchResponse {
+	show: {
+		name: string;
+		premiered: string | null;
+	};
+	episode: TvmazeEpisodeResponse;
+}
+
 function toTvmazeEpisode(episode: TvmazeEpisodeResponse): TvmazeEpisode {
 	return {
 		season: episode.season,
@@ -35,6 +54,34 @@ function toTvmazeEpisode(episode: TvmazeEpisodeResponse): TvmazeEpisode {
 		airstamp: episode.airstamp || null,
 		runtime: episode.runtime ?? null,
 	};
+}
+
+export async function searchTvmazeEpisodes(query: string): Promise<TvmazeEpisodeSearch> {
+	const trimmed = query.trim();
+	if (!trimmed) {
+		return { ok: true, hits: [] };
+	}
+	try {
+		const url = new URL(`${TVMAZE_API_BASE_URL}/search/episodes`);
+		url.searchParams.set("q", trimmed);
+		const response = await fetch(url, { cache: "no-store" });
+		if (!response.ok) {
+			console.error(`TVmaze search/episodes "${trimmed}" failed with status ${response.status}.`);
+			return { ok: false, hits: [] };
+		}
+		const data = (await response.json()) as TvmazeEpisodeSearchResponse[];
+		return {
+			ok: true,
+			hits: data.map((item) => ({
+				showName: item.show.name,
+				premiered: item.show.premiered,
+				episode: toTvmazeEpisode(item.episode),
+			})),
+		};
+	} catch (error) {
+		console.error("TVmaze search/episodes request failed:", error);
+		return { ok: false, hits: [] };
+	}
 }
 
 export async function findTvmazeShowId(name: string, year: number | null): Promise<number | null> {

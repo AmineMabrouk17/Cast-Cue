@@ -47,12 +47,12 @@ export function SearchBox() {
 		<SearchField.Root
 			value={query}
 			onChange={setQuery}
-			aria-label="Search movies and series"
+			aria-label="Search movies, series, and episodes"
 			className="w-full max-w-xs"
 		>
 			<SearchField.Group>
 				<SearchField.SearchIcon />
-				<SearchField.Input placeholder="Search movies & series" />
+				<SearchField.Input placeholder="Search movies, series & episodes" />
 				<SearchField.ClearButton />
 			</SearchField.Group>
 		</SearchField.Root>
