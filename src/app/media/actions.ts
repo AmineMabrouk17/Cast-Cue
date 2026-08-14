@@ -6,6 +6,9 @@ import { redirect } from "next/navigation";
 import {
 	BOOKMARK_STATUSES,
 	addBookmark,
+	isHalfStepRating,
+	setBookmarkNote,
+	setBookmarkRating,
 	setBookmarkStatus,
 	toggleBookmarkFavorite,
 	type BookmarkState,
@@ -56,6 +59,31 @@ export async function toggleFavorite(mediaType: MediaType, mediaId: number): Pro
 	const session = await requireSession();
 	const db = getCloudflareContext().env.DB;
 	const bookmark = await toggleBookmarkFavorite(db, session.user.id, mediaType, mediaId);
+	if (!bookmark) {
+		throw new Error("Bookmark not found");
+	}
+	revalidatePath(`/media/${mediaType}/${mediaId}`);
+	return bookmark;
+}
+
+export async function setRating(mediaType: MediaType, mediaId: number, rating: number): Promise<BookmarkState> {
+	const session = await requireSession();
+	if (!isHalfStepRating(rating)) {
+		throw new Error(`Invalid rating: ${rating}`);
+	}
+	const db = getCloudflareContext().env.DB;
+	const bookmark = await setBookmarkRating(db, session.user.id, mediaType, mediaId, rating);
+	if (!bookmark) {
+		throw new Error("Bookmark not found");
+	}
+	revalidatePath(`/media/${mediaType}/${mediaId}`);
+	return bookmark;
+}
+
+export async function saveNote(mediaType: MediaType, mediaId: number, note: string): Promise<BookmarkState> {
+	const session = await requireSession();
+	const db = getCloudflareContext().env.DB;
+	const bookmark = await setBookmarkNote(db, session.user.id, mediaType, mediaId, note);
 	if (!bookmark) {
 		throw new Error("Bookmark not found");
 	}

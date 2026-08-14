@@ -7,6 +7,8 @@ import { buttonVariants } from "@heroui/styles";
 import { BOOKMARK_STATUS_LABELS, BOOKMARK_STATUSES, type BookmarkState } from "@/lib/bookmarks";
 import type { MediaType } from "@/lib/tmdb";
 import { addToLibrary, setStatus, toggleFavorite } from "@/app/media/actions";
+import { RatingWidget } from "./rating-widget";
+import { NotesEditor } from "./notes-editor";
 
 function HeartIcon({ filled }: { filled: boolean }) {
 	return (
@@ -75,7 +77,7 @@ export function BookmarkPanel({
 	}
 
 	return (
-		<div className="flex flex-col items-start gap-2">
+		<div className="flex flex-col items-start gap-4">
 			<div className="flex flex-wrap items-center gap-2">
 				<Button
 					aria-label={bookmark.favorite ? "Remove from favorites" : "Add to favorites"}
@@ -99,6 +101,8 @@ export function BookmarkPanel({
 					</Button>
 				))}
 			</div>
+			<RatingWidget mediaType={mediaType} mediaId={mediaId} value={bookmark.rating} />
+			<NotesEditor mediaType={mediaType} mediaId={mediaId} initialNote={bookmark.note} />
 			{error ? <p className="text-xs text-danger">{error}</p> : null}
 		</div>
 	);
