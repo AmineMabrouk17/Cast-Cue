@@ -1,29 +1,33 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { redirect } from "next/navigation";
 import { listUserBookmarksWithNotes, type UserBookmark } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
-import { getEpisodeDetail, getMediaSummary } from "@/lib/tmdb";
+import { MEDIA_TYPE_LABELS, getEpisodeDetail, getMediaSummary, getSeriesBrief, tmdbPosterUrl } from "@/lib/tmdb";
+import { NotesView, type NoteItem } from "@/components/notes/notes-view";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 
 export const dynamic = "force-dynamic";
 
-interface NotePreview {
-	href: string;
-	title: string;
-}
+async function resolveItem(reference: UserBookmark): Promise<NoteItem | null> {
+	const note = reference.note?.trim();
+	if (!note) return null;
 
-async function resolveItem(reference: UserBookmark): Promise<NotePreview | null> {
 	if (reference.mediaType === "episode") {
 		if (reference.seriesId === null || reference.seasonNumber === null || reference.episodeNumber === null) {
 			return null;
 		}
-		const episode = await getEpisodeDetail(reference.seriesId, reference.seasonNumber, reference.episodeNumber);
-		if (!episode) return null;
+		const [series, episode] = await Promise.all([
+			getSeriesBrief(reference.seriesId),
+			getEpisodeDetail(reference.seriesId, reference.seasonNumber, reference.episodeNumber),
+		]);
+		if (!series || !episode) return null;
 		return {
 			href: `/media/episode/${reference.seriesId}/${reference.seasonNumber}/${reference.episodeNumber}`,
 			title: `S${reference.seasonNumber}E${reference.episodeNumber} · ${episode.name}`,
+			subtitle: series.name,
+			imageUrl: tmdbPosterUrl(series.posterPath),
+			note,
 		};
 	}
 
@@ -32,6 +36,9 @@ async function resolveItem(reference: UserBookmark): Promise<NotePreview | null>
 	return {
 		href: `/media/${media.type}/${media.id}`,
 		title: media.name,
+		subtitle: media.year ? `${media.year} · ${MEDIA_TYPE_LABELS[media.type]}` : MEDIA_TYPE_LABELS[media.type],
+		imageUrl: tmdbPosterUrl(media.posterPath),
+		note,
 	};
 }
 
@@ -43,19 +50,9 @@ async function NotesContent() {
 
 	const items = (
 		await Promise.all(references.map((reference) => resolveItem(reference)))
-	).filter((item): item is NotePreview => item !== null);
+	).filter((item): item is NoteItem => item !== null);
 
-	return (
-		<ul className="flex flex-col gap-3">
-			{items.map((item) => (
-				<li key={item.href}>
-					<Link href={item.href} className="text-sm font-medium text-foreground hover:underline">
-						{item.title}
-					</Link>
-				</li>
-			))}
-		</ul>
-	);
+	return <NotesView items={items} />;
 }
 
 export default function NotesPage() {
