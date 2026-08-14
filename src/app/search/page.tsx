@@ -44,7 +44,9 @@ async function SearchResults({ query }: { query: string }) {
 		},
 	];
 
-	if (groups.every((group) => group.items.length === 0)) {
+	const nothingFound =
+		!episodeSearch.unavailable && groups.every((group) => group.items.length === 0);
+	if (nothingFound) {
 		return (
 			<MediaEmptyState
 				title="No results"
@@ -53,7 +55,7 @@ async function SearchResults({ query }: { query: string }) {
 		);
 	}
 
-	const defaultTab = groups.find((group) => group.items.length > 0)?.type ?? "movie";
+	const defaultTab = groups.find((group) => group.items.length > 0)?.type ?? "episode";
 
 	return (
 		<Tabs className="w-full" defaultSelectedKey={defaultTab}>
@@ -70,7 +72,12 @@ async function SearchResults({ query }: { query: string }) {
 			{groups.map((group) => (
 				<Tabs.Panel key={group.type} className="pt-6" id={group.type}>
 					{group.type === "episode" ? (
-						episodeSearch.results.length > 0 ? (
+						episodeSearch.unavailable ? (
+							<MediaEmptyState
+								title="Episode search unavailable"
+								message="The episode lookup service could not be reached. Try again shortly."
+							/>
+						) : episodeSearch.results.length > 0 ? (
 							<EpisodeSearchResults results={episodeSearch.results} />
 						) : (
 							<MediaEmptyState
