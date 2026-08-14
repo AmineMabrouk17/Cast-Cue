@@ -1,96 +1,149 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { BOOKMARK_STATUS_LABELS, type BookmarkStatus } from "@/lib/bookmarks";
+import { useMemo, useState } from "react";
+import { Tabs } from "@heroui/react/tabs";
+import {
+	BOOKMARK_STATUSES,
+	BOOKMARK_STATUS_LABELS,
+	isBookmarkStatus,
+	type BookmarkState,
+	type BookmarkStatus,
+	type EpisodeBookmarkKey,
+} from "@/lib/bookmarks";
+import type { MediaSummary } from "@/lib/tmdb";
+import { MEDIA_GRID_CLASS } from "@/components/media/media-grid";
 import { MediaEmptyState } from "@/components/media/media-empty-state";
+import { LibraryCard } from "./library-card";
 
-export interface LibraryItem {
-	key: string;
+export interface TitleLibraryItem {
+	kind: "title";
+	media: MediaSummary;
+	bookmark: BookmarkState;
+}
+
+export interface EpisodeLibraryItem {
+	kind: "episode";
+	key: EpisodeBookmarkKey;
 	href: string;
 	title: string;
 	subtitle: string;
 	imageUrl: string | null;
-	status: BookmarkStatus;
-	favorite: boolean;
-	rating: number | null;
+	bookmark: BookmarkState;
 }
 
-function HeartIcon({ filled }: { filled: boolean }) {
-	return (
-		<svg
-			viewBox="0 0 24 24"
-			aria-hidden="true"
-			className="h-3.5 w-3.5"
-			fill={filled ? "currentColor" : "none"}
-			stroke="currentColor"
-			strokeWidth="2"
-		>
-			<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-		</svg>
-	);
+export type LibraryItem = TitleLibraryItem | EpisodeLibraryItem;
+
+export type LibraryTab = "all" | BookmarkStatus | "favorites";
+
+const TABS: { id: LibraryTab; label: string }[] = [
+	{ id: "all", label: "All" },
+	...BOOKMARK_STATUSES.map((status) => ({ id: status as LibraryTab, label: BOOKMARK_STATUS_LABELS[status] })),
+	{ id: "favorites", label: "Favorites" },
+];
+
+const EMPTY_STATES: Record<LibraryTab, { title: string; message: string }> = {
+	all: {
+		title: "Your library is empty",
+		message: "Bookmark movies, series, and episodes to start tracking them here.",
+	},
+	watchlist: {
+		title: "Nothing on your watchlist",
+		message: "Change a bookmark's status to Watchlist to keep it here.",
+	},
+	watching: {
+		title: "Nothing in progress",
+		message: "Change a bookmark's status to Watching to keep it here.",
+	},
+	completed: {
+		title: "Nothing completed",
+		message: "Change a bookmark's status to Completed to keep it here.",
+	},
+	dropped: {
+		title: "Nothing dropped",
+		message: "Change a bookmark's status to Dropped to keep it here.",
+	},
+	favorites: {
+		title: "No favorites yet",
+		message: "Tap the heart on any bookmarked media or episode to mark it as a favorite.",
+	},
+};
+
+function isLibraryTab(value: unknown): value is LibraryTab {
+	if (value === "all" || value === "favorites") return true;
+	return typeof value === "string" && isBookmarkStatus(value);
 }
 
-function LibraryCard({ item }: { item: LibraryItem }) {
-	return (
-		<Link href={item.href} className="group block">
-			<div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background transition-colors group-hover:bg-default/60">
-				<div className="relative aspect-[2/3] w-full bg-default">
-					{item.imageUrl ? (
-						<Image
-							src={item.imageUrl}
-							alt={item.title}
-							fill
-							sizes="(min-width: 1280px) 16.6vw, (min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
-							className="object-cover"
-						/>
-					) : (
-						<div className="flex h-full w-full items-center justify-center p-4 text-center text-sm text-muted">
-							{item.title}
-						</div>
-					)}
-					<div className="absolute bottom-2 left-2">
-						<span className="rounded-md bg-background/80 px-2 py-0.5 text-xs font-semibold text-foreground backdrop-blur-sm">
-							{BOOKMARK_STATUS_LABELS[item.status]}
-						</span>
-					</div>
-					{item.favorite ? (
-						<div className="absolute right-2 top-2">
-							<span className="flex h-6 w-6 items-center justify-center rounded-full bg-background/80 text-danger backdrop-blur-sm">
-								<HeartIcon filled />
-							</span>
-						</div>
-					) : null}
-				</div>
-				<div className="flex flex-col gap-1 p-3">
-					<span className="line-clamp-1 text-sm font-medium text-foreground">{item.title}</span>
-					{item.subtitle ? (
-						<span className="line-clamp-1 text-xs text-muted">{item.subtitle}</span>
-					) : null}
-					{item.rating !== null ? (
-						<span className="text-xs text-muted">★ {item.rating.toFixed(1)}</span>
-					) : null}
-				</div>
-			</div>
-		</Link>
-	);
+function filterItems(items: LibraryItem[], tab: LibraryTab): LibraryItem[] {
+	if (tab === "all") return items;
+	if (tab === "favorites") return items.filter((item) => item.bookmark.favorite);
+	return items.filter((item) => item.bookmark.status === tab);
 }
 
-export function LibraryView({ items }: { items: LibraryItem[] }) {
-	if (items.length === 0) {
-		return (
-			<MediaEmptyState
-				title="Your library is empty"
-				message="Bookmark movies, series, and episodes to see them here."
-			/>
-		);
+export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
+	const [items, setItems] = useState(initialItems);
+	const [selectedKey, setSelectedKey] = useState<LibraryTab>("all");
+
+	const counts = useMemo(() => {
+		const count: Record<LibraryTab, number> = {
+			all: items.length,
+			watchlist: 0,
+			watching: 0,
+			completed: 0,
+			dropped: 0,
+			favorites: 0,
+		};
+		for (const item of items) {
+			count[item.bookmark.status] += 1;
+			if (item.bookmark.favorite) count.favorites += 1;
+		}
+		return count;
+	}, [items]);
+
+	function updateBookmark(target: LibraryItem, bookmark: BookmarkState) {
+		setItems((prev) => prev.map((item) => (item === target ? { ...item, bookmark } : item)));
 	}
 
+	function removeItem(target: LibraryItem) {
+		setItems((prev) => prev.filter((item) => item !== target));
+	}
+
+	const filtered = filterItems(items, selectedKey);
+	const empty = EMPTY_STATES[selectedKey];
+
 	return (
-		<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-			{items.map((item) => (
-				<LibraryCard key={item.key} item={item} />
-			))}
-		</div>
+		<Tabs
+			className="w-full"
+			selectedKey={selectedKey}
+			onSelectionChange={(key) => {
+				if (isLibraryTab(key)) setSelectedKey(key);
+			}}
+		>
+			<Tabs.ListContainer>
+				<Tabs.List aria-label="Library filters">
+					{TABS.map((tab) => (
+						<Tabs.Tab key={tab.id} id={tab.id}>
+							{tab.label} ({counts[tab.id]})
+							<Tabs.Indicator />
+						</Tabs.Tab>
+					))}
+				</Tabs.List>
+			</Tabs.ListContainer>
+			<Tabs.Panel className="pt-6">
+				{filtered.length > 0 ? (
+					<div className={MEDIA_GRID_CLASS}>
+						{filtered.map((item) => (
+							<LibraryCard
+								key={item.kind === "episode" ? item.href : `${item.media.type}-${item.media.id}`}
+								item={item}
+								onBookmarkChange={(bookmark) => updateBookmark(item, bookmark)}
+								onRemove={() => removeItem(item)}
+							/>
+						))}
+					</div>
+				) : (
+					<MediaEmptyState title={empty.title} message={empty.message} />
+				)}
+			</Tabs.Panel>
+		</Tabs>
 	);
 }

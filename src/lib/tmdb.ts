@@ -365,6 +365,32 @@ export async function getEpisodeDetail(
 	}
 }
 
+export async function getMediaSummary(type: MediaType, id: number): Promise<MediaSummary | null> {
+	const apiKey = process.env.TMDB_API_KEY;
+	if (!apiKey) {
+		console.error("TMDB_API_KEY is not set; skipping TMDB request.");
+		return null;
+	}
+	try {
+		const url = new URL(`${TMDB_API_BASE_URL}/${TMDB_MEDIA_TYPE[type]}/${id}`);
+		url.searchParams.set("api_key", apiKey);
+		url.searchParams.set("language", "en-US");
+		const response = await fetch(url, { cache: "no-store" });
+		if (response.status === 404) {
+			return null;
+		}
+		if (!response.ok) {
+			console.error(`TMDB ${TMDB_MEDIA_TYPE[type]}/${id} failed with status ${response.status}.`);
+			return null;
+		}
+		const data = (await response.json()) as TmdbMediaItem;
+		return toMediaSummary(data, type);
+	} catch (error) {
+		console.error(`TMDB ${TMDB_MEDIA_TYPE[type]}/${id} request failed:`, error);
+		return null;
+	}
+}
+
 function toMediaSummary(item: TmdbMediaItem, type: MediaType): MediaSummary {
 	return {
 		id: item.id,
