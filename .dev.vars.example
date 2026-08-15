@@ -16,3 +16,5 @@ GOOGLE_CLIENT_SECRET=
 TMDB_API_KEY=
 # OMDb — https://www.omdbapi.com/apikey.aspx
 OMDB_API_KEY=
+# Trakt — https://trakt.tv/oauth/applications (client id, no OAuth needed for search)
+TRAKT_CLIENT_ID=

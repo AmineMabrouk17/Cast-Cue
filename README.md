@@ -39,6 +39,7 @@ npx wrangler secret put GOOGLE_CLIENT_ID
 npx wrangler secret put GOOGLE_CLIENT_SECRET
 npx wrangler secret put TMDB_API_KEY
 npx wrangler secret put OMDB_API_KEY
+npx wrangler secret put TRAKT_CLIENT_ID
 npx wrangler secret put BETTER_AUTH_SECRET
 ```
 

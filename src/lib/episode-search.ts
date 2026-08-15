@@ -1,6 +1,6 @@
 import { parseSeasonEpisodeNotation } from "@/lib/episode-notation";
-import { getEpisodeDetail, getSeasonEpisodes, searchTmdb, type EpisodeSummary, type MediaSummary } from "@/lib/tmdb";
-import { searchTvmazeEpisodes } from "@/lib/tvmaze";
+import { getEpisodeDetail, getMediaSummary, getSeasonEpisodes, searchTmdb, type MediaSummary, type EpisodeSummary } from "@/lib/tmdb";
+import { searchTraktEpisodes } from "@/lib/trakt";
 
 const MAX_EPISODE_RESULTS = 12;
 
@@ -23,12 +23,6 @@ export interface EpisodeSearchResult {
 export interface EpisodeSearchOutcome {
 	results: EpisodeSearchResult[];
 	unavailable: boolean;
-}
-
-function toYear(date: string | null): number | null {
-	if (!date) return null;
-	const year = Number.parseInt(date.slice(0, 4), 10);
-	return Number.isNaN(year) ? null : year;
 }
 
 function findSeriesMatch(candidates: MediaSummary[], showName: string, year: number | null): MediaSummary | null {
@@ -61,33 +55,49 @@ function toEpisodeSearchResult(series: MediaSummary, episode: EpisodeSummary): E
 	};
 }
 
+async function resolveSeriesFor(show: {
+	showName: string;
+	showYear: number | null;
+	seriesTmdbId: number | null;
+}): Promise<MediaSummary | null> {
+	if (show.seriesTmdbId !== null) {
+		const summary = await getMediaSummary("series", show.seriesTmdbId);
+		if (summary) return summary;
+	}
+	const candidates = await searchTmdb(show.showName, "series");
+	return findSeriesMatch(candidates, show.showName, show.showYear);
+}
+
 export async function searchEpisodes(query: string): Promise<EpisodeSearchOutcome> {
-	const tvmaze = await searchTvmazeEpisodes(query);
-	if (!tvmaze.ok) {
+	const trakt = await searchTraktEpisodes(query.trim().toLowerCase());
+	if (!trakt.ok) {
 		return { results: [], unavailable: true };
 	}
-	if (tvmaze.hits.length === 0) {
+	if (trakt.hits.length === 0) {
 		return { results: [], unavailable: false };
 	}
 
-	const hits = tvmaze.hits.slice(0, MAX_EPISODE_RESULTS);
+	const hits = trakt.hits.slice(0, MAX_EPISODE_RESULTS);
 
-	const shows = new Map<string, { name: string; year: number | null }>();
+	const shows = new Map<
+		string,
+		{ showName: string; showYear: number | null; seriesTmdbId: number | null }
+	>();
 	for (const hit of hits) {
 		const key = hit.showName.trim().toLowerCase();
 		if (!shows.has(key)) {
-			shows.set(key, { name: hit.showName, year: toYear(hit.premiered) });
+			shows.set(key, {
+				showName: hit.showName,
+				showYear: hit.showYear,
+				seriesTmdbId: hit.seriesTmdbId,
+			});
 		}
 	}
 
 	const seriesByShow = new Map<string, MediaSummary | null>();
 	await Promise.all(
 		[...shows.values()].map(async (show) => {
-			const candidates = await searchTmdb(show.name, "series");
-			seriesByShow.set(
-				show.name.trim().toLowerCase(),
-				findSeriesMatch(candidates, show.name, show.year),
-			);
+			seriesByShow.set(show.showName.trim().toLowerCase(), await resolveSeriesFor(show));
 		}),
 	);
 
@@ -97,7 +107,7 @@ export async function searchEpisodes(query: string): Promise<EpisodeSearchOutcom
 			hits.map(async (hit): Promise<EpisodeSearchResult | null> => {
 				const series = seriesByShow.get(hit.showName.trim().toLowerCase());
 				if (!series) return null;
-				const episode = await getEpisodeDetail(series.id, hit.episode.season, hit.episode.number);
+				const episode = await getEpisodeDetail(series.id, hit.season, hit.number);
 				if (!episode || seenEpisodes.has(episode.id)) return null;
 				seenEpisodes.add(episode.id);
 				return toEpisodeSearchResult(series, episode);
