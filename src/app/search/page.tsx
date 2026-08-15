@@ -1,9 +1,12 @@
 import { Suspense } from "react";
 import { Tabs } from "@heroui/react/tabs";
-import { searchTmdb, type MediaType } from "@/lib/tmdb";
+import { searchTmdb, type MediaSummary, type MediaType } from "@/lib/tmdb";
+import { parseSeasonEpisodeNotation } from "@/lib/episode-notation";
+import { searchEpisodeByNotation, type EpisodeSearchResult } from "@/lib/episode-search";
 import { MediaGrid } from "@/components/media/media-grid";
 import { MediaEmptyState } from "@/components/media/media-empty-state";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
+import { EpisodeSearchResults } from "@/components/media/episode-search-results";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +15,39 @@ const RESULT_GROUPS: { type: MediaType; label: string; emptyTitle: string }[] = 
 	{ type: "series", label: "Series", emptyTitle: "No series found" },
 ];
 
+type ResultGroup = {
+	type: MediaType | "episode";
+	label: string;
+	items: MediaSummary[] | EpisodeSearchResult[];
+	emptyTitle: string;
+};
+
 async function SearchResults({ query }: { query: string }) {
-	const [movies, series] = await Promise.all([
-		searchTmdb(query, "movie"),
-		searchTmdb(query, "series"),
+	const notation = parseSeasonEpisodeNotation(query);
+	const searchQuery = notation?.seriesName ?? query;
+
+	const [movies, series, episode] = await Promise.all([
+		searchTmdb(searchQuery, "movie"),
+		searchTmdb(searchQuery, "series"),
+		notation ? searchEpisodeByNotation(query) : Promise.resolve(null),
 	]);
-	const groups = RESULT_GROUPS.map((group) => ({
-		...group,
-		items: group.type === "movie" ? movies : series,
-	}));
+
+	const groups: ResultGroup[] = [
+		...(notation
+			? [
+					{
+						type: "episode" as const,
+						label: "Episodes",
+						items: episode ? [episode] : [],
+						emptyTitle: "No episodes found",
+					},
+				]
+			: []),
+		...RESULT_GROUPS.map((group) => ({
+			...group,
+			items: group.type === "movie" ? movies : series,
+		})),
+	];
 
 	if (groups.every((group) => group.items.length === 0)) {
 		return (
@@ -47,12 +74,21 @@ async function SearchResults({ query }: { query: string }) {
 			</Tabs.ListContainer>
 			{groups.map((group) => (
 				<Tabs.Panel key={group.type} className="pt-6" id={group.type}>
-					{group.items.length > 0 ? (
-						<MediaGrid items={group.items} />
+					{group.type === "episode" ? (
+						group.items.length > 0 ? (
+							<EpisodeSearchResults results={group.items as EpisodeSearchResult[]} />
+						) : (
+							<MediaEmptyState
+								title={group.emptyTitle}
+								message={`No episode matched “${query}”.`}
+							/>
+						)
+					) : group.items.length > 0 ? (
+						<MediaGrid items={group.items as MediaSummary[]} />
 					) : (
 						<MediaEmptyState
 							title={group.emptyTitle}
-							message={`No ${group.label.toLowerCase()} matched “${query}”.`}
+							message={`No ${group.label.toLowerCase()} matched “${searchQuery}”.`}
 						/>
 					)}
 				</Tabs.Panel>
@@ -77,8 +113,8 @@ export default async function SearchPage({
 				</h1>
 				<p className="text-muted">
 					{query
-						? "Movies and series matching your search on TMDB."
-						: "Find movies and series on TMDB."}
+						? "Movies, series, and episodes matching your search."
+						: "Find movies and series on TMDB, and episodes by season/episode notation."}
 				</p>
 			</header>
 			{query ? (
@@ -87,8 +123,8 @@ export default async function SearchPage({
 				</Suspense>
 			) : (
 				<MediaEmptyState
-					title="Search movies & series"
-					message="Type in the search box above to find movies and series."
+					title="Search movies, series & episodes"
+					message="Type in the search box above to find movies, series, and episodes."
 				/>
 			)}
 		</main>
