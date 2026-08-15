@@ -211,6 +211,13 @@ interface TmdbEpisode {
 	runtime: number | null;
 }
 
+interface TmdbNextEpisodeToAir {
+	air_date: string | null;
+	episode_number: number | null;
+	season_number: number | null;
+	name: string;
+}
+
 interface TmdbSeriesResponse {
 	id: number;
 	name?: string;
@@ -218,6 +225,7 @@ interface TmdbSeriesResponse {
 	poster_path: string | null;
 	backdrop_path: string | null;
 	seasons?: TmdbSeason[];
+	next_episode_to_air: TmdbNextEpisodeToAir | null;
 }
 
 interface TmdbSeasonResponse extends TmdbSeason {
@@ -292,6 +300,42 @@ export async function getSeriesBrief(seriesId: number): Promise<SeriesBrief | nu
 		posterPath: data.poster_path,
 		backdropPath: data.backdrop_path,
 		year: toYear(data.first_air_date),
+	};
+}
+
+export interface NextAiring {
+	seriesId: number;
+	name: string;
+	posterPath: string | null;
+	next:
+		| {
+				seasonNumber: number;
+				episodeNumber: number;
+				name: string;
+				airDate: string;
+		  }
+		| null;
+}
+
+export async function getNextAiring(seriesId: number): Promise<NextAiring | null> {
+	const data = await fetchTmdbSeries(seriesId);
+	if (!data) {
+		return null;
+	}
+	const next = data.next_episode_to_air;
+	return {
+		seriesId: data.id,
+		name: data.name ?? "Untitled",
+		posterPath: data.poster_path,
+		next:
+			next && next.season_number !== null && next.episode_number !== null && next.air_date
+				? {
+						seasonNumber: next.season_number,
+						episodeNumber: next.episode_number,
+						name: next.name,
+						airDate: next.air_date,
+					}
+				: null,
 	};
 }
 

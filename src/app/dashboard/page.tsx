@@ -1,23 +1,15 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { buttonVariants } from "@heroui/styles";
-import { getServerSession } from "@/lib/session";
+import { Suspense } from "react";
+import { DashboardView } from "@/components/dashboard/dashboard-view";
+import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
-	const session = await getServerSession();
-	if (!session) redirect("/login");
-
+export default function DashboardPage() {
 	return (
-		<main className="flex flex-1 flex-col items-center justify-center gap-6 p-8">
-			<h1 className="text-3xl font-bold">Dashboard</h1>
-			<p className="text-muted">
-				Welcome back, {session.user.name}. Your library is waiting.
-			</p>
-			<Link href="/dashboard/library" className={buttonVariants({ variant: "primary", size: "md" })}>
-				Open your library
-			</Link>
+		<main className="flex flex-1 flex-col p-8">
+			<Suspense fallback={<MediaGridSkeleton count={6} />}>
+				<DashboardView />
+			</Suspense>
 		</main>
 	);
 }

@@ -1,11 +1,16 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { SignInButton } from "@/components/sign-in-button";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 import { TrendingSection } from "@/components/media/trending-section";
+import { getServerSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+	const session = await getServerSession();
+	if (session) redirect("/dashboard");
+
 	return (
 		<main className="flex flex-1 flex-col gap-10 p-8">
 			<header className="flex flex-col items-center gap-4 pt-4 text-center">

@@ -27,6 +27,12 @@ The collection of all of a user's bookmarks.
 **Status**:
 One of four tracking states on a bookmark: watchlist, watching, completed, dropped.
 
+**Continue watching**:
+The set of bookmarks whose status is Watching. The dashboard surfaces these so a user can jump back into what they are mid-way through.
+
+**Next up**:
+For a Watching series, the first episode (by season and episode order, ignoring specials) that does not have a Completed episode bookmark. If the series has no episode bookmarks at all, it is "start watching" instead.
+
 **Watchlist**:
 The default status: bookmarked but not started.
 
