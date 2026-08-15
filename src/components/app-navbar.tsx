@@ -17,6 +17,7 @@ import { Header } from "@heroui/react/header";
 import { Label } from "@heroui/react/label";
 import { Separator } from "@heroui/react/separator";
 import { authClient } from "@/lib/auth-client";
+import { Logo } from "./logo";
 import { SearchBox } from "./search-box";
 
 function initials(name: string) {
@@ -65,6 +66,27 @@ function LibraryIcon({ className }: { className?: string }) {
 	);
 }
 
+function NotesIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			className={className}
+		>
+			<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+			<path d="M14 2v4a2 2 0 0 0 2 2h4" />
+			<path d="M10 9H8" />
+			<path d="M16 13H8" />
+			<path d="M16 17H8" />
+		</svg>
+	);
+}
+
 function SignOutIcon({ className }: { className?: string }) {
 	return (
 		<svg
@@ -97,9 +119,7 @@ export function AppNavbar() {
 
 	return (
 		<header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border px-6">
-			<Link href="/" className="font-semibold text-foreground">
-				Cast n Cue
-			</Link>
+			<Logo />
 			<div className="flex min-w-0 flex-1 justify-center">
 				<Suspense fallback={null}>
 					<SearchBox />
@@ -123,9 +143,13 @@ export function AppNavbar() {
 											<DashboardIcon className="size-4 shrink-0 text-muted" />
 											<Label>Dashboard</Label>
 										</DropdownItem>
-										<DropdownItem id="library" textValue="Library" onAction={() => router.push("/library")}>
+										<DropdownItem id="library" textValue="Library" onAction={() => router.push("/dashboard/library")}>
 											<LibraryIcon className="size-4 shrink-0 text-muted" />
 											<Label>Library</Label>
+										</DropdownItem>
+										<DropdownItem id="notes" textValue="Notes" onAction={() => router.push("/dashboard/notes")}>
+											<NotesIcon className="size-4 shrink-0 text-muted" />
+											<Label>Notes</Label>
 										</DropdownItem>
 									</DropdownSection>
 									<Separator />
