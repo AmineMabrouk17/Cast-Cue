@@ -14,6 +14,7 @@ import {
 	DropdownTrigger,
 } from "@heroui/react/dropdown";
 import { Header } from "@heroui/react/header";
+import { Label } from "@heroui/react/label";
 import { Separator } from "@heroui/react/separator";
 import { authClient } from "@/lib/auth-client";
 import { SearchBox } from "./search-box";
@@ -25,6 +26,62 @@ function initials(name: string) {
 		.join("")
 		.slice(0, 2)
 		.toUpperCase();
+}
+
+function DashboardIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			className={className}
+		>
+			<rect width="7" height="9" x="3" y="3" rx="1" />
+			<rect width="7" height="5" x="14" y="3" rx="1" />
+			<rect width="7" height="9" x="14" y="12" rx="1" />
+			<rect width="7" height="5" x="3" y="16" rx="1" />
+		</svg>
+	);
+}
+
+function LibraryIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			className={className}
+		>
+			<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+		</svg>
+	);
+}
+
+function SignOutIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			className={className}
+		>
+			<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+			<polyline points="16 17 21 12 16 7" />
+			<line x1="21" x2="9" y1="12" y2="12" />
+		</svg>
+	);
 }
 
 export function AppNavbar() {
@@ -62,18 +119,21 @@ export function AppNavbar() {
 								<DropdownMenu>
 									<DropdownSection>
 										<Header>Overview</Header>
-										<DropdownItem id="dashboard" onAction={() => router.push("/dashboard")}>
-											Dashboard
+										<DropdownItem id="dashboard" textValue="Dashboard" onAction={() => router.push("/dashboard")}>
+											<DashboardIcon className="size-4 shrink-0 text-muted" />
+											<Label>Dashboard</Label>
 										</DropdownItem>
-										<DropdownItem id="library" onAction={() => router.push("/library")}>
-											Library
+										<DropdownItem id="library" textValue="Library" onAction={() => router.push("/library")}>
+											<LibraryIcon className="size-4 shrink-0 text-muted" />
+											<Label>Library</Label>
 										</DropdownItem>
 									</DropdownSection>
 									<Separator />
 									<DropdownSection>
 										<Header>Account</Header>
-										<DropdownItem id="signout" variant="danger" onAction={handleSignOut}>
-											Sign out
+										<DropdownItem id="signout" textValue="Sign out" variant="danger" onAction={handleSignOut}>
+											<SignOutIcon className="size-4 shrink-0 text-danger" />
+											<Label>Sign out</Label>
 										</DropdownItem>
 									</DropdownSection>
 								</DropdownMenu>
