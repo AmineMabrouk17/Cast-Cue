@@ -12,6 +12,7 @@ interface __BaseEnv_CloudflareEnv {
 	GOOGLE_CLIENT_SECRET: string;
 	TMDB_API_KEY: string;
 	OMDB_API_KEY: string;
+	TRAKT_CLIENT_ID: string;
 	WORKER_SELF_REFERENCE: Fetcher /* cast-cue */;
 }
 declare namespace Cloudflare {
@@ -22,7 +23,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "NEXTJS_ENV" | "BETTER_AUTH_URL" | "BETTER_AUTH_SECRET" | "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET" | "TMDB_API_KEY" | "OMDB_API_KEY">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "NEXTJS_ENV" | "BETTER_AUTH_URL" | "BETTER_AUTH_SECRET" | "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET" | "TMDB_API_KEY" | "OMDB_API_KEY" | "TRAKT_CLIENT_ID">> {}
 }
 
 // Begin runtime types
