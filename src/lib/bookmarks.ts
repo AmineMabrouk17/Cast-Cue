@@ -310,6 +310,21 @@ export async function listUserBookmarks(db: D1Database, userId: string): Promise
 	return rows.results.map(toUserBookmark);
 }
 
+export async function listUserBookmarksByStatus(
+	db: D1Database,
+	userId: string,
+	status: BookmarkStatus,
+): Promise<UserBookmark[]> {
+	const rows = await db
+		.prepare(
+			`SELECT ${USER_BOOKMARK_COLUMNS}
+			 FROM bookmarks WHERE userId = ? AND status = ? ORDER BY updatedAt DESC`,
+		)
+		.bind(userId, status)
+		.all<UserBookmarkRow>();
+	return rows.results.map(toUserBookmark);
+}
+
 export async function listUserBookmarksWithNotes(db: D1Database, userId: string): Promise<UserBookmark[]> {
 	const rows = await db
 		.prepare(
