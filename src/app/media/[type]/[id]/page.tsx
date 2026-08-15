@@ -5,6 +5,7 @@ import { getOmdbRatings } from "@/lib/omdb";
 import { getBookmark } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
 import { MediaDetailView } from "@/components/media/media-detail";
+import { EpisodeGuide } from "@/components/media/episode-guide";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,13 @@ function isMediaType(value: string): value is MediaType {
 
 export default async function MediaDetailPage({
 	params,
+	searchParams,
 }: {
 	params: Promise<{ type: string; id: string }>;
+	searchParams: Promise<{ season?: string }>;
 }) {
 	const { type, id } = await params;
+	const { season } = await searchParams;
 	if (!isMediaType(type)) {
 		notFound();
 	}
@@ -39,5 +43,19 @@ export default async function MediaDetailPage({
 		? await getBookmark(getCloudflareContext().env.DB, session.user.id, type, mediaId)
 		: null;
 
-	return <MediaDetailView media={media} ratings={ratings} bookmark={bookmark} isSignedIn={isSignedIn} />;
+	return (
+		<div className="flex flex-1 flex-col">
+			<MediaDetailView media={media} ratings={ratings} bookmark={bookmark} isSignedIn={isSignedIn} />
+			{type === "series" ? (
+				<EpisodeGuide
+					seriesId={mediaId}
+					seriesName={media.name}
+					seriesYear={media.year}
+					requestedSeason={season}
+					db={getCloudflareContext().env.DB}
+					userId={session?.user.id ?? null}
+				/>
+			) : null}
+		</div>
+	);
 }

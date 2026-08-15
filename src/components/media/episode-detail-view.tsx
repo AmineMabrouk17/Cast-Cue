@@ -1,12 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-	tmdbBackdropUrl,
-	tmdbPosterUrl,
-	tmdbStillUrl,
-	type EpisodeSummary,
-	type SeriesBrief,
-} from "@/lib/tmdb";
+import { tmdbBackdropUrl, tmdbPosterUrl, tmdbStillUrl, type EpisodeSummary, type SeriesBrief } from "@/lib/tmdb";
+import type { TvmazeEpisode } from "@/lib/tvmaze";
+import type { BookmarkState } from "@/lib/bookmarks";
+import { EpisodeBookmarkPanel } from "./episode-bookmark-panel";
 
 function MetaBadge({ children }: { children: React.ReactNode }) {
 	return (
@@ -19,13 +16,21 @@ function MetaBadge({ children }: { children: React.ReactNode }) {
 export function EpisodeDetailView({
 	series,
 	episode,
+	tvmaze,
+	bookmark,
+	isSignedIn,
 }: {
 	series: SeriesBrief;
 	episode: EpisodeSummary;
+	tvmaze: TvmazeEpisode | null;
+	bookmark: BookmarkState | null;
+	isSignedIn: boolean;
 }) {
 	const backdrop = tmdbBackdropUrl(series.backdropPath);
 	const poster = tmdbPosterUrl(series.posterPath, "w342");
 	const still = tmdbStillUrl(episode.stillPath, "w780");
+	const airDate = tvmaze?.airdate ?? episode.airDate;
+	const runtime = tvmaze?.runtime ?? episode.runtime;
 
 	return (
 		<main className="flex flex-1 flex-col">
@@ -73,13 +78,23 @@ export function EpisodeDetailView({
 							S{episode.seasonNumber}E{episode.episodeNumber} · {episode.name}
 						</h1>
 						<div className="flex flex-wrap items-center gap-2">
-							{episode.airDate ? <MetaBadge>{episode.airDate}</MetaBadge> : null}
-							{episode.runtime ? <MetaBadge>{episode.runtime} min</MetaBadge> : null}
+							{airDate ? <MetaBadge>{airDate}</MetaBadge> : null}
+							{runtime ? <MetaBadge>{runtime} min</MetaBadge> : null}
 							{episode.voteAverage > 0 ? (
 								<MetaBadge>TMDB {episode.voteAverage.toFixed(1)}</MetaBadge>
 							) : null}
 							<span className="text-sm font-medium text-muted">Episode</span>
 						</div>
+						<EpisodeBookmarkPanel
+							episodeKey={{
+								episodeId: episode.id,
+								seriesId: series.id,
+								seasonNumber: episode.seasonNumber,
+								episodeNumber: episode.episodeNumber,
+							}}
+							initialBookmark={bookmark}
+							isSignedIn={isSignedIn}
+						/>
 						{episode.overview ? (
 							<p className="max-w-3xl text-sm leading-relaxed text-foreground">
 								{episode.overview}

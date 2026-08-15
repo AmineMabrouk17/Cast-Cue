@@ -2,7 +2,12 @@ import { Suspense } from "react";
 import { Tabs } from "@heroui/react/tabs";
 import { searchTmdb, type MediaSummary, type MediaType } from "@/lib/tmdb";
 import { parseSeasonEpisodeNotation } from "@/lib/episode-notation";
-import { searchEpisodeByNotation, type EpisodeSearchResult } from "@/lib/episode-search";
+import {
+	searchEpisodes,
+	searchEpisodeByNotation,
+	type EpisodeSearchOutcome,
+	type EpisodeSearchResult,
+} from "@/lib/episode-search";
 import { MediaGrid } from "@/components/media/media-grid";
 import { MediaEmptyState } from "@/components/media/media-empty-state";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
@@ -10,7 +15,11 @@ import { EpisodeSearchResults } from "@/components/media/episode-search-results"
 
 export const dynamic = "force-dynamic";
 
-const RESULT_GROUPS: { type: MediaType; label: string; emptyTitle: string }[] = [
+const RESULT_GROUPS: {
+	type: MediaType;
+	label: string;
+	emptyTitle: string;
+}[] = [
 	{ type: "movie", label: "Movies", emptyTitle: "No movies found" },
 	{ type: "series", label: "Series", emptyTitle: "No series found" },
 ];
@@ -26,30 +35,34 @@ async function SearchResults({ query }: { query: string }) {
 	const notation = parseSeasonEpisodeNotation(query);
 	const searchQuery = notation?.seriesName ?? query;
 
-	const [movies, series, episode] = await Promise.all([
+	const [movies, series, episodeSearch] = await Promise.all([
 		searchTmdb(searchQuery, "movie"),
 		searchTmdb(searchQuery, "series"),
-		notation ? searchEpisodeByNotation(query) : Promise.resolve(null),
+		notation
+			? searchEpisodeByNotation(query).then(
+					(result): EpisodeSearchOutcome => ({
+						results: result ? [result] : [],
+						unavailable: false,
+					}),
+				)
+			: searchEpisodes(query),
 	]);
-
 	const groups: ResultGroup[] = [
-		...(notation
-			? [
-					{
-						type: "episode" as const,
-						label: "Episodes",
-						items: episode ? [episode] : [],
-						emptyTitle: "No episodes found",
-					},
-				]
-			: []),
 		...RESULT_GROUPS.map((group) => ({
 			...group,
 			items: group.type === "movie" ? movies : series,
 		})),
+		{
+			type: "episode",
+			label: "Episodes",
+			items: episodeSearch.results,
+			emptyTitle: "No episodes found",
+		},
 	];
 
-	if (groups.every((group) => group.items.length === 0)) {
+	const nothingFound =
+		!episodeSearch.unavailable && groups.every((group) => group.items.length === 0);
+	if (nothingFound) {
 		return (
 			<MediaEmptyState
 				title="No results"
@@ -58,7 +71,10 @@ async function SearchResults({ query }: { query: string }) {
 		);
 	}
 
-	const defaultTab = groups.find((group) => group.items.length > 0)?.type ?? "movie";
+	const defaultTab =
+		episodeSearch.results.length > 0
+			? "episode"
+			: (groups.find((group) => group.items.length > 0)?.type ?? "episode");
 
 	return (
 		<Tabs className="w-full" defaultSelectedKey={defaultTab}>
@@ -75,12 +91,17 @@ async function SearchResults({ query }: { query: string }) {
 			{groups.map((group) => (
 				<Tabs.Panel key={group.type} className="pt-6" id={group.type}>
 					{group.type === "episode" ? (
-						group.items.length > 0 ? (
-							<EpisodeSearchResults results={group.items as EpisodeSearchResult[]} />
+						episodeSearch.unavailable ? (
+							<MediaEmptyState
+								title="Episode search unavailable"
+								message="The episode lookup service could not be reached. Try again shortly."
+							/>
+						) : episodeSearch.results.length > 0 ? (
+							<EpisodeSearchResults results={episodeSearch.results} />
 						) : (
 							<MediaEmptyState
 								title={group.emptyTitle}
-								message={`No episode matched “${query}”.`}
+								message={`No episodes matched “${query}”.`}
 							/>
 						)
 					) : group.items.length > 0 ? (
@@ -114,7 +135,7 @@ export default async function SearchPage({
 				<p className="text-muted">
 					{query
 						? "Movies, series, and episodes matching your search."
-						: "Find movies and series on TMDB, and episodes by season/episode notation."}
+						: "Find movies and series on TMDB, and episodes by name or season/episode notation."}
 				</p>
 			</header>
 			{query ? (

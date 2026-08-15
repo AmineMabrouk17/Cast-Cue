@@ -12,6 +12,7 @@ import {
 	DropdownTrigger,
 } from "@heroui/react/dropdown";
 import { authClient } from "@/lib/auth-client";
+import { Logo } from "./logo";
 import { SearchBox } from "./search-box";
 
 function initials(name: string) {
@@ -36,9 +37,7 @@ export function AppNavbar() {
 
 	return (
 		<header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border px-6">
-			<Link href="/" className="font-semibold text-foreground">
-				Cast n Cue
-			</Link>
+			<Logo />
 			<div className="flex min-w-0 flex-1 justify-center">
 				<Suspense fallback={null}>
 					<SearchBox />
@@ -58,8 +57,11 @@ export function AppNavbar() {
 								<DropdownItem id="dashboard" onAction={() => router.push("/dashboard")}>
 									Dashboard
 								</DropdownItem>
-								<DropdownItem id="library" onAction={() => router.push("/library")}>
+								<DropdownItem id="library" onAction={() => router.push("/dashboard/library")}>
 									Library
+								</DropdownItem>
+								<DropdownItem id="notes" onAction={() => router.push("/dashboard/notes")}>
+									Notes
 								</DropdownItem>
 								<DropdownItem id="signout" variant="danger" onAction={handleSignOut}>
 									Sign out
