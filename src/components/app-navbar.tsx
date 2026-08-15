@@ -9,8 +9,12 @@ import {
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
+	DropdownPopover,
+	DropdownSection,
 	DropdownTrigger,
 } from "@heroui/react/dropdown";
+import { Header } from "@heroui/react/header";
+import { Separator } from "@heroui/react/separator";
 import { authClient } from "@/lib/auth-client";
 import { SearchBox } from "./search-box";
 
@@ -54,17 +58,26 @@ export function AppNavbar() {
 									<Avatar.Fallback>{initials(user.name)}</Avatar.Fallback>
 								</Avatar.Root>
 							</DropdownTrigger>
-							<DropdownMenu>
-								<DropdownItem id="dashboard" onAction={() => router.push("/dashboard")}>
-									Dashboard
-								</DropdownItem>
-								<DropdownItem id="library" onAction={() => router.push("/library")}>
-									Library
-								</DropdownItem>
-								<DropdownItem id="signout" variant="danger" onAction={handleSignOut}>
-									Sign out
-								</DropdownItem>
-							</DropdownMenu>
+							<DropdownPopover>
+								<DropdownMenu>
+									<DropdownSection>
+										<Header>Overview</Header>
+										<DropdownItem id="dashboard" onAction={() => router.push("/dashboard")}>
+											Dashboard
+										</DropdownItem>
+										<DropdownItem id="library" onAction={() => router.push("/library")}>
+											Library
+										</DropdownItem>
+									</DropdownSection>
+									<Separator />
+									<DropdownSection>
+										<Header>Account</Header>
+										<DropdownItem id="signout" variant="danger" onAction={handleSignOut}>
+											Sign out
+										</DropdownItem>
+									</DropdownSection>
+								</DropdownMenu>
+							</DropdownPopover>
 						</Dropdown>
 					) : (
 						<Link href="/login" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
