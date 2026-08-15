@@ -9,8 +9,13 @@ import {
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
+	DropdownPopover,
+	DropdownSection,
 	DropdownTrigger,
 } from "@heroui/react/dropdown";
+import { Header } from "@heroui/react/header";
+import { Label } from "@heroui/react/label";
+import { Separator } from "@heroui/react/separator";
 import { authClient } from "@/lib/auth-client";
 import { Logo } from "./logo";
 import { SearchBox } from "./search-box";
@@ -22,6 +27,83 @@ function initials(name: string) {
 		.join("")
 		.slice(0, 2)
 		.toUpperCase();
+}
+
+function DashboardIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			className={className}
+		>
+			<rect width="7" height="9" x="3" y="3" rx="1" />
+			<rect width="7" height="5" x="14" y="3" rx="1" />
+			<rect width="7" height="9" x="14" y="12" rx="1" />
+			<rect width="7" height="5" x="3" y="16" rx="1" />
+		</svg>
+	);
+}
+
+function LibraryIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			className={className}
+		>
+			<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+		</svg>
+	);
+}
+
+function NotesIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			className={className}
+		>
+			<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+			<path d="M14 2v4a2 2 0 0 0 2 2h4" />
+			<path d="M10 9H8" />
+			<path d="M16 13H8" />
+			<path d="M16 17H8" />
+		</svg>
+	);
+}
+
+function SignOutIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			className={className}
+		>
+			<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+			<polyline points="16 17 21 12 16 7" />
+			<line x1="21" x2="9" y1="12" y2="12" />
+		</svg>
+	);
 }
 
 export function AppNavbar() {
@@ -53,20 +135,33 @@ export function AppNavbar() {
 									<Avatar.Fallback>{initials(user.name)}</Avatar.Fallback>
 								</Avatar.Root>
 							</DropdownTrigger>
-							<DropdownMenu>
-								<DropdownItem id="dashboard" onAction={() => router.push("/dashboard")}>
-									Dashboard
-								</DropdownItem>
-								<DropdownItem id="library" onAction={() => router.push("/dashboard/library")}>
-									Library
-								</DropdownItem>
-								<DropdownItem id="notes" onAction={() => router.push("/dashboard/notes")}>
-									Notes
-								</DropdownItem>
-								<DropdownItem id="signout" variant="danger" onAction={handleSignOut}>
-									Sign out
-								</DropdownItem>
-							</DropdownMenu>
+							<DropdownPopover>
+								<DropdownMenu>
+									<DropdownSection>
+										<Header>Overview</Header>
+										<DropdownItem id="dashboard" textValue="Dashboard" onAction={() => router.push("/dashboard")}>
+											<DashboardIcon className="size-4 shrink-0 text-muted" />
+											<Label>Dashboard</Label>
+										</DropdownItem>
+										<DropdownItem id="library" textValue="Library" onAction={() => router.push("/dashboard/library")}>
+											<LibraryIcon className="size-4 shrink-0 text-muted" />
+											<Label>Library</Label>
+										</DropdownItem>
+										<DropdownItem id="notes" textValue="Notes" onAction={() => router.push("/dashboard/notes")}>
+											<NotesIcon className="size-4 shrink-0 text-muted" />
+											<Label>Notes</Label>
+										</DropdownItem>
+									</DropdownSection>
+									<Separator />
+									<DropdownSection>
+										<Header>Account</Header>
+										<DropdownItem id="signout" textValue="Sign out" variant="danger" onAction={handleSignOut}>
+											<SignOutIcon className="size-4 shrink-0 text-danger" />
+											<Label>Sign out</Label>
+										</DropdownItem>
+									</DropdownSection>
+								</DropdownMenu>
+							</DropdownPopover>
 						</Dropdown>
 					) : (
 						<Link href="/login" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
