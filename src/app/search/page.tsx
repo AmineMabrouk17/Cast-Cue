@@ -1,7 +1,13 @@
 import { Suspense } from "react";
 import { Tabs } from "@heroui/react/tabs";
 import { searchTmdb, type MediaSummary, type MediaType } from "@/lib/tmdb";
-import { searchEpisodes, type EpisodeSearchResult } from "@/lib/episode-search";
+import { parseSeasonEpisodeNotation } from "@/lib/episode-notation";
+import {
+	searchEpisodes,
+	searchEpisodeByNotation,
+	type EpisodeSearchOutcome,
+	type EpisodeSearchResult,
+} from "@/lib/episode-search";
 import { MediaGrid } from "@/components/media/media-grid";
 import { MediaEmptyState } from "@/components/media/media-empty-state";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
@@ -26,10 +32,20 @@ type ResultGroup = {
 };
 
 async function SearchResults({ query }: { query: string }) {
+	const notation = parseSeasonEpisodeNotation(query);
+	const searchQuery = notation?.seriesName ?? query;
+
 	const [movies, series, episodeSearch] = await Promise.all([
-		searchTmdb(query, "movie"),
-		searchTmdb(query, "series"),
-		searchEpisodes(query),
+		searchTmdb(searchQuery, "movie"),
+		searchTmdb(searchQuery, "series"),
+		notation
+			? searchEpisodeByNotation(query).then(
+					(result): EpisodeSearchOutcome => ({
+						results: result ? [result] : [],
+						unavailable: false,
+					}),
+				)
+			: searchEpisodes(query),
 	]);
 	const groups: ResultGroup[] = [
 		...RESULT_GROUPS.map((group) => ({
@@ -55,7 +71,10 @@ async function SearchResults({ query }: { query: string }) {
 		);
 	}
 
-	const defaultTab = groups.find((group) => group.items.length > 0)?.type ?? "episode";
+	const defaultTab =
+		episodeSearch.results.length > 0
+			? "episode"
+			: (groups.find((group) => group.items.length > 0)?.type ?? "episode");
 
 	return (
 		<Tabs className="w-full" defaultSelectedKey={defaultTab}>
@@ -90,7 +109,7 @@ async function SearchResults({ query }: { query: string }) {
 					) : (
 						<MediaEmptyState
 							title={group.emptyTitle}
-							message={`No ${group.label.toLowerCase()} matched “${query}”.`}
+							message={`No ${group.label.toLowerCase()} matched “${searchQuery}”.`}
 						/>
 					)}
 				</Tabs.Panel>
@@ -116,7 +135,7 @@ export default async function SearchPage({
 				<p className="text-muted">
 					{query
 						? "Movies, series, and episodes matching your search."
-						: "Find movies and series on TMDB, and episodes by name."}
+						: "Find movies and series on TMDB, and episodes by name or season/episode notation."}
 				</p>
 			</header>
 			{query ? (

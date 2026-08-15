@@ -1,4 +1,5 @@
-import { getEpisodeDetail, searchTmdb, type EpisodeSummary, type MediaSummary } from "@/lib/tmdb";
+import { parseSeasonEpisodeNotation } from "@/lib/episode-notation";
+import { getEpisodeDetail, getSeasonEpisodes, searchTmdb, type EpisodeSummary, type MediaSummary } from "@/lib/tmdb";
 import { searchTvmazeEpisodes } from "@/lib/tvmaze";
 
 const MAX_EPISODE_RESULTS = 12;
@@ -105,4 +106,19 @@ export async function searchEpisodes(query: string): Promise<EpisodeSearchOutcom
 	).filter((result): result is EpisodeSearchResult => result !== null);
 
 	return { results, unavailable: false };
+}
+
+export async function searchEpisodeByNotation(query: string): Promise<EpisodeSearchResult | null> {
+	const notation = parseSeasonEpisodeNotation(query);
+	if (!notation) return null;
+
+	const candidates = await searchTmdb(notation.seriesName, "series");
+	const series = findSeriesMatch(candidates, notation.seriesName, null);
+	if (!series) return null;
+
+	const season = await getSeasonEpisodes(series.id, notation.season);
+	const episode = season?.episodes.find((item) => item.episodeNumber === notation.episode);
+	if (!episode) return null;
+
+	return toEpisodeSearchResult(series, episode);
 }
