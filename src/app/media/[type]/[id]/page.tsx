@@ -52,7 +52,6 @@ export default async function MediaDetailPage({
 					seriesName={media.name}
 					seriesYear={media.year}
 					requestedSeason={season}
-					db={getCloudflareContext().env.DB}
 					userId={session?.user.id ?? null}
 				/>
 			) : null}
