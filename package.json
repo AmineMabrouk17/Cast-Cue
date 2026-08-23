@@ -45,6 +45,7 @@
 		"eslint": "^9",
 		"eslint-config-next": "15.5.23",
 		"kysely": "^0.29.5",
+		"playwright": "^1.62.1",
 		"tailwindcss": "^4",
 		"typescript": "^5.7.4",
 		"wrangler": "^4.123.0"
