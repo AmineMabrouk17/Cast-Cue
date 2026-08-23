@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@heroui/react/avatar";
@@ -110,15 +110,26 @@ export function AppNavbar() {
 	const router = useRouter();
 	const { data: session, isPending } = authClient.useSession();
 	const user = session?.user;
+	const [signOutError, setSignOutError] = useState<string | null>(null);
 
 	async function handleSignOut() {
-		await authClient.signOut();
+		setSignOutError(null);
+		try {
+			const { error } = await authClient.signOut();
+			if (error) {
+				setSignOutError("Couldn't sign out. Your session is still active — try again.");
+				return;
+			}
+		} catch {
+			setSignOutError("Couldn't sign out. Your session is still active — try again.");
+			return;
+		}
 		router.push("/");
 		router.refresh();
 	}
 
 	return (
-		<header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border px-6">
+		<header className="relative flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border px-6">
 			<Logo />
 			<div className="flex min-w-0 flex-1 justify-center">
 				<Suspense fallback={null}>
@@ -169,6 +180,14 @@ export function AppNavbar() {
 						</Link>
 					))}
 			</div>
+			{signOutError ? (
+				<div
+					role="alert"
+					className="absolute right-4 top-14 z-50 rounded-md border border-border bg-background px-3 py-2 text-sm text-danger shadow-md"
+				>
+					{signOutError}
+				</div>
+			) : null}
 		</header>
 	);
 }
