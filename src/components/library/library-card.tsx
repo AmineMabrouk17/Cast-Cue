@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@heroui/react/button";
 import { Card } from "@heroui/react/card";
 import { ListBox } from "@heroui/react/list-box";
+import { Label } from "@heroui/react/label";
 import { Select } from "@heroui/react/select";
 import {
 	removeEpisodeFromLibrary,
@@ -75,8 +76,10 @@ function CardActions({
 	return (
 		<div className="mt-auto flex flex-col gap-1.5 pt-1">
 			<div className="flex items-center gap-1.5">
+				{/* React Aria emits aria-labelledby on the trigger, which overrides
+				    aria-label per the ARIA spec. A visually hidden Label joins the
+				    labelledby list so the accessible name is "Change status …". */}
 				<Select.Root
-					aria-label="Change status"
 					selectedKey={status}
 					onSelectionChange={(key) => {
 						if (typeof key === "string" && isBookmarkStatus(key)) {
@@ -86,6 +89,7 @@ function CardActions({
 					isDisabled={isPending}
 					className="min-w-0 flex-1"
 				>
+					<Label className="sr-only">Change status</Label>
 					<Select.Trigger>
 						<Select.Value />
 						<Select.Indicator />
