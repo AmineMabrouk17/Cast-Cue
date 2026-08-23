@@ -194,6 +194,23 @@ export async function toggleBookmarkFavorite(
 	return getBookmark(db, userId, mediaType, mediaId);
 }
 
+export async function setBookmarkFavorite(
+	db: D1Database,
+	userId: string,
+	mediaType: BookmarkMediaType,
+	mediaId: number,
+	favorite: boolean,
+): Promise<BookmarkState | null> {
+	const now = new Date().toISOString();
+	await db
+		.prepare(
+			"UPDATE bookmarks SET favorite = ?, updatedAt = ? WHERE userId = ? AND mediaType = ? AND mediaId = ?",
+		)
+		.bind(favorite ? 1 : 0, now, userId, mediaType, mediaId)
+		.run();
+	return getBookmark(db, userId, mediaType, mediaId);
+}
+
 export async function setBookmarkRating(
 	db: D1Database,
 	userId: string,
