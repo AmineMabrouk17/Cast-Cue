@@ -78,6 +78,7 @@ export interface MediaDetail {
 	year: number | null;
 	genres: string[];
 	trailerKey: string | null;
+	runtime: number | null;
 	cast: CastMember[];
 }
 
@@ -98,6 +99,8 @@ interface TmdbDetailResponse {
 	vote_average: number;
 	release_date?: string;
 	first_air_date?: string;
+	runtime?: number;
+	episode_run_time?: number[];
 	genres: { id: number; name: string }[];
 	videos: { results: TmdbVideo[] };
 	credits: { cast: { name: string; character: string; profile_path: string | null }[] };
@@ -141,6 +144,7 @@ export async function getMediaDetail(type: MediaType, id: number): Promise<Media
 			year: toYear(type === "movie" ? data.release_date : data.first_air_date),
 			genres: data.genres.map((genre) => genre.name),
 			trailerKey: pickTrailer(data.videos.results)?.key ?? null,
+			runtime: type === "movie" ? (data.runtime ?? null) : (data.episode_run_time?.[0] ?? null),
 			cast: data.credits.cast.slice(0, 10).map((member) => ({
 				name: member.name,
 				character: member.character,
