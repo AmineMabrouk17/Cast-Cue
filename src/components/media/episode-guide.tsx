@@ -1,3 +1,4 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getEpisodeBookmarksForSeason, type BookmarkState } from "@/lib/bookmarks";
 import { getSeasonEpisodes, getSeriesSeasons, type SeasonSummary } from "@/lib/tmdb";
 import { getTvmazeSchedule } from "@/lib/tvmaze";
@@ -20,16 +21,15 @@ export async function EpisodeGuide({
 	seriesName,
 	seriesYear,
 	requestedSeason,
-	db,
 	userId,
 }: {
 	seriesId: number;
 	seriesName: string;
 	seriesYear: number | null;
 	requestedSeason: string | undefined;
-	db: D1Database;
 	userId: string | null;
 }) {
+	const db = getCloudflareContext().env.DB;
 	const seasons = (await getSeriesSeasons(seriesId)).filter((season) => season.episodeCount > 0);
 	if (seasons.length === 0) {
 		return null;
