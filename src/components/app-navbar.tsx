@@ -19,6 +19,7 @@ import { Separator } from "@heroui/react/separator";
 import { authClient } from "@/lib/auth-client";
 import { Logo } from "./logo";
 import { SearchBox } from "./search-box";
+import { ThemeToggle } from "./theme-toggle";
 
 function initials(name: string) {
 	return name
@@ -136,7 +137,8 @@ export function AppNavbar() {
 					<SearchBox />
 				</Suspense>
 			</div>
-			<div className="flex items-center justify-end">
+			<div className="flex items-center justify-end gap-2">
+				<ThemeToggle />
 				{!isPending &&
 					(user ? (
 						<Dropdown>
