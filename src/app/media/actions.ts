@@ -9,6 +9,7 @@ import {
 	isBookmarkStatus,
 	isHalfStepRating,
 	removeBookmark,
+	setBookmarkFavorite,
 	setBookmarkNote,
 	setBookmarkRating,
 	setBookmarkStatus,
@@ -223,4 +224,91 @@ export async function saveNote(mediaType: MediaType, mediaId: number, note: stri
 	}
 	revalidatePath(`/media/${mediaType}/${mediaId}`);
 	return bookmark;
+}
+
+export interface BulkLibraryItem {
+	id: string;
+	kind: "title" | "episode";
+	mediaType?: MediaType;
+	mediaId?: number;
+	key?: EpisodeBookmarkKey;
+}
+
+export interface BulkActionResult {
+	id: string;
+	bookmark: BookmarkState | null;
+}
+
+function isValidBulkItem(item: BulkLibraryItem): boolean {
+	if (typeof item?.id !== "string" || item.id.length === 0) {
+		return false;
+	}
+	if (item.kind === "title") {
+		return (
+			(item.mediaType === "movie" || item.mediaType === "series") &&
+			typeof item.mediaId === "number" &&
+			Number.isSafeInteger(item.mediaId) &&
+			item.mediaId > 0
+		);
+	}
+	if (item.kind === "episode") {
+		return Boolean(item.key) && isEpisodeBookmarkKey(item.key as EpisodeBookmarkKey);
+	}
+	return false;
+}
+
+export async function bulkSetStatus(
+	items: BulkLibraryItem[],
+	status: string,
+): Promise<BulkActionResult[]> {
+	const session = await requireSession();
+	if (!isBookmarkStatus(status)) {
+		throw new Error(`Invalid bookmark status: ${status}`);
+	}
+	const db = getCloudflareContext().env.DB;
+	const results = await Promise.all(
+		items.filter(isValidBulkItem).map(async (item) => ({
+			id: item.id,
+			bookmark:
+				item.kind === "title"
+					? await setBookmarkStatus(db, session.user.id, item.mediaType!, item.mediaId!, status)
+					: await setBookmarkStatus(db, session.user.id, "episode", item.key!.episodeId, status),
+		})),
+	);
+	revalidatePath("/dashboard/library");
+	return results;
+}
+
+export async function bulkSetFavorite(
+	items: BulkLibraryItem[],
+	favorite: boolean,
+): Promise<BulkActionResult[]> {
+	const session = await requireSession();
+	const db = getCloudflareContext().env.DB;
+	const results = await Promise.all(
+		items.filter(isValidBulkItem).map(async (item) => ({
+			id: item.id,
+			bookmark:
+				item.kind === "title"
+					? await setBookmarkFavorite(db, session.user.id, item.mediaType!, item.mediaId!, favorite)
+					: await setBookmarkFavorite(db, session.user.id, "episode", item.key!.episodeId, favorite),
+		})),
+	);
+	revalidatePath("/dashboard/library");
+	return results;
+}
+
+export async function bulkRemoveFromLibrary(items: BulkLibraryItem[]): Promise<string[]> {
+	const session = await requireSession();
+	const db = getCloudflareContext().env.DB;
+	const valid = items.filter(isValidBulkItem);
+	await Promise.all(
+		valid.map((item) =>
+			item.kind === "title"
+				? removeBookmark(db, session.user.id, item.mediaType!, item.mediaId!)
+				: removeBookmark(db, session.user.id, "episode", item.key!.episodeId),
+		),
+	);
+	revalidatePath("/dashboard/library");
+	return valid.map((item) => item.id);
 }

@@ -1,7 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { Button } from "@heroui/react/button";
 import { Tabs } from "@heroui/react/tabs";
+import {
+	bulkRemoveFromLibrary,
+	bulkSetFavorite,
+	bulkSetStatus,
+	type BulkActionResult,
+	type BulkLibraryItem,
+} from "@/app/media/actions";
 import {
 	BOOKMARK_STATUSES,
 	BOOKMARK_STATUS_LABELS,
@@ -79,9 +87,23 @@ function filterItems(items: LibraryItem[], tab: LibraryTab): LibraryItem[] {
 	return items.filter((item) => item.bookmark.status === tab);
 }
 
+export function itemId(item: LibraryItem): string {
+	return item.kind === "episode" ? item.href : `${item.media.type}-${item.media.id}`;
+}
+
+function toBulkItem(item: LibraryItem): BulkLibraryItem {
+	return item.kind === "episode"
+		? { id: itemId(item), kind: "episode", key: item.key }
+		: { id: itemId(item), kind: "title", mediaType: item.media.type, mediaId: item.media.id };
+}
+
 export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 	const [items, setItems] = useState(initialItems);
 	const [selectedKey, setSelectedKey] = useState<LibraryTab>("all");
+	const [selectMode, setSelectMode] = useState(false);
+	const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set());
+	const [isPending, startTransition] = useTransition();
+	const [actionError, setActionError] = useState<string | null>(null);
 
 	const counts = useMemo(() => {
 		const count: Record<LibraryTab, number> = {
@@ -107,6 +129,63 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 		setItems((prev) => prev.filter((item) => item !== target));
 	}
 
+	function toggleSelected(id: string) {
+		setActionError(null);
+		setSelectedIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(id)) {
+				next.delete(id);
+			} else {
+				next.add(id);
+			}
+			return next;
+		});
+	}
+
+	function exitSelectMode() {
+		setSelectMode(false);
+		setSelectedIds(new Set());
+		setActionError(null);
+	}
+
+	function selectedBulkItems(): BulkLibraryItem[] {
+		return items.filter((item) => selectedIds.has(itemId(item))).map(toBulkItem);
+	}
+
+	function applyBulkResults(results: BulkActionResult[]) {
+		setItems((prev) =>
+			prev.map((item) => {
+				const result = results.find((entry) => entry.id === itemId(item));
+				return result && result.bookmark ? { ...item, bookmark: result.bookmark } : item;
+			}),
+		);
+		setSelectedIds(new Set());
+	}
+
+	function runBulk(action: () => Promise<BulkActionResult[]>) {
+		setActionError(null);
+		startTransition(async () => {
+			try {
+				applyBulkResults(await action());
+			} catch {
+				setActionError("Something went wrong. Try again.");
+			}
+		});
+	}
+
+	function runBulkRemove() {
+		setActionError(null);
+		startTransition(async () => {
+			try {
+				const removed = new Set(await bulkRemoveFromLibrary(selectedBulkItems()));
+				setItems((prev) => prev.filter((item) => !removed.has(itemId(item))));
+				setSelectedIds(new Set());
+			} catch {
+				setActionError("Couldn't remove items. Try again.");
+			}
+		});
+	}
+
 	const filtered = filterItems(items, selectedKey);
 	const empty = EMPTY_STATES[selectedKey];
 
@@ -128,18 +207,79 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 					))}
 				</Tabs.List>
 			</Tabs.ListContainer>
-			<Tabs.Panel id={selectedKey} className="pt-6">
+			<Tabs.Panel id={selectedKey} className="flex flex-col gap-4 pt-6">
 				{filtered.length > 0 ? (
-					<div className={MEDIA_GRID_CLASS}>
-						{filtered.map((item) => (
-							<LibraryCard
-								key={item.kind === "episode" ? item.href : `${item.media.type}-${item.media.id}`}
-								item={item}
-								onBookmarkChange={(bookmark) => updateBookmark(item, bookmark)}
-								onRemove={() => removeItem(item)}
-							/>
-						))}
-					</div>
+					<>
+						<div className="flex flex-wrap items-center gap-2">
+							<Button
+								size="sm"
+								variant={selectMode ? "primary" : "tertiary"}
+								onPress={() => (selectMode ? exitSelectMode() : setSelectMode(true))}
+							>
+								{selectMode ? "Cancel selection" : "Select"}
+							</Button>
+							{selectMode && selectedIds.size > 0 ? (
+								<>
+									<span className="text-sm text-muted" aria-live="polite">
+										{selectedIds.size} selected
+									</span>
+									<span className="mx-1 h-5 w-px bg-border" aria-hidden="true" />
+									{BOOKMARK_STATUSES.map((status) => (
+										<Button
+											key={status}
+											size="sm"
+											variant="tertiary"
+											isDisabled={isPending}
+											onPress={() => runBulk(() => bulkSetStatus(selectedBulkItems(), status))}
+										>
+											{BOOKMARK_STATUS_LABELS[status]}
+										</Button>
+									))}
+									<Button
+										size="sm"
+										variant="tertiary"
+										isDisabled={isPending}
+										onPress={() => runBulk(() => bulkSetFavorite(selectedBulkItems(), true))}
+									>
+										Favorite
+									</Button>
+									<Button
+										size="sm"
+										variant="tertiary"
+										isDisabled={isPending}
+										onPress={() => runBulk(() => bulkSetFavorite(selectedBulkItems(), false))}
+									>
+										Unfavorite
+									</Button>
+									<Button
+										size="sm"
+										variant="danger"
+										isDisabled={isPending}
+										onPress={runBulkRemove}
+									>
+										Remove
+									</Button>
+									<Button size="sm" variant="tertiary" isDisabled={isPending} onPress={() => setSelectedIds(new Set())}>
+										Clear
+									</Button>
+								</>
+							) : null}
+						</div>
+						{actionError ? <p className="text-xs text-danger">{actionError}</p> : null}
+						<div className={MEDIA_GRID_CLASS}>
+							{filtered.map((item) => (
+								<LibraryCard
+									key={itemId(item)}
+									item={item}
+									selectMode={selectMode}
+									selected={selectedIds.has(itemId(item))}
+									onToggleSelect={() => toggleSelected(itemId(item))}
+									onBookmarkChange={(bookmark) => updateBookmark(item, bookmark)}
+									onRemove={() => removeItem(item)}
+								/>
+							))}
+						</div>
+					</>
 				) : (
 					<MediaEmptyState title={empty.title} message={empty.message} />
 				)}

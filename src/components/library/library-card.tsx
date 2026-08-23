@@ -56,6 +56,29 @@ function TrashIcon() {
 	);
 }
 
+function SelectionCheckbox({
+	title,
+	selected,
+	onToggle,
+}: {
+	title: string;
+	selected: boolean;
+	onToggle: () => void;
+}) {
+	return (
+		<div className="absolute right-2 top-2 z-10 rounded-md bg-background/80 p-1 backdrop-blur-sm">
+			<input
+				type="checkbox"
+				checked={selected}
+				onChange={onToggle}
+				onClick={(event) => event.stopPropagation()}
+				aria-label={`Select ${title}`}
+				className="size-5 cursor-pointer accent-warning"
+			/>
+		</div>
+	);
+}
+
 function CardActions({
 	status,
 	favorite,
@@ -134,11 +157,17 @@ function CardActions({
 function TitleCard({
 	media,
 	bookmark,
+	selectMode,
+	selected,
+	onToggleSelect,
 	onBookmarkChange,
 	onRemove,
 }: {
 	media: MediaSummary;
 	bookmark: BookmarkState;
+	selectMode: boolean;
+	selected: boolean;
+	onToggleSelect: () => void;
 	onBookmarkChange: (bookmark: BookmarkState) => void;
 	onRemove: () => void;
 }) {
@@ -172,8 +201,20 @@ function TitleCard({
 
 	return (
 		<Card variant="default" className="flex h-full flex-col overflow-hidden">
-			<Link href={href} className="group block">
+			<Link
+				href={href}
+				className="group block"
+				onClick={(event) => {
+					if (selectMode) {
+						event.preventDefault();
+						onToggleSelect();
+					}
+				}}
+			>
 				<Card.Content className="relative aspect-[2/3] p-0">
+					{selectMode ? (
+						<SelectionCheckbox title={media.name} selected={selected} onToggle={onToggleSelect} />
+					) : null}
 					{poster ? (
 						<Image
 							src={poster}
@@ -218,10 +259,16 @@ function TitleCard({
 
 function EpisodeCard({
 	item,
+	selectMode,
+	selected,
+	onToggleSelect,
 	onBookmarkChange,
 	onRemove,
 }: {
 	item: EpisodeLibraryItem;
+	selectMode: boolean;
+	selected: boolean;
+	onToggleSelect: () => void;
 	onBookmarkChange: (bookmark: BookmarkState) => void;
 	onRemove: () => void;
 }) {
@@ -253,8 +300,20 @@ function EpisodeCard({
 
 	return (
 		<Card variant="default" className="flex h-full flex-col overflow-hidden">
-			<Link href={item.href} className="group block">
+			<Link
+				href={item.href}
+				className="group block"
+				onClick={(event) => {
+					if (selectMode) {
+						event.preventDefault();
+						onToggleSelect();
+					}
+				}}
+			>
 				<Card.Content className="relative aspect-[2/3] p-0">
+					{selectMode ? (
+						<SelectionCheckbox title={item.title} selected={selected} onToggle={onToggleSelect} />
+					) : null}
 					{item.imageUrl ? (
 						<Image
 							src={item.imageUrl}
@@ -296,16 +355,37 @@ function EpisodeCard({
 
 export function LibraryCard({
 	item,
+	selectMode,
+	selected,
+	onToggleSelect,
 	onBookmarkChange,
 	onRemove,
 }: {
 	item: LibraryItem;
+	selectMode: boolean;
+	selected: boolean;
+	onToggleSelect: () => void;
 	onBookmarkChange: (bookmark: BookmarkState) => void;
 	onRemove: () => void;
 }) {
 	return item.kind === "episode" ? (
-		<EpisodeCard item={item} onBookmarkChange={onBookmarkChange} onRemove={onRemove} />
+		<EpisodeCard
+			item={item}
+			selectMode={selectMode}
+			selected={selected}
+			onToggleSelect={onToggleSelect}
+			onBookmarkChange={onBookmarkChange}
+			onRemove={onRemove}
+		/>
 	) : (
-		<TitleCard media={item.media} bookmark={item.bookmark} onBookmarkChange={onBookmarkChange} onRemove={onRemove} />
+		<TitleCard
+			media={item.media}
+			bookmark={item.bookmark}
+			selectMode={selectMode}
+			selected={selected}
+			onToggleSelect={onToggleSelect}
+			onBookmarkChange={onBookmarkChange}
+			onRemove={onRemove}
+		/>
 	);
 }
