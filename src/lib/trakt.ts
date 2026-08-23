@@ -1,5 +1,17 @@
 const TRAKT_API_BASE_URL = "https://api.trakt.tv";
 
+// Config absence is an environment condition, not a per-request error: warn
+// once per process so logs (and anything keyed off console.error) stay clean.
+let warnedMissingClientId = false;
+
+function warnMissingClientId() {
+	if (warnedMissingClientId) return;
+	warnedMissingClientId = true;
+	console.warn(
+		"TRAKT_CLIENT_ID is not set; episode-title search is disabled. Add it to .dev.vars or `wrangler secret put TRAKT_CLIENT_ID` to enable the Episodes tab.",
+	);
+}
+
 export interface TraktEpisodeSearchHit {
 	showName: string;
 	showYear: number | null;
@@ -44,7 +56,7 @@ export async function searchTraktEpisodes(query: string): Promise<TraktEpisodeSe
 	}
 	const clientId = process.env.TRAKT_CLIENT_ID;
 	if (!clientId) {
-		console.error("TRAKT_CLIENT_ID is not set; skipping Trakt episode search.");
+		warnMissingClientId();
 		return { ok: false, hits: [] };
 	}
 	try {
