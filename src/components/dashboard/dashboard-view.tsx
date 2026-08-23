@@ -40,6 +40,9 @@ function QuickLinks() {
 			<Link href="/dashboard/import" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
 				Import
 			</Link>
+			<Link href="/dashboard/stats" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
+				Stats
+			</Link>
 			<Link href="/search" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
 				Search
 			</Link>
