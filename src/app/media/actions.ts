@@ -199,13 +199,14 @@ export async function removeFromLibrary(mediaType: MediaType, mediaId: number): 
 	revalidatePath("/dashboard/library");
 }
 
-export async function setRating(mediaType: MediaType, mediaId: number, rating: number): Promise<BookmarkState> {
+export async function setRating(
+	mediaType: MediaType,
+	mediaId: number,
+	rating: number | null,
+): Promise<BookmarkState> {
 	const session = await requireSession();
-	if (!isHalfStepRating(rating)) {
-		throw new Error(`Invalid rating: ${rating}`);
-	}
 	const db = getCloudflareContext().env.DB;
-	const bookmark = await setBookmarkRating(db, session.user.id, mediaType, mediaId, rating);
+	const bookmark = await setBookmarkRating(db, session.user.id, mediaType, mediaId, normalizeRating(rating));
 	if (!bookmark) {
 		throw new Error("Bookmark not found");
 	}
