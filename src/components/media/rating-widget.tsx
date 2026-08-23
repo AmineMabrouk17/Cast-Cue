@@ -59,7 +59,7 @@ export function RatingWidget({
 	const [error, setError] = useState<string | null>(null);
 
 	function select(next: number) {
-		const target = rating === next ? 0 : next;
+		const target: number | null = rating === next ? null : next;
 		setValue(target);
 		setError(null);
 		void setRating(mediaType, mediaId, target).catch(() => {
