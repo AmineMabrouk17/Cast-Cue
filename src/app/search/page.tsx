@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Tabs } from "@heroui/react/tabs";
 import { searchTmdb, type MediaSummary, type MediaType } from "@/lib/tmdb";
@@ -14,6 +15,24 @@ import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 import { EpisodeSearchResults } from "@/components/media/episode-search-results";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+	searchParams,
+}: {
+	searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+	const { q } = await searchParams;
+	const query = q?.trim() ?? "";
+	const title = query ? `“${query}” search results` : "Search";
+	const description = query
+		? "Movies, series, and episodes matching your search."
+		: "Find movies and series on TMDB, and episodes by name or season/episode notation.";
+	return {
+		title,
+		description,
+		openGraph: { title, description, type: "website" },
+	};
+}
 
 const RESULT_GROUPS: {
 	type: MediaType;

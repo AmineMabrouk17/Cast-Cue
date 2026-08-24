@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { redirect } from "next/navigation";
@@ -8,6 +9,16 @@ import { LibraryView, type LibraryItem } from "@/components/library/library-view
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+	title: "Library",
+	description: "Your full watchlist — every movie, series, and episode you've saved.",
+	openGraph: {
+		title: "Library",
+		description: "Your full watchlist — every movie, series, and episode you've saved.",
+		type: "website",
+	},
+};
 
 function toBookmarkState(reference: UserBookmark): BookmarkState {
 	return {

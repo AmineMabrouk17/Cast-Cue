@@ -63,9 +63,21 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 	const { slug } = await params;
 	const user = await getUserBySlug(getCloudflareContext().env.DB, slug);
 	if (!user) return { title: "Profile not found" };
+	const title = `${user.name} on Cast Cue`;
+	const description = `See what ${user.name} is watching.`;
 	return {
-		title: `${user.name} on Cast Cue`,
-		description: `See what ${user.name} is watching.`,
+		title,
+		description,
+		openGraph: {
+			title,
+			description,
+			type: "profile",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title,
+			description,
+		},
 	};
 }
 

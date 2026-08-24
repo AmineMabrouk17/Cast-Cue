@@ -1,13 +1,33 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { AppFooter } from "@/components/app-footer";
 import { AppNavbar } from "@/components/app-navbar";
 import { Providers } from "./providers";
 
+const DEFAULT_TITLE = "Cast n Cue — Track everything you watch";
+const DEFAULT_DESCRIPTION =
+	"Track the movies, series, and episodes you watch. Rate titles, keep notes, and build your personal cinema archive.";
+
 export const metadata: Metadata = {
-	title: "Cast n Cue",
-	description: "Track the movies, series, and episodes you watch.",
+	metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+	title: {
+		default: DEFAULT_TITLE,
+		template: "%s · Cast n Cue",
+	},
+	description: DEFAULT_DESCRIPTION,
 	applicationName: "Cast n Cue",
+	openGraph: {
+		type: "website",
+		siteName: "Cast n Cue",
+		title: DEFAULT_TITLE,
+		description: DEFAULT_DESCRIPTION,
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: DEFAULT_TITLE,
+		description: DEFAULT_DESCRIPTION,
+	},
 	manifest: "/site.webmanifest",
 	icons: {
 		icon: [
@@ -38,6 +58,7 @@ export default function RootLayout({
 					<div className="flex min-h-screen flex-col">
 						<AppNavbar />
 						{children}
+						<AppFooter />
 					</div>
 				</Providers>
 			</body>

@@ -1,10 +1,10 @@
 import { MediaCard } from "./media-card";
-import type { MediaSummary } from "@/lib/tmdb";
+import type { MediaCardItem } from "./media-card";
 
 export const MEDIA_GRID_CLASS =
-	"grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
+	"grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6";
 
-export function MediaGrid({ items }: { items: MediaSummary[] }) {
+export function MediaGrid({ items }: { items: MediaCardItem[] }) {
 	return (
 		<div className={MEDIA_GRID_CLASS}>
 			{items.map((item) => (

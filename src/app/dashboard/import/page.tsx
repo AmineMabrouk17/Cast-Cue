@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/session";
 import { ImportView } from "@/components/library/import-view";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+	title: "Import",
+	description: "Bring your watch history over from Letterboxd or Trakt with a CSV import.",
+	openGraph: {
+		title: "Import",
+		description: "Bring your watch history over from Letterboxd or Trakt with a CSV import.",
+		type: "website",
+	},
+};
 
 export default async function ImportPage() {
 	const session = await getServerSession();

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import Link from "next/link";
@@ -7,6 +8,16 @@ import { getServerSession } from "@/lib/session";
 import { getEpisodeDetail, getMediaDetail, getSeriesBrief, tmdbPosterUrl } from "@/lib/tmdb";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+	title: "Stats",
+	description: "Your watch time, rating habits, and favorite titles at a glance.",
+	openGraph: {
+		title: "Stats",
+		description: "Your watch time, rating habits, and favorite titles at a glance.",
+		type: "website",
+	},
+};
 
 interface WatchedMovie {
 	mediaId: number;

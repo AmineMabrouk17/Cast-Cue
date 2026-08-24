@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+	title: "Dashboard",
+	description: "Pick up where you left off — continue watching and see what's up next.",
+	openGraph: {
+		title: "Dashboard",
+		description: "Pick up where you left off — continue watching and see what's up next.",
+		type: "website",
+	},
+};
 
 export default function DashboardPage() {
 	return (
