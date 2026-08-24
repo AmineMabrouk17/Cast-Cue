@@ -1,7 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { buttonVariants } from "@heroui/styles";
 import { getServerSession } from "@/lib/session";
 import {
 	getEpisodeBookmarksForSeason,
@@ -18,6 +17,7 @@ import {
 	type MediaType,
 } from "@/lib/tmdb";
 import { MediaEmptyState } from "@/components/media/media-empty-state";
+import { SectionHeader } from "@/components/shared/section-header";
 import { ContinueWatchingSection, type ContinueWatchingItem } from "./continue-watching";
 import { UpNextSection, type UpNextItem } from "./up-next";
 import { WatchlistRoulette, type RouletteCandidate } from "./watchlist-roulette";
@@ -28,39 +28,51 @@ const MAX_UP_NEXT_SERIES = 25;
 const MAX_UP_NEXT_RESULTS = 8;
 const MAX_ROULETTE_POOL = 20;
 
+const QUICK_LINKS = [
+	{ href: "/dashboard/library", label: "Library" },
+	{ href: "/dashboard/notes", label: "Notes" },
+	{ href: "/dashboard/import", label: "Import" },
+	{ href: "/dashboard/stats", label: "Stats" },
+	{ href: "/dashboard/settings", label: "Settings" },
+	{ href: "/search", label: "Search" },
+] as const;
+
 function QuickLinks() {
 	return (
 		<nav className="flex flex-wrap items-center gap-2" aria-label="Dashboard shortcuts">
-			<Link href="/dashboard/library" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
-				Library
-			</Link>
-			<Link href="/dashboard/notes" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
-				Notes
-			</Link>
-			<Link href="/dashboard/import" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
-				Import
-			</Link>
-			<Link href="/dashboard/stats" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
-				Stats
-			</Link>
-			<Link href="/dashboard/settings" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
-				Settings
-			</Link>
-			<Link href="/search" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
-				Search
-			</Link>
+			{QUICK_LINKS.map((link) => (
+				<Link
+					key={link.href}
+					href={link.href}
+					className="rounded-full border border-border px-4 py-1.5 text-sm text-muted transition-colors duration-300 hover:border-accent hover:text-accent"
+				>
+					{link.label}
+				</Link>
+			))}
 		</nav>
 	);
 }
 
 function WelcomeHero({ name }: { name: string }) {
 	return (
-		<div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-			<h1 className="text-3xl font-bold">Welcome, {name}</h1>
+		<div className="flex flex-1 flex-col items-center justify-center gap-6 py-24 text-center">
+			<span className="inline-flex w-fit items-center gap-2 rounded-full border border-accent/60 bg-accent-soft px-3 py-1 text-xs font-medium uppercase tracking-widest text-accent-soft-foreground">
+				<span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
+				Your personal cinema
+			</span>
+			<h1 className="max-w-2xl text-4xl font-bold leading-tight sm:text-5xl">
+				Welcome back, <span className="text-accent">{name}</span>
+			</h1>
 			<p className="max-w-md text-muted">
 				Start by searching for a movie, series, or episode. Bookmark it and it will land in your library.
 			</p>
-			<Link href="/search" className={buttonVariants({ variant: "primary", size: "md" })}>
+			<Link
+				href="/search"
+				className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-glow transition-colors duration-300 hover:bg-accent-hover"
+			>
+				<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="size-4">
+					<path d="M8 5v14l11-7L8 5z" />
+				</svg>
 				Find something to watch
 			</Link>
 			<QuickLinks />
@@ -227,17 +239,17 @@ export async function DashboardView() {
 	const roulettePool = await resolveRoulettePool(watchlist);
 
 	return (
-		<div className="flex flex-col gap-10">
-			<header className="flex flex-col gap-1">
-				<h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+		<div className="flex flex-col gap-12">
+			<header className="flex flex-col gap-2">
+				<h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
 				<p className="text-muted">Jump back in where you left off.</p>
 			</header>
 			<QuickLinks />
 			{continueItems.length > 0 ? (
 				<ContinueWatchingSection items={continueItems} />
 			) : (
-				<section className="flex flex-col gap-4">
-					<h2 className="text-xl font-semibold text-foreground">Continue watching</h2>
+				<section className="flex flex-col gap-5">
+					<SectionHeader eyebrow="Keep Watching" title="Continue watching" size="sm" />
 					<MediaEmptyState
 						title="Nothing in progress"
 						message="Mark a bookmark as Watching and it will show up here."

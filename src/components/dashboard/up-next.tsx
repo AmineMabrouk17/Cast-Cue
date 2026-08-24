@@ -1,7 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Card } from "@heroui/react/card";
 import { tmdbPosterUrl } from "@/lib/tmdb";
+import { SectionHeader } from "@/components/shared/section-header";
 
 export interface UpNextItem {
 	href: string;
@@ -17,39 +16,42 @@ function UpNextCard({ item }: { item: UpNextItem }) {
 
 	return (
 		<Link href={item.href} className="group block">
-			<Card variant="default" className="h-full overflow-hidden">
-				<Card.Content className="flex items-center gap-3 p-3">
-					<div className="relative aspect-[2/3] w-20 shrink-0 overflow-hidden rounded-md">
-						{poster ? (
-							<Image
-								src={poster}
-								alt={item.title}
-								fill
-								sizes="80px"
-								className="object-cover transition-transform duration-300 group-hover:scale-105"
-							/>
-						) : (
-							<div className="flex h-full w-full items-center justify-center bg-default p-2 text-center text-xs text-muted">
-								{item.title}
-							</div>
-						)}
-					</div>
-					<div className="flex min-w-0 flex-col gap-1">
-						<span className="line-clamp-1 text-sm font-medium text-foreground">{item.title}</span>
-						<span className="line-clamp-1 text-xs text-muted">{item.episodeLabel}</span>
-						<span className="text-xs font-medium text-foreground">{item.dateLabel}</span>
-					</div>
-				</Card.Content>
-			</Card>
+			<div className="flex items-center gap-4 rounded-xl border border-border bg-surface p-3 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-accent/40 group-hover:shadow-lg">
+				<div className="relative aspect-[2/3] w-20 shrink-0 overflow-hidden rounded-lg border border-border">
+					{poster ? (
+						/* eslint-disable-next-line @next/next/no-img-element */
+						<img
+							src={poster}
+							alt={item.title}
+							width={154}
+							height={231}
+							loading="lazy"
+							decoding="async"
+							className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+						/>
+					) : (
+						<div className="flex size-full items-center justify-center bg-elevated p-2 text-center text-xs text-muted">
+							{item.title}
+						</div>
+					)}
+					<div className="bg-poster-overlay pointer-events-none absolute inset-x-0 bottom-0 h-2/3" />
+				</div>
+				<div className="flex min-w-0 flex-col gap-1.5">
+					<span className="line-clamp-1 text-sm font-medium text-foreground">{item.title}</span>
+					<span className="line-clamp-1 text-xs text-muted">{item.episodeLabel}</span>
+					<span className="w-fit rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-soft-foreground">
+						{item.dateLabel}
+					</span>
+				</div>
+			</div>
 		</Link>
 	);
 }
 
 export function UpNextSection({ items }: { items: UpNextItem[] }) {
 	return (
-		<section className="flex flex-col gap-4">
-			<h2 className="text-xl font-semibold text-foreground">Up next</h2>
-			<p className="text-sm text-muted">Episodes from your library airing soon.</p>
+		<section className="flex flex-col gap-5">
+			<SectionHeader eyebrow="Airing Soon" title="Up next" size="sm" />
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				{items.map((item) => (
 					<UpNextCard key={item.href} item={item} />
