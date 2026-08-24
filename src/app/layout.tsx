@@ -24,8 +24,14 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" suppressHydrationWarning>
-			<body className="min-h-screen bg-background text-foreground antialiased">
+		<html lang="en" className="dark" suppressHydrationWarning>
+			<body className="min-h-screen bg-background font-body text-foreground antialiased">
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+				<link
+					rel="stylesheet"
+					href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"
+				/>
 				<Providers>
 					<div className="flex min-h-screen flex-col">
 						<AppNavbar />
