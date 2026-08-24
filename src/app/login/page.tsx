@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SignInButton } from "@/components/sign-in-button";
 import { getServerSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+	title: "Sign in",
+	description: "Sign in to Cast n Cue with your Google account to track what you watch.",
+	openGraph: {
+		title: "Sign in",
+		description: "Sign in to Cast n Cue with your Google account to track what you watch.",
+		type: "website",
+	},
+};
 
 export default async function LoginPage() {
 	const session = await getServerSession();

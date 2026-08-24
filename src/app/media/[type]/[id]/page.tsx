@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { notFound } from "next/navigation";
 import { getMediaDetail, type MediaType } from "@/lib/tmdb";
@@ -11,6 +12,41 @@ export const dynamic = "force-dynamic";
 
 function isMediaType(value: string): value is MediaType {
 	return value === "movie" || value === "series";
+}
+
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ type: string; id: string }>;
+}): Promise<Metadata> {
+	const { type, id } = await params;
+	if (!isMediaType(type)) {
+		return { title: "Not found" };
+	}
+	const mediaId = Number(id);
+	if (!Number.isSafeInteger(mediaId) || mediaId <= 0) {
+		return { title: "Not found" };
+	}
+	const media = await getMediaDetail(type, mediaId);
+	if (!media) {
+		return { title: "Not found" };
+	}
+	const title = `${media.name}${media.year ? ` (${media.year})` : ""}`;
+	const description = media.overview.slice(0, 160) || `Details about ${media.name}.`;
+	return {
+		title,
+		description,
+		openGraph: {
+			title,
+			description,
+			type: type === "movie" ? "video.movie" : "video.tv_show",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title,
+			description,
+		},
+	};
 }
 
 export default async function MediaDetailPage({

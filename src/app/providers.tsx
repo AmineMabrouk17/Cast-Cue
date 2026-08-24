@@ -14,8 +14,9 @@ export function Providers({ children, themeProps }: ProvidersProps) {
 		<I18nProvider locale="en-US">
 			<NextThemesProvider
 				attribute="class"
-				defaultTheme="system"
-				enableSystem
+				defaultTheme="dark"
+				forcedTheme="dark"
+				enableSystem={false}
 				{...themeProps}
 			>
 				{children}

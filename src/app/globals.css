@@ -1,8 +1,156 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
+/*
+ * CINEMAX design system — dark cinematic streaming-platform theme.
+ * Every color used by components is defined here as a token.
+ * Dark theme only; there is no light variant.
+ */
+
 @custom-variant dark (&:is(.dark *));
 
+:root {
+	/* Base palette */
+	--cinema-bg: oklch(0.13 0.006 285);
+	--cinema-elevated: oklch(0.1 0.005 285);
+	--cinema-card: oklch(0.17 0.007 285);
+	--cinema-accent-surface: oklch(0.26 0.01 285);
+	--cinema-fg: oklch(0.98 0 0);
+	--cinema-muted: oklch(0.72 0.008 285);
+	--cinema-red: oklch(0.56 0.22 27.5);
+	--cinema-red-hover: oklch(0.63 0.21 27.5);
+	--cinema-gold: oklch(0.84 0.16 88);
+
+	/* Typography stacks (fonts loaded via <link> in the document head) */
+	--font-body-stack: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-display-stack: "Space Grotesk", var(--font-body-stack);
+}
+
+/*
+ * Map HeroUI's semantic variables onto the CINEMAX palette.
+ * Declared under .dark because the app ships dark-only.
+ */
+.dark {
+	color-scheme: dark;
+
+	/* Backgrounds */
+	--background: var(--cinema-bg);
+	--background-secondary: var(--cinema-elevated);
+	--background-tertiary: var(--cinema-accent-surface);
+	--background-inverse: var(--cinema-fg);
+
+	/* Text */
+	--foreground: var(--cinema-fg);
+	--muted: var(--cinema-muted);
+
+	/* Surfaces (cards, bands) */
+	--surface: var(--cinema-card);
+	--surface-foreground: var(--cinema-fg);
+	--surface-hover: var(--cinema-accent-surface);
+	--surface-secondary: var(--cinema-elevated);
+	--surface-secondary-foreground: var(--cinema-fg);
+	--surface-tertiary: var(--cinema-accent-surface);
+	--surface-tertiary-foreground: var(--cinema-fg);
+
+	/* Overlays (menus, popovers) */
+	--overlay: var(--cinema-card);
+	--overlay-foreground: var(--cinema-fg);
+
+	/* Default interactive surface */
+	--default: var(--cinema-accent-surface);
+	--default-foreground: var(--cinema-fg);
+	--default-hover: oklch(0.31 0.012 285);
+
+	/* Primary action color: cinematic red */
+	--accent: var(--cinema-red);
+	--accent-foreground: oklch(1 0 0);
+	--accent-hover: var(--cinema-red-hover);
+	--accent-soft: color-mix(in oklab, var(--cinema-red) 16%, transparent);
+	--accent-soft-foreground: oklch(0.74 0.17 27.5);
+	--accent-soft-hover: color-mix(in oklab, var(--cinema-red) 26%, transparent);
+
+	/* Borders: white at low alpha */
+	--border: oklch(1 0 0 / 0.1);
+	--border-secondary: oklch(1 0 0 / 0.12);
+	--border-tertiary: oklch(1 0 0 / 0.14);
+	--separator: oklch(1 0 0 / 0.08);
+	--separator-secondary: oklch(1 0 0 / 0.1);
+	--separator-tertiary: oklch(1 0 0 / 0.12);
+
+	/* Form fields */
+	--field-background: var(--cinema-card);
+	--field-foreground: var(--cinema-fg);
+	--field-border: oklch(1 0 0 / 0.14);
+	--field-border-hover: oklch(1 0 0 / 0.2);
+	--field-border-focus: var(--cinema-red);
+	--field-hover: oklch(0.19 0.007 285);
+	--field-focus: var(--cinema-red);
+	--field-placeholder: var(--cinema-muted);
+
+	/* Focus ring */
+	--focus: var(--cinema-red);
+	--link: var(--cinema-fg);
+
+	/* Shape */
+	--radius: 0.75rem;
+	--field-radius: 0.75rem;
+}
+
+/* Expose extra CINEMAX tokens as Tailwind utilities */
+@theme inline {
+	--color-primary: var(--accent);
+	--color-primary-hover: var(--accent-hover);
+	--color-primary-foreground: var(--accent-foreground);
+	--color-gold: var(--cinema-gold);
+	--color-elevated: var(--cinema-elevated);
+	--color-accent-surface: var(--cinema-accent-surface);
+
+	--font-display: var(--font-display-stack);
+	--font-body: var(--font-body-stack);
+
+	--shadow-glow: 0 0 60px -12px color-mix(in oklab, var(--accent) 55%, transparent);
+}
+
+/* Gradient overlays */
+.bg-hero-overlay {
+	background-image: linear-gradient(to right, oklch(0 0 0 / 0.96) 0%, oklch(0 0 0 / 0.2) 100%);
+}
+.bg-bottom-fade {
+	background-image: linear-gradient(to top, var(--cinema-bg) 0%, transparent 100%);
+}
+.bg-poster-overlay {
+	background-image: linear-gradient(to top, oklch(0 0 0 / 0.95) 0%, transparent 35%);
+}
+
+/* Hero entrance animation (fade + slight upward slide) */
+@keyframes hero-enter {
+	from {
+		opacity: 0;
+		transform: translateY(1.5rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+.animate-hero-enter {
+	animation: hero-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
 body {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: var(--font-body-stack);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-display-stack);
+	letter-spacing: -0.02em;
 }

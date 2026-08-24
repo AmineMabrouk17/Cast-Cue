@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -6,6 +7,16 @@ import { getProfileVisibility } from "@/lib/profile";
 import { ProfileVisibilityCard } from "@/components/settings/profile-visibility-card";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+	title: "Settings",
+	description: "Manage your Cast n Cue profile and who can see your library.",
+	openGraph: {
+		title: "Settings",
+		description: "Manage your Cast n Cue profile and who can see your library.",
+		type: "website",
+	},
+};
 
 async function SettingsContent() {
 	const session = await getServerSession();

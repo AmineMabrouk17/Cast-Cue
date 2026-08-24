@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { notFound } from "next/navigation";
 import { getBookmark } from "@/lib/bookmarks";
@@ -11,6 +12,44 @@ export const dynamic = "force-dynamic";
 function toPositiveInt(value: string): number | null {
 	const parsed = Number(value);
 	return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ seriesId: string; seasonNumber: string; episodeNumber: string }>;
+}): Promise<Metadata> {
+	const { seriesId: seriesIdRaw, seasonNumber: seasonRaw, episodeNumber: episodeRaw } =
+		await params;
+	const seriesId = toPositiveInt(seriesIdRaw);
+	const seasonNumber = toPositiveInt(seasonRaw);
+	const episodeNumber = toPositiveInt(episodeRaw);
+	if (seriesId === null || seasonNumber === null || episodeNumber === null) {
+		return { title: "Not found" };
+	}
+	const [series, episode] = await Promise.all([
+		getSeriesBrief(seriesId),
+		getEpisodeDetail(seriesId, seasonNumber, episodeNumber),
+	]);
+	if (!series || !episode) {
+		return { title: "Not found" };
+	}
+	const title = `${series.name}: ${episode.name} · S${seasonNumber} E${episodeNumber}`;
+	const description = episode.overview.slice(0, 160) || `Episode ${episodeNumber} of ${series.name}.`;
+	return {
+		title,
+		description,
+		openGraph: {
+			title,
+			description,
+			type: "video.tv_show",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title,
+			description,
+		},
+	};
 }
 
 export default async function EpisodeDetailPage({

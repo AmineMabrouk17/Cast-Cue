@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { redirect } from "next/navigation";
@@ -8,6 +9,16 @@ import { NotesView, type NoteItem } from "@/components/notes/notes-view";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+	title: "Notes",
+	description: "Every note you've written about the movies and episodes you've watched.",
+	openGraph: {
+		title: "Notes",
+		description: "Every note you've written about the movies and episodes you've watched.",
+		type: "website",
+	},
+};
 
 async function resolveItem(reference: UserBookmark): Promise<NoteItem | null> {
 	const note = reference.note?.trim();
