@@ -157,19 +157,26 @@ export default async function SearchPage({
 						? "Movies, series, and episodes matching your search."
 						: "Find movies and series on TMDB, and episodes by name or season/episode notation."}
 				</p>
-				<Suspense fallback={null}>
-					<SearchBox className="w-full max-w-xl" />
-				</Suspense>
 			</header>
 			{query ? (
-				<Suspense fallback={<MediaGridSkeleton />}>
-					<SearchResults query={query} />
-				</Suspense>
+				<>
+					<Suspense fallback={null}>
+						<SearchBox className="w-full max-w-xl" />
+					</Suspense>
+					<Suspense fallback={<MediaGridSkeleton />}>
+						<SearchResults query={query} />
+					</Suspense>
+				</>
 			) : (
-				<MediaEmptyState
-					title="Search movies, series & episodes"
-					message="Type in the search box above to find movies, series, and episodes."
-				/>
+				<div className="flex flex-col items-center gap-6 py-8">
+					<MediaEmptyState
+						title="Search movies, series & episodes"
+						message="Type what you&apos;re looking for below to find movies, series, and episodes."
+					/>
+					<Suspense fallback={null}>
+						<SearchBox className="w-full max-w-xl" />
+					</Suspense>
+				</div>
 			)}
 		</main>
 	);
