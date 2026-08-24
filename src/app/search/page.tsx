@@ -13,6 +13,7 @@ import { MediaGrid } from "@/components/media/media-grid";
 import { MediaEmptyState } from "@/components/media/media-empty-state";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 import { EpisodeSearchResults } from "@/components/media/episode-search-results";
+import { SearchBox } from "@/components/search-box";
 
 export const dynamic = "force-dynamic";
 
@@ -156,6 +157,9 @@ export default async function SearchPage({
 						? "Movies, series, and episodes matching your search."
 						: "Find movies and series on TMDB, and episodes by name or season/episode notation."}
 				</p>
+				<Suspense fallback={null}>
+					<SearchBox className="w-full max-w-xl" />
+				</Suspense>
 			</header>
 			{query ? (
 				<Suspense fallback={<MediaGridSkeleton />}>

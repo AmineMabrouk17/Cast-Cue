@@ -6,7 +6,7 @@ import { SearchField } from "@heroui/react/search-field";
 
 const DEBOUNCE_MS = 500;
 
-export function SearchBox() {
+export function SearchBox({ className = "w-full max-w-xs" }: { className?: string }) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -48,7 +48,7 @@ export function SearchBox() {
 			value={query}
 			onChange={setQuery}
 			aria-label="Search movies, series, and episodes"
-			className="w-full max-w-xs"
+			className={className}
 		>
 			<SearchField.Group>
 				<SearchField.SearchIcon />
