@@ -2,6 +2,7 @@
 
 import { useTransition, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@heroui/react/button";
 import { buttonVariants } from "@heroui/styles";
 import { BOOKMARK_STATUS_LABELS, BOOKMARK_STATUSES, type BookmarkState } from "@/lib/bookmarks";
@@ -36,6 +37,7 @@ export function BookmarkPanel({
 	initialBookmark: BookmarkState | null;
 	isSignedIn: boolean;
 }) {
+	const pathname = usePathname();
 	const [isPending, startTransition] = useTransition();
 	const [bookmark, setBookmark] = useState<BookmarkState | null>(initialBookmark);
 	const [error, setError] = useState<string | null>(null);
@@ -53,8 +55,11 @@ export function BookmarkPanel({
 	}
 
 	if (!isSignedIn) {
+		const targetUrl = pathname || `/media/${mediaType}/${mediaId}`;
+		const loginHref = `/login?callbackUrl=${encodeURIComponent(targetUrl)}`;
+
 		return (
-			<Link href="/login" className={buttonVariants({ variant: "tertiary", size: "sm" })}>
+			<Link href={loginHref} className={buttonVariants({ variant: "tertiary", size: "sm" })}>
 				Sign in to add to your library
 			</Link>
 		);
