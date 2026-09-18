@@ -45,7 +45,7 @@ export async function EpisodeGuide({
 		: new Map<number, BookmarkState>();
 
 	return (
-		<section className="flex flex-col gap-6 p-8 pt-0">
+		<section className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pt-4 sm:px-6 lg:px-8">
 			<header className="flex flex-col gap-1">
 				<h2 className="text-xl font-semibold text-foreground">Episodes</h2>
 				<p className="text-sm text-muted">
@@ -56,7 +56,9 @@ export async function EpisodeGuide({
 			{episodes.length > 0 ? (
 				<EpisodeList episodes={episodes} tvmaze={tvmaze.episodes} bookmarks={bookmarks} />
 			) : (
-				<p className="text-sm text-muted">No episodes found for this season.</p>
+				<div className="rounded-xl border border-border bg-surface/40 p-8 text-center text-sm text-muted">
+					No episodes found for this season.
+				</div>
 			)}
 		</section>
 	);
