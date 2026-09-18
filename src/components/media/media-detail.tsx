@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { MEDIA_TYPE_LABELS, tmdbBackdropUrl, tmdbPosterUrl, tmdbProfileUrl, type MediaDetail } from "@/lib/tmdb";
 import type { OmdbRatings } from "@/lib/omdb";
@@ -12,6 +15,136 @@ function ScoreBadge({ label, value }: { label: string; value: string }) {
 	);
 }
 
+function MediaIcon({ type }: { type: "movie" | "series" }) {
+	if (type === "series") {
+		return (
+			<svg
+				aria-hidden="true"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className="size-10 text-muted"
+			>
+				<rect width="20" height="15" x="2" y="7" rx="2" ry="2" />
+				<polyline points="17 2 12 7 7 2" />
+			</svg>
+		);
+	}
+	return (
+		<svg
+			aria-hidden="true"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			className="size-10 text-muted"
+		>
+			<rect width="18" height="18" x="3" y="3" rx="2" />
+			<path d="M7 3v18" />
+			<path d="M17 3v18" />
+			<path d="M3 7.5h4" />
+			<path d="M3 12h18" />
+			<path d="M3 16.5h4" />
+			<path d="M17 7.5h4" />
+			<path d="M17 16.5h4" />
+		</svg>
+	);
+}
+
+function PosterImage({ media }: { media: MediaDetail }) {
+	const initialPoster = tmdbPosterUrl(media.posterPath, "w342");
+	const [imageError, setImageError] = useState(false);
+
+	if (!initialPoster || imageError) {
+		return (
+			<div className="flex aspect-[2/3] w-40 shrink-0 flex-col items-center justify-center gap-3 rounded-xl border border-border bg-gradient-to-br from-surface to-elevated p-4 text-center shadow-2xl md:w-56">
+				<MediaIcon type={media.type} />
+				<span className="line-clamp-3 text-xs font-medium text-muted">{media.name}</span>
+			</div>
+		);
+	}
+
+	return (
+		<div className="relative aspect-[2/3] w-40 shrink-0 overflow-hidden rounded-xl border border-border shadow-2xl md:w-56">
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img
+				src={initialPoster}
+				alt={media.name}
+				width={240}
+				height={360}
+				onError={() => setImageError(true)}
+				className="size-full object-cover"
+			/>
+		</div>
+	);
+}
+
+function BackdropBackground({ media }: { media: MediaDetail }) {
+	const initialBackdrop = tmdbBackdropUrl(media.backdropPath);
+	const [imageError, setImageError] = useState(false);
+
+	if (!initialBackdrop || imageError) {
+		return <div className="absolute inset-0 bg-gradient-to-b from-elevated/40 via-background to-background" />;
+	}
+
+	return (
+		<>
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img
+				src={initialBackdrop}
+				alt=""
+				onError={() => setImageError(true)}
+				className="absolute inset-0 size-full object-cover"
+			/>
+			<div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
+		</>
+	);
+}
+
+function CastCard({ member }: { member: MediaDetail["cast"][number] }) {
+	const profile = tmdbProfileUrl(member.profilePath);
+	const [imageError, setImageError] = useState(false);
+
+	return (
+		<div className="flex flex-col gap-2">
+			<div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-border bg-elevated">
+				{profile && !imageError ? (
+					/* eslint-disable-next-line @next/next/no-img-element */
+					<img
+						src={profile}
+						alt={member.name}
+						onError={() => setImageError(true)}
+						className="size-full object-cover"
+					/>
+				) : (
+					<div className="flex size-full items-center justify-center p-2 text-center text-xs text-muted">
+						<svg
+							aria-hidden="true"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							className="size-8 text-muted/60"
+						>
+							<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+							<circle cx="12" cy="7" r="4" />
+						</svg>
+					</div>
+				)}
+			</div>
+			<div className="flex flex-col">
+				<span className="line-clamp-1 text-sm font-medium text-foreground">{member.name}</span>
+				<span className="line-clamp-1 text-xs text-muted">{member.character}</span>
+			</div>
+		</div>
+	);
+}
+
 export function MediaDetailView({
 	media,
 	ratings,
@@ -23,42 +156,14 @@ export function MediaDetailView({
 	bookmark: BookmarkState | null;
 	isSignedIn: boolean;
 }) {
-	const backdrop = tmdbBackdropUrl(media.backdropPath);
-	const poster = tmdbPosterUrl(media.posterPath, "w342");
-
 	return (
 		<main className="flex flex-1 flex-col">
 			<section className="relative overflow-hidden">
-				{backdrop ? (
-					<>
-						<Image
-							src={backdrop}
-							alt=""
-							fill
-							sizes="100vw"
-							priority
-							className="object-cover"
-						/>
-						<div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20" />
-					</>
-				) : (
-					<div className="absolute inset-0 bg-default" />
-				)}
+				<BackdropBackground media={media} />
+
 				<div className="relative flex flex-col gap-6 p-8 md:flex-row md:items-end">
-					{poster ? (
-						<Image
-							src={poster}
-							alt={media.name}
-							width={240}
-							height={360}
-							priority
-							className="w-40 shrink-0 rounded-xl shadow-2xl md:w-56"
-						/>
-					) : (
-						<div className="flex aspect-[2/3] w-40 shrink-0 items-center justify-center rounded-xl bg-default p-4 text-center text-sm text-muted md:w-56">
-							{media.name}
-						</div>
-					)}
+					<PosterImage media={media} />
+
 					<div className="flex min-w-0 flex-col gap-3">
 						<div className="flex flex-wrap items-center gap-2">
 							<h1 className="text-3xl font-bold text-foreground md:text-4xl">{media.name}</h1>
@@ -116,31 +221,9 @@ export function MediaDetailView({
 				<section className="flex flex-col gap-4 p-8 pt-0">
 					<h2 className="text-xl font-semibold text-foreground">Cast</h2>
 					<div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
-						{media.cast.map((member) => {
-							const profile = tmdbProfileUrl(member.profilePath);
-							return (
-								<div key={member.name} className="flex flex-col gap-2">
-									<div className="aspect-[2/3] overflow-hidden rounded-xl bg-default">
-										{profile ? (
-											<Image
-												src={profile}
-												alt={member.name}
-												width={185}
-												height={278}
-												sizes="(min-width: 1280px) 12.5vw, (min-width: 1024px) 16.6vw, (min-width: 768px) 20vw, (min-width: 640px) 25vw, 33vw"
-												className="h-full w-full object-cover"
-											/>
-										) : null}
-									</div>
-									<div className="flex flex-col">
-										<span className="line-clamp-1 text-sm font-medium text-foreground">
-											{member.name}
-										</span>
-										<span className="line-clamp-1 text-xs text-muted">{member.character}</span>
-									</div>
-								</div>
-							);
-						})}
+						{media.cast.map((member) => (
+							<CastCard key={`${member.name}-${member.character}`} member={member} />
+						))}
 					</div>
 				</section>
 			) : null}
