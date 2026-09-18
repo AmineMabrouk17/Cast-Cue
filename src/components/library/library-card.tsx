@@ -1,7 +1,6 @@
 "use client";
 
 import { useTransition, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@heroui/react/button";
 import { Card } from "@heroui/react/card";
@@ -74,6 +73,70 @@ function SelectionCheckbox({
 				onClick={(event) => event.stopPropagation()}
 				aria-label={`Select ${title}`}
 				className="size-5 cursor-pointer accent-warning"
+			/>
+		</div>
+	);
+}
+
+function PosterThumbnail({
+	src,
+	alt,
+	type = "movie",
+}: {
+	src: string | null;
+	alt: string;
+	type?: "movie" | "series" | "episode";
+}) {
+	const [imageError, setImageError] = useState(false);
+	const [isLoaded, setIsLoaded] = useState(false);
+
+	if (!src || imageError) {
+		return (
+			<div className="flex size-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-surface to-elevated p-4 text-center text-muted">
+				{type === "movie" ? (
+					<svg
+						aria-hidden="true"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						className="size-8 text-muted/60"
+					>
+						<rect width="18" height="18" x="3" y="3" rx="2" />
+						<path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4" />
+					</svg>
+				) : (
+					<svg
+						aria-hidden="true"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						className="size-8 text-muted/60"
+					>
+						<rect width="20" height="15" x="2" y="7" rx="2" ry="2" />
+						<polyline points="17 2 12 7 7 2" />
+					</svg>
+				)}
+				<span className="line-clamp-2 text-xs font-medium">{alt}</span>
+			</div>
+		);
+	}
+
+	return (
+		<div className="relative size-full overflow-hidden bg-elevated">
+			{!isLoaded && <div className="absolute inset-0 animate-pulse bg-elevated" />}
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img
+				src={src}
+				alt={alt}
+				loading="lazy"
+				decoding="async"
+				onLoad={() => setIsLoaded(true)}
+				onError={() => setImageError(true)}
+				className={`size-full object-cover transition-all duration-300 group-hover:scale-105 ${
+					isLoaded ? "opacity-100" : "opacity-0"
+				}`}
 			/>
 		</div>
 	);
@@ -215,19 +278,7 @@ function TitleCard({
 					{selectMode ? (
 						<SelectionCheckbox title={media.name} selected={selected} onToggle={onToggleSelect} />
 					) : null}
-					{poster ? (
-						<Image
-							src={poster}
-							alt={media.name}
-							fill
-							sizes="(min-width: 1280px) 16.6vw, (min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
-							className="object-cover transition-transform duration-300 group-hover:scale-105"
-						/>
-					) : (
-						<div className="flex h-full w-full items-center justify-center bg-default p-4 text-center text-sm text-muted">
-							{media.name}
-						</div>
-					)}
+					<PosterThumbnail src={poster} alt={media.name} type={media.type} />
 					{bookmark.favorite ? (
 						<div className="absolute left-2 top-2 rounded-md bg-background/80 p-1 text-danger backdrop-blur-sm">
 							<HeartIcon filled />
@@ -314,19 +365,7 @@ function EpisodeCard({
 					{selectMode ? (
 						<SelectionCheckbox title={item.title} selected={selected} onToggle={onToggleSelect} />
 					) : null}
-					{item.imageUrl ? (
-						<Image
-							src={item.imageUrl}
-							alt={item.title}
-							fill
-							sizes="(min-width: 1280px) 16.6vw, (min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
-							className="object-cover transition-transform duration-300 group-hover:scale-105"
-						/>
-					) : (
-						<div className="flex h-full w-full items-center justify-center bg-default p-4 text-center text-sm text-muted">
-							{item.title}
-						</div>
-					)}
+					<PosterThumbnail src={item.imageUrl} alt={item.title} type="episode" />
 					{item.bookmark.favorite ? (
 						<div className="absolute left-2 top-2 rounded-md bg-background/80 p-1 text-danger backdrop-blur-sm">
 							<HeartIcon filled />
