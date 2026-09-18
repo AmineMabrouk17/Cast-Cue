@@ -4,7 +4,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { redirect } from "next/navigation";
 import { listUserBookmarksWithNotes, type UserBookmark } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
-import { MEDIA_TYPE_LABELS, getEpisodeDetail, getMediaSummary, getSeriesBrief, tmdbPosterUrl } from "@/lib/tmdb";
+import { MEDIA_TYPE_LABELS, getEpisodeDetail, getMediaSummary, getSeriesBrief, tmdbPosterUrl, tmdbStillUrl } from "@/lib/tmdb";
 import { NotesView, type NoteItem } from "@/components/notes/notes-view";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 
@@ -33,11 +33,16 @@ async function resolveItem(reference: UserBookmark): Promise<NoteItem | null> {
 			getEpisodeDetail(reference.seriesId, reference.seasonNumber, reference.episodeNumber),
 		]);
 		if (!series || !episode) return null;
+
+		const imageUrl = episode.stillPath
+			? tmdbStillUrl(episode.stillPath, "w300")
+			: tmdbPosterUrl(series.posterPath, "w185");
+
 		return {
 			href: `/media/episode/${reference.seriesId}/${reference.seasonNumber}/${reference.episodeNumber}`,
 			title: `S${reference.seasonNumber}E${reference.episodeNumber} · ${episode.name}`,
 			subtitle: series.name,
-			imageUrl: tmdbPosterUrl(series.posterPath),
+			imageUrl,
 			note,
 		};
 	}
@@ -48,7 +53,7 @@ async function resolveItem(reference: UserBookmark): Promise<NoteItem | null> {
 		href: `/media/${media.type}/${media.id}`,
 		title: media.name,
 		subtitle: media.year ? `${media.year} · ${MEDIA_TYPE_LABELS[media.type]}` : MEDIA_TYPE_LABELS[media.type],
-		imageUrl: tmdbPosterUrl(media.posterPath),
+		imageUrl: tmdbPosterUrl(media.posterPath, "w185"),
 		note,
 	};
 }
@@ -68,7 +73,7 @@ async function NotesContent() {
 
 export default function NotesPage() {
 	return (
-		<main className="flex flex-1 flex-col gap-6 p-8">
+		<main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
 			<header className="flex flex-col gap-1">
 				<h1 className="text-2xl font-bold text-foreground">Your notes</h1>
 				<p className="text-muted">
