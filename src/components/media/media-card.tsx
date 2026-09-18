@@ -4,6 +4,7 @@ import { MEDIA_TYPE_LABELS, tmdbPosterUrl, type MediaSummary } from "@/lib/tmdb"
 export type MediaCardItem = MediaSummary & {
 	runtime?: number | null;
 	genres?: string[];
+	badge?: string | null;
 };
 
 function formatRuntime(runtime: number): string {
@@ -38,17 +39,26 @@ export function MediaCard({ media }: { media: MediaCardItem }) {
 					</div>
 				)}
 				<div className="bg-poster-overlay pointer-events-none absolute inset-x-0 bottom-0 h-2/3" />
-				<span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-gold backdrop-blur-sm">
-					<svg
-						aria-hidden="true"
-						viewBox="0 0 24 24"
-						fill="currentColor"
-						className="size-3"
-					>
-						<path d="M12 2l2.9 6.26 6.85.72-5.1 4.62 1.43 6.73L12 16.9l-6.08 3.43 1.43-6.73-5.1-4.62 6.85-.72L12 2z" />
-					</svg>
-					{media.voteAverage.toFixed(1)}
-				</span>
+
+				{/* Absolute Overlay Badges (Top-Left: 12px / 12px) */}
+				<div className="absolute left-3 top-3 z-10 flex flex-col items-start gap-1.5">
+					{media.badge ? (
+						<span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-foreground shadow-sm backdrop-blur-sm">
+							{media.badge}
+						</span>
+					) : null}
+					<span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-gold backdrop-blur-sm">
+						<svg
+							aria-hidden="true"
+							viewBox="0 0 24 24"
+							fill="currentColor"
+							className="size-3"
+						>
+							<path d="M12 2l2.9 6.26 6.85.72-5.1 4.62 1.43 6.73L12 16.9l-6.08 3.43 1.43-6.73-5.1-4.62 6.85-.72L12 2z" />
+						</svg>
+						{media.voteAverage.toFixed(1)}
+					</span>
+				</div>
 				<div className="absolute right-2 top-2 flex flex-col gap-2">
 					<span
 						aria-hidden="true"
