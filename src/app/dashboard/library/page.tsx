@@ -4,7 +4,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { redirect } from "next/navigation";
 import { listUserBookmarks, type BookmarkState, type UserBookmark } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
-import { getEpisodeDetail, getMediaSummary, getSeriesBrief, tmdbPosterUrl } from "@/lib/tmdb";
+import { getEpisodeDetail, getMediaSummary, getSeriesBrief, tmdbPosterUrl, tmdbStillUrl } from "@/lib/tmdb";
 import { LibraryView, type LibraryItem } from "@/components/library/library-view";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 
@@ -51,7 +51,9 @@ async function resolveItem(reference: UserBookmark): Promise<LibraryItem | null>
 			href: `/media/episode/${reference.seriesId}/${reference.seasonNumber}/${reference.episodeNumber}`,
 			title: `S${reference.seasonNumber} E${reference.episodeNumber} · ${episode.name}`,
 			subtitle: series.name,
-			imageUrl: tmdbPosterUrl(series.posterPath),
+			imageUrl: episode.stillPath
+				? tmdbStillUrl(episode.stillPath, "w300")
+				: tmdbPosterUrl(series.posterPath, "w342"),
 			bookmark: toBookmarkState(reference),
 		};
 	}
@@ -80,7 +82,7 @@ async function LibraryContent() {
 
 export default function LibraryPage() {
 	return (
-		<main className="flex flex-1 flex-col gap-6 p-8">
+		<main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
 			<header className="flex flex-col gap-1">
 				<h1 className="text-2xl font-bold text-foreground">Your library</h1>
 				<p className="text-muted">
