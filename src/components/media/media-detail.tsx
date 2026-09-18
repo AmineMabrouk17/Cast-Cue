@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { MEDIA_TYPE_LABELS, tmdbBackdropUrl, tmdbPosterUrl, tmdbProfileUrl, type MediaDetail } from "@/lib/tmdb";
 import type { OmdbRatings } from "@/lib/omdb";
 import type { BookmarkState } from "@/lib/bookmarks";
@@ -106,40 +105,48 @@ function BackdropBackground({ media }: { media: MediaDetail }) {
 	);
 }
 
+function getInitials(name: string): string {
+	const parts = name.trim().split(/\s+/);
+	if (parts.length === 0 || !parts[0]) return "?";
+	if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+	return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
 function CastCard({ member }: { member: MediaDetail["cast"][number] }) {
 	const profile = tmdbProfileUrl(member.profilePath);
 	const [imageError, setImageError] = useState(false);
+	const initials = getInitials(member.name);
 
 	return (
-		<div className="flex flex-col gap-2">
-			<div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-border bg-elevated">
+		<div className="flex w-full min-w-0 flex-col gap-2">
+			<div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-border bg-elevated shadow-sm">
 				{profile && !imageError ? (
 					/* eslint-disable-next-line @next/next/no-img-element */
 					<img
 						src={profile}
 						alt={member.name}
+						width={185}
+						height={278}
+						loading="lazy"
+						decoding="async"
 						onError={() => setImageError(true)}
 						className="size-full object-cover"
 					/>
 				) : (
-					<div className="flex size-full items-center justify-center p-2 text-center text-xs text-muted">
-						<svg
-							aria-hidden="true"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="1.5"
-							className="size-8 text-muted/60"
-						>
-							<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-							<circle cx="12" cy="7" r="4" />
-						</svg>
+					<div className="flex size-full flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-surface to-elevated p-2 text-center">
+						<span className="flex size-10 items-center justify-center rounded-full bg-accent-surface text-xs font-bold text-foreground/80">
+							{initials}
+						</span>
 					</div>
 				)}
 			</div>
-			<div className="flex flex-col">
-				<span className="line-clamp-1 text-sm font-medium text-foreground">{member.name}</span>
-				<span className="line-clamp-1 text-xs text-muted">{member.character}</span>
+			<div className="flex min-w-0 flex-col">
+				<span className="truncate text-sm font-medium text-foreground" title={member.name}>
+					{member.name}
+				</span>
+				<span className="truncate text-xs text-muted" title={member.character}>
+					{member.character}
+				</span>
 			</div>
 		</div>
 	);
@@ -220,9 +227,9 @@ export function MediaDetailView({
 			{media.cast.length > 0 ? (
 				<section className="flex flex-col gap-4 p-8 pt-0">
 					<h2 className="text-xl font-semibold text-foreground">Cast</h2>
-					<div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
-						{media.cast.map((member) => (
-							<CastCard key={`${member.name}-${member.character}`} member={member} />
+					<div className="grid grid-cols-3 items-start gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
+						{media.cast.map((member, index) => (
+							<CastCard key={`${member.name}-${member.character}-${index}`} member={member} />
 						))}
 					</div>
 				</section>
