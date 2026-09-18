@@ -80,7 +80,7 @@ export default async function MediaDetailPage({
 		: null;
 
 	return (
-		<div className="flex flex-1 flex-col">
+		<div className="flex flex-1 flex-col pb-16">
 			<MediaDetailView media={media} ratings={ratings} bookmark={bookmark} isSignedIn={isSignedIn} />
 			{type === "series" ? (
 				<EpisodeGuide
