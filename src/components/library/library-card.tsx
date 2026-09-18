@@ -1,10 +1,8 @@
 "use client";
 
 import { useTransition, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@heroui/react/button";
-import { Card } from "@heroui/react/card";
 import { ListBox } from "@heroui/react/list-box";
 import { Label } from "@heroui/react/label";
 import { Select } from "@heroui/react/select";
@@ -79,6 +77,70 @@ function SelectionCheckbox({
 	);
 }
 
+function PosterThumbnail({
+	src,
+	alt,
+	type = "movie",
+}: {
+	src: string | null;
+	alt: string;
+	type?: "movie" | "series" | "episode";
+}) {
+	const [imageError, setImageError] = useState(false);
+	const [isLoaded, setIsLoaded] = useState(false);
+
+	if (!src || imageError) {
+		return (
+			<div className="flex size-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-surface to-elevated p-4 text-center text-muted">
+				{type === "movie" ? (
+					<svg
+						aria-hidden="true"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						className="size-8 text-muted/60"
+					>
+						<rect width="18" height="18" x="3" y="3" rx="2" />
+						<path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4" />
+					</svg>
+				) : (
+					<svg
+						aria-hidden="true"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						className="size-8 text-muted/60"
+					>
+						<rect width="20" height="15" x="2" y="7" rx="2" ry="2" />
+						<polyline points="17 2 12 7 7 2" />
+					</svg>
+				)}
+				<span className="line-clamp-2 text-xs font-medium">{alt}</span>
+			</div>
+		);
+	}
+
+	return (
+		<div className="relative size-full overflow-hidden bg-elevated">
+			{!isLoaded && <div className="absolute inset-0 animate-pulse bg-elevated" />}
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img
+				src={src}
+				alt={alt}
+				loading="lazy"
+				decoding="async"
+				onLoad={() => setIsLoaded(true)}
+				onError={() => setImageError(true)}
+				className={`size-full object-cover transition-all duration-300 group-hover:scale-105 ${
+					isLoaded ? "opacity-100" : "opacity-0"
+				}`}
+			/>
+		</div>
+	);
+}
+
 function CardActions({
 	status,
 	favorite,
@@ -99,9 +161,6 @@ function CardActions({
 	return (
 		<div className="mt-auto flex flex-col gap-1.5 pt-1">
 			<div className="flex items-center gap-1.5">
-				{/* React Aria emits aria-labelledby on the trigger, which overrides
-				    aria-label per the ARIA spec. A visually hidden Label joins the
-				    labelledby list so the accessible name is "Change status …". */}
 				<Select.Root
 					selectedKey={status}
 					onSelectionChange={(key) => {
@@ -200,10 +259,10 @@ function TitleCard({
 	}
 
 	return (
-		<Card variant="default" className="flex h-full flex-col overflow-hidden">
+		<div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={href}
-				className="group block"
+				className="block"
 				onClick={(event) => {
 					if (selectMode) {
 						event.preventDefault();
@@ -211,38 +270,32 @@ function TitleCard({
 					}
 				}}
 			>
-				<Card.Content className="relative aspect-[2/3] p-0">
+				<div className="relative aspect-[2/3] w-full overflow-hidden bg-elevated">
 					{selectMode ? (
 						<SelectionCheckbox title={media.name} selected={selected} onToggle={onToggleSelect} />
 					) : null}
-					{poster ? (
-						<Image
-							src={poster}
-							alt={media.name}
-							fill
-							sizes="(min-width: 1280px) 16.6vw, (min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
-							className="object-cover transition-transform duration-300 group-hover:scale-105"
-						/>
-					) : (
-						<div className="flex h-full w-full items-center justify-center bg-default p-4 text-center text-sm text-muted">
-							{media.name}
-						</div>
-					)}
+					<PosterThumbnail src={poster} alt={media.name} type={media.type} />
 					{bookmark.favorite ? (
-						<div className="absolute left-2 top-2 rounded-md bg-background/80 p-1 text-danger backdrop-blur-sm">
+						<div className="absolute left-2 top-2 z-10 rounded-md bg-black/70 p-1 text-danger backdrop-blur-sm">
 							<HeartIcon filled />
 						</div>
 					) : null}
-				</Card.Content>
+				</div>
 			</Link>
-			<Card.Content className="flex flex-1 flex-col gap-2 p-3">
-				<Link href={href} className="line-clamp-1 text-sm font-medium text-foreground hover:underline">
-					{media.name}
-				</Link>
-				<span className="text-xs text-muted">
-					{media.year ? `${media.year} · ` : ""}
-					{MEDIA_TYPE_LABELS[media.type]}
-				</span>
+			<div className="flex flex-1 flex-col justify-between gap-2 p-3">
+				<div className="flex flex-col gap-0.5">
+					<Link
+						href={href}
+						className="line-clamp-1 text-sm font-medium text-foreground transition-colors hover:text-accent"
+						title={media.name}
+					>
+						{media.name}
+					</Link>
+					<span className="text-xs text-muted">
+						{media.year ? `${media.year} · ` : ""}
+						{MEDIA_TYPE_LABELS[media.type]}
+					</span>
+				</div>
 				<CardActions
 					status={bookmark.status}
 					favorite={bookmark.favorite}
@@ -252,8 +305,8 @@ function TitleCard({
 					onToggleFavorite={() => run(() => toggleFavorite(media.type, media.id))}
 					onRemove={handleRemove}
 				/>
-			</Card.Content>
-		</Card>
+			</div>
+		</div>
 	);
 }
 
@@ -299,10 +352,10 @@ function EpisodeCard({
 	}
 
 	return (
-		<Card variant="default" className="flex h-full flex-col overflow-hidden">
+		<div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={item.href}
-				className="group block"
+				className="block"
 				onClick={(event) => {
 					if (selectMode) {
 						event.preventDefault();
@@ -310,35 +363,33 @@ function EpisodeCard({
 					}
 				}}
 			>
-				<Card.Content className="relative aspect-[2/3] p-0">
+				<div className="relative aspect-[2/3] w-full overflow-hidden bg-elevated">
 					{selectMode ? (
 						<SelectionCheckbox title={item.title} selected={selected} onToggle={onToggleSelect} />
 					) : null}
-					{item.imageUrl ? (
-						<Image
-							src={item.imageUrl}
-							alt={item.title}
-							fill
-							sizes="(min-width: 1280px) 16.6vw, (min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
-							className="object-cover transition-transform duration-300 group-hover:scale-105"
-						/>
-					) : (
-						<div className="flex h-full w-full items-center justify-center bg-default p-4 text-center text-sm text-muted">
-							{item.title}
-						</div>
-					)}
+					<PosterThumbnail src={item.imageUrl} alt={item.title} type="episode" />
 					{item.bookmark.favorite ? (
-						<div className="absolute left-2 top-2 rounded-md bg-background/80 p-1 text-danger backdrop-blur-sm">
+						<div className="absolute left-2 top-2 z-10 rounded-md bg-black/70 p-1 text-danger backdrop-blur-sm">
 							<HeartIcon filled />
 						</div>
 					) : null}
-				</Card.Content>
+				</div>
 			</Link>
-			<Card.Content className="flex flex-1 flex-col gap-2 p-3">
-				<Link href={item.href} className="line-clamp-1 text-sm font-medium text-foreground hover:underline">
-					{item.title}
-				</Link>
-				{item.subtitle ? <span className="line-clamp-1 text-xs text-muted">{item.subtitle}</span> : null}
+			<div className="flex flex-1 flex-col justify-between gap-2 p-3">
+				<div className="flex flex-col gap-0.5">
+					<Link
+						href={item.href}
+						className="line-clamp-1 text-sm font-medium text-foreground transition-colors hover:text-accent"
+						title={item.title}
+					>
+						{item.title}
+					</Link>
+					{item.subtitle ? (
+						<span className="line-clamp-1 text-xs text-muted" title={item.subtitle}>
+							{item.subtitle}
+						</span>
+					) : null}
+				</div>
 				<CardActions
 					status={item.bookmark.status}
 					favorite={item.bookmark.favorite}
@@ -348,8 +399,8 @@ function EpisodeCard({
 					onToggleFavorite={() => run(() => toggleEpisodeFavorite(item.key))}
 					onRemove={handleRemove}
 				/>
-			</Card.Content>
-		</Card>
+			</div>
+		</div>
 	);
 }
 

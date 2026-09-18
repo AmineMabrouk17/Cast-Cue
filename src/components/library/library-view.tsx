@@ -266,7 +266,7 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 							) : null}
 						</div>
 						{actionError ? <p className="text-xs text-danger">{actionError}</p> : null}
-						<div className={MEDIA_GRID_CLASS}>
+						<div className={`${MEDIA_GRID_CLASS} auto-rows-fr items-stretch`}>
 							{filtered.map((item) => (
 								<LibraryCard
 									key={itemId(item)}
