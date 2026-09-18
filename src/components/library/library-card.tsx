@@ -3,7 +3,6 @@
 import { useTransition, useState } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react/button";
-import { Card } from "@heroui/react/card";
 import { ListBox } from "@heroui/react/list-box";
 import { Label } from "@heroui/react/label";
 import { Select } from "@heroui/react/select";
@@ -162,9 +161,6 @@ function CardActions({
 	return (
 		<div className="mt-auto flex flex-col gap-1.5 pt-1">
 			<div className="flex items-center gap-1.5">
-				{/* React Aria emits aria-labelledby on the trigger, which overrides
-				    aria-label per the ARIA spec. A visually hidden Label joins the
-				    labelledby list so the accessible name is "Change status …". */}
 				<Select.Root
 					selectedKey={status}
 					onSelectionChange={(key) => {
@@ -263,10 +259,10 @@ function TitleCard({
 	}
 
 	return (
-		<Card variant="default" className="flex h-full flex-col overflow-hidden">
+		<div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={href}
-				className="group block"
+				className="block"
 				onClick={(event) => {
 					if (selectMode) {
 						event.preventDefault();
@@ -274,26 +270,32 @@ function TitleCard({
 					}
 				}}
 			>
-				<Card.Content className="relative aspect-[2/3] p-0">
+				<div className="relative aspect-[2/3] w-full overflow-hidden bg-elevated">
 					{selectMode ? (
 						<SelectionCheckbox title={media.name} selected={selected} onToggle={onToggleSelect} />
 					) : null}
 					<PosterThumbnail src={poster} alt={media.name} type={media.type} />
 					{bookmark.favorite ? (
-						<div className="absolute left-2 top-2 rounded-md bg-background/80 p-1 text-danger backdrop-blur-sm">
+						<div className="absolute left-2 top-2 z-10 rounded-md bg-black/70 p-1 text-danger backdrop-blur-sm">
 							<HeartIcon filled />
 						</div>
 					) : null}
-				</Card.Content>
+				</div>
 			</Link>
-			<Card.Content className="flex flex-1 flex-col gap-2 p-3">
-				<Link href={href} className="line-clamp-1 text-sm font-medium text-foreground hover:underline">
-					{media.name}
-				</Link>
-				<span className="text-xs text-muted">
-					{media.year ? `${media.year} · ` : ""}
-					{MEDIA_TYPE_LABELS[media.type]}
-				</span>
+			<div className="flex flex-1 flex-col justify-between gap-2 p-3">
+				<div className="flex flex-col gap-0.5">
+					<Link
+						href={href}
+						className="line-clamp-1 text-sm font-medium text-foreground transition-colors hover:text-accent"
+						title={media.name}
+					>
+						{media.name}
+					</Link>
+					<span className="text-xs text-muted">
+						{media.year ? `${media.year} · ` : ""}
+						{MEDIA_TYPE_LABELS[media.type]}
+					</span>
+				</div>
 				<CardActions
 					status={bookmark.status}
 					favorite={bookmark.favorite}
@@ -303,8 +305,8 @@ function TitleCard({
 					onToggleFavorite={() => run(() => toggleFavorite(media.type, media.id))}
 					onRemove={handleRemove}
 				/>
-			</Card.Content>
-		</Card>
+			</div>
+		</div>
 	);
 }
 
@@ -350,10 +352,10 @@ function EpisodeCard({
 	}
 
 	return (
-		<Card variant="default" className="flex h-full flex-col overflow-hidden">
+		<div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={item.href}
-				className="group block"
+				className="block"
 				onClick={(event) => {
 					if (selectMode) {
 						event.preventDefault();
@@ -361,23 +363,33 @@ function EpisodeCard({
 					}
 				}}
 			>
-				<Card.Content className="relative aspect-[2/3] p-0">
+				<div className="relative aspect-[2/3] w-full overflow-hidden bg-elevated">
 					{selectMode ? (
 						<SelectionCheckbox title={item.title} selected={selected} onToggle={onToggleSelect} />
 					) : null}
 					<PosterThumbnail src={item.imageUrl} alt={item.title} type="episode" />
 					{item.bookmark.favorite ? (
-						<div className="absolute left-2 top-2 rounded-md bg-background/80 p-1 text-danger backdrop-blur-sm">
+						<div className="absolute left-2 top-2 z-10 rounded-md bg-black/70 p-1 text-danger backdrop-blur-sm">
 							<HeartIcon filled />
 						</div>
 					) : null}
-				</Card.Content>
+				</div>
 			</Link>
-			<Card.Content className="flex flex-1 flex-col gap-2 p-3">
-				<Link href={item.href} className="line-clamp-1 text-sm font-medium text-foreground hover:underline">
-					{item.title}
-				</Link>
-				{item.subtitle ? <span className="line-clamp-1 text-xs text-muted">{item.subtitle}</span> : null}
+			<div className="flex flex-1 flex-col justify-between gap-2 p-3">
+				<div className="flex flex-col gap-0.5">
+					<Link
+						href={item.href}
+						className="line-clamp-1 text-sm font-medium text-foreground transition-colors hover:text-accent"
+						title={item.title}
+					>
+						{item.title}
+					</Link>
+					{item.subtitle ? (
+						<span className="line-clamp-1 text-xs text-muted" title={item.subtitle}>
+							{item.subtitle}
+						</span>
+					) : null}
+				</div>
 				<CardActions
 					status={item.bookmark.status}
 					favorite={item.bookmark.favorite}
@@ -387,8 +399,8 @@ function EpisodeCard({
 					onToggleFavorite={() => run(() => toggleEpisodeFavorite(item.key))}
 					onRemove={handleRemove}
 				/>
-			</Card.Content>
-		</Card>
+			</div>
+		</div>
 	);
 }
 
