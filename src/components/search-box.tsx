@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchField } from "@heroui/react/search-field";
 
@@ -10,6 +10,7 @@ export function SearchBox({ className = "w-full max-w-xs" }: { className?: strin
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [query, setQuery] = useState(searchParams.get("q") ?? "");
+	const [isPending, startTransition] = useTransition();
 	const committedQueryRef = useRef(query);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -20,7 +21,7 @@ export function SearchBox({ className = "w-full max-w-xs" }: { className?: strin
 			committedQueryRef.current = trimmed;
 			const params = new URLSearchParams();
 			if (trimmed) params.set("q", trimmed);
-			router.replace(`/search?${params.toString()}`);
+			startTransition(() => router.replace(`/search?${params.toString()}`));
 		},
 		[router],
 	);
@@ -49,12 +50,16 @@ export function SearchBox({ className = "w-full max-w-xs" }: { className?: strin
 			value={query}
 			onChange={setQuery}
 			aria-label="Search movies, series, and episodes"
+			aria-busy={isPending}
 			className={className}
 		>
 			<SearchField.Group>
 				<SearchField.SearchIcon />
 				<SearchField.Input
 					placeholder="Search movies, series & episodes"
+					autoComplete="off"
+					spellCheck={false}
+					enterKeyHint="search"
 					onKeyDown={(event) => {
 						if (event.key !== "Enter") return;
 						event.preventDefault();

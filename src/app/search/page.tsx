@@ -148,33 +148,44 @@ export default async function SearchPage({
 	return (
 		<main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
 			<header className="flex flex-col gap-1">
-				<h1 className="text-2xl font-bold text-foreground">
-					{query ? `Results for “${query}”` : "Search"}
-				</h1>
+				<h1 className="text-2xl font-bold text-foreground">Search</h1>
 				<p className="text-muted">
-					{query
-						? "Movies, series, and episodes matching your search."
-						: "Find movies and series on TMDB, or jump straight to an episode with S2E4."}
+					Movies, series, and episodes from TMDB. Try a title, or an episode like S2E4.
 				</p>
 			</header>
+
+			<div className="sticky top-16 z-30 -mx-4 border-y border-border/60 bg-background/90 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+				<Suspense fallback={<div className="h-10 w-full max-w-2xl rounded-lg bg-surface" />}>
+					<SearchBox className="w-full max-w-2xl" />
+				</Suspense>
+			</div>
+
 			{query ? (
-				<>
-					<Suspense fallback={null}>
-						<SearchBox className="w-full max-w-xl" />
-					</Suspense>
+				<div className="flex flex-col gap-4">
+					<p className="text-sm text-muted" aria-live="polite">
+						Results for <span className="font-medium text-foreground">“{query}”</span>
+					</p>
 					<Suspense fallback={<MediaGridSkeleton />}>
 						<SearchResults query={query} />
 					</Suspense>
-				</>
+				</div>
 			) : (
-				<div className="flex flex-col items-center gap-6 py-8">
+				<div className="flex flex-col gap-6 py-4">
 					<MediaEmptyState
-						title="Search movies, series & episodes"
-						message="Type what you&apos;re looking for below to find movies, series, and episodes."
+						title="Search the catalogue"
+						message="Type a title above, or jump to an episode with S2E4. Results appear here without moving the field."
 					/>
-					<Suspense fallback={null}>
-						<SearchBox className="w-full max-w-xl" />
-					</Suspense>
+					<div className="flex flex-wrap items-center justify-center gap-2" aria-label="Example searches">
+						{["Dune", "The Bear S2E4", "Harbor Lights"].map((example) => (
+							<a
+								key={example}
+								href={`/search?q=${encodeURIComponent(example)}`}
+								className="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm text-muted transition-colors hover:border-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+							>
+								{example}
+							</a>
+						))}
+					</div>
 				</div>
 			)}
 		</main>
