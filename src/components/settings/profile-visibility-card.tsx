@@ -36,7 +36,7 @@ export function ProfileVisibilityCard({ initialVisibility, displayName }: Profil
 	}
 
 	return (
-		<section className="flex max-w-xl flex-col gap-4 rounded-lg border border-border bg-content1 p-6">
+		<section className="flex max-w-xl flex-col gap-4 rounded-lg border border-border bg-surface p-6">
 			<div className="flex flex-col gap-1">
 				<h2 className="text-lg font-semibold text-foreground">Public profile</h2>
 				<p className="text-sm text-muted">

@@ -157,7 +157,7 @@ async function StatsContent() {
 		<div className="flex flex-col gap-8">
 			<section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 				{stats.map((stat) => (
-					<div key={stat.label} className="flex flex-col gap-1 rounded-lg border border-border bg-content1 p-4">
+					<div key={stat.label} className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4">
 						<span className="text-3xl font-bold text-foreground">{stat.value}</span>
 						<span className="text-sm text-muted">{stat.label}</span>
 					</div>
@@ -193,7 +193,7 @@ async function StatsContent() {
 						{favoriteItems.map((item) => (
 							<li key={item.key}>
 								<Link href={item.href} className="group flex flex-col gap-2">
-									<span className="block aspect-2/3 w-full overflow-hidden rounded-md border border-border bg-content2">
+									<span className="block aspect-2/3 w-full overflow-hidden rounded-md border border-border bg-surface-secondary">
 										{item.imageUrl ? (
 											// eslint-disable-next-line @next/next/no-img-element
 											<img
@@ -219,7 +219,7 @@ async function StatsContent() {
 			{(resolvedMovies.length > 0 || resolvedEpisodes.length > 0) && (
 				<section className="flex flex-col gap-3">
 					<h2 className="text-lg font-semibold text-foreground">Recently completed</h2>
-					<ul className="flex max-h-80 flex-col divide-y divide-divider overflow-y-auto rounded-md border border-border bg-content1">
+					<ul className="flex max-h-80 flex-col divide-y divide-separator overflow-y-auto rounded-md border border-border bg-surface">
 						{resolvedMovies.map((movie) => (
 							<li key={`m-${movie.mediaId}`} className="flex items-center justify-between gap-4 px-4 py-2 text-sm">
 								<Link href={`/media/movie/${movie.mediaId}`} className="truncate font-medium text-foreground hover:underline">
