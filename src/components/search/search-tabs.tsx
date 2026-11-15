@@ -35,6 +35,9 @@ export function SearchTabs({
 			if (typeof key === "string") selectTab(key);
 		}}>
 			<Tabs.ListContainer>
+				<p className="pb-2 text-xs text-muted">
+					Showing the first 20 matches per type from TMDB.
+				</p>
 				<Tabs.List aria-label="Search results">
 					{tabs.map((tab) => (
 						<Tabs.Tab key={tab.id} id={tab.id}>
