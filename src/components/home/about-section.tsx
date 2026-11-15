@@ -1,19 +1,10 @@
 import Link from "next/link";
 
-const BROWSE_GENRES = [
-	"Action",
-	"Comedy",
-	"Drama",
-	"Horror",
-	"Sci-Fi",
-	"Thriller",
-	"Romance",
-	"Animation",
-	"Documentary",
-	"Fantasy",
-	"Mystery",
-	"Crime",
-];
+const LIBRARY_LINKS = [
+	{ href: "/search", label: "Search the catalogue" },
+	{ href: "/dashboard/import", label: "Import a history" },
+	{ href: "/dashboard/settings", label: "Choose what is public" },
+] as const;
 
 const FACTS = [
 	{ value: "3", label: "Levels of tracking: movie, series, episode" },
@@ -26,12 +17,10 @@ export function AboutSection() {
 		<section id="about" className="border-y border-border bg-elevated">
 			<div className="mx-auto grid w-full max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-start">
 				<div className="flex flex-col gap-5">
-					<h2 className="text-3xl font-bold sm:text-4xl">Every story deserves a spotlight.</h2>
+					<h2 className="max-w-[16ch] text-3xl font-bold leading-tight sm:text-4xl">The library remembers so you don&apos;t have to.</h2>
 					<p className="max-w-xl text-sm leading-relaxed text-muted sm:text-base">
-						Cast n Cue is your personal stage for everything you watch. Keep a running record of
-						the movies, series, and episodes you finish, rate each one while the credits roll, and
-						jot down the thoughts worth remembering. Your viewing history becomes a spotlighted
-						shelf of stories — always ready for an encore.
+						Cast n Cue keeps the exact place you stopped, the half-star you gave it, and the note
+						you wrote while the credits rolled. No feed, no public scores, no one else&apos;s taste.
 					</p>
 					<div className="grid grid-cols-3 gap-6 pt-4">
 						{FACTS.map((fact) => (
@@ -45,18 +34,19 @@ export function AboutSection() {
 					</div>
 				</div>
 				<div>
-					<h2 className="font-display text-xl font-semibold">Browse by genre</h2>
-					<div id="genres" className="flex flex-wrap gap-2 pt-3">
-						{BROWSE_GENRES.map((genre) => (
-							<Link
-								key={genre}
-								href={`/search?q=${encodeURIComponent(genre)}`}
-								className="rounded-full border border-border px-4 py-1.5 text-sm text-muted transition-colors duration-300 hover:border-accent hover:text-accent-text"
-							>
-								{genre}
-							</Link>
+					<h2 className="font-display text-xl font-semibold">In the library</h2>
+					<ul className="flex flex-col gap-2 pt-3">
+						{LIBRARY_LINKS.map((link) => (
+							<li key={link.href}>
+								<Link
+									href={link.href}
+									className="inline-flex min-h-11 items-center text-sm text-muted transition-colors duration-300 hover:text-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+								>
+									{link.label} →
+								</Link>
+							</li>
 						))}
-					</div>
+					</ul>
 				</div>
 			</div>
 		</section>
