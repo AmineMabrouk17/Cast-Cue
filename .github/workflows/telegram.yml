@@ -1,0 +1,71 @@
+name: Telegram Notification
+
+on:
+  push:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - closed
+      - synchronize
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-notify-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    name: Send Telegram notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify notification secrets are configured
+        id: secrets_check
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+        run: |
+          if [ -n "$BOT_TOKEN" ] && [ -n "$CHAT_ID" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::TELEGRAM_TOKEN and/or TELEGRAM_TO are not set; skipping Telegram notification."
+          fi
+
+      - name: Send Telegram notification
+        if: steps.secrets_check.outputs.configured == 'true'
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_ACTION: ${{ github.event.action }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # Send a short, link-based summary. PR bodies can be arbitrarily long
+          # and Telegram rejects anything over 4096 characters, which is what
+          # the previous third-party action did (and why it failed).
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            TEXT=$(printf 'PR %s: %s\n%s\n%s' "$PR_ACTION" "$PR_TITLE" "$PR_URL" "$RUN_URL")
+          else
+            SUBJECT=$(printf '%s' "$COMMIT_MSG" | head -n 1)
+            TEXT=$(printf '%s\n%s' "$SUBJECT" "$RUN_URL")
+          fi
+
+          TEXT=$(printf '%s' "$TEXT" | head -c 3500)
+
+          curl -fsS "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT_ID}" \
+            --data-urlencode "text=${TEXT}" \
+            --data-urlencode "disable_web_page_preview=true" \
+            -o /dev/null
