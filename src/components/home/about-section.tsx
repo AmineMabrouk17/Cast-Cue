@@ -26,12 +26,6 @@ export function AboutSection() {
 		<section id="about" className="border-y border-border bg-elevated">
 			<div className="mx-auto grid w-full max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-start">
 				<div className="flex flex-col gap-5">
-					<div className="flex items-center gap-3">
-						<span className="h-0.5 w-8 rounded-full bg-accent" aria-hidden />
-						<span className="text-sm font-medium uppercase tracking-widest text-accent">
-							About Cast n Cue
-						</span>
-					</div>
 					<h2 className="text-3xl font-bold sm:text-4xl">Every story deserves a spotlight.</h2>
 					<p className="max-w-xl text-sm leading-relaxed text-muted sm:text-base">
 						Cast n Cue is your personal stage for everything you watch. Keep a running record of

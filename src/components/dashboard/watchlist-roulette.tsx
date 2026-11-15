@@ -28,7 +28,7 @@ export function WatchlistRoulette({ pool }: { pool: RouletteCandidate[] }) {
 
 	return (
 		<section className="flex flex-col gap-5">
-			<SectionHeader eyebrow="Can't Decide?" title="Watchlist roulette" size="sm" />
+			<SectionHeader title="Watchlist roulette" size="sm" />
 			<div className="flex flex-col items-center gap-5 rounded-xl border border-border bg-elevated px-6 py-10">
 				<Link href={candidate.href} className="group block w-full max-w-56">
 					<div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-border shadow-sm transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-accent/40 group-hover:shadow-lg">

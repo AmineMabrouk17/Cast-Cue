@@ -119,7 +119,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 			<section className="relative flex h-[92vh] min-h-[560px] w-full items-center overflow-hidden">
 				<div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6">
 					<div className="flex max-w-3xl flex-col gap-5">
-						<h1 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
+						<h2 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
 							Cast n <span className="text-accent">Cue</span>
 						</h1>
 						<p className="max-w-[36rem] text-sm leading-relaxed text-muted sm:text-base">
@@ -168,10 +168,10 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 			<div className="bg-bottom-fade pointer-events-none absolute inset-x-0 bottom-0 h-48" />
 			<div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6">
 				<div key={active} className="animate-hero-enter flex max-w-3xl flex-col gap-5">
-					<h1 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
+					<h2 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
 						<span className="text-accent">{firstWord}</span>
 						{rest ? ` ${rest}` : ""}
-					</h1>
+					</h2>
 					<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-foreground">
 						<span className="inline-flex items-center gap-1.5">
 							<StarIcon />

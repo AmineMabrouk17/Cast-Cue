@@ -249,7 +249,7 @@ export async function DashboardView() {
 				<ContinueWatchingSection items={continueItems} />
 			) : (
 				<section className="flex flex-col gap-5">
-					<SectionHeader eyebrow="Keep Watching" title="Continue watching" size="sm" />
+					<SectionHeader title="Continue watching" size="sm" />
 					<MediaEmptyState
 						title="Nothing in progress"
 						message="Mark a bookmark as Watching and it will show up here."

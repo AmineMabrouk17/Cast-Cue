@@ -51,7 +51,7 @@ function ContinueWatchingCard({ item }: { item: ContinueWatchingItem }) {
 export function ContinueWatchingSection({ items }: { items: ContinueWatchingItem[] }) {
 	return (
 		<section className="flex flex-col gap-5">
-			<SectionHeader eyebrow="Keep Watching" title="Continue watching" size="sm" />
+			<SectionHeader title="Continue watching" size="sm" />
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				{items.map((item) => (
 					<ContinueWatchingCard key={item.href} item={item} />
