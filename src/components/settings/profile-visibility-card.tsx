@@ -22,6 +22,14 @@ export function ProfileVisibilityCard({ initialVisibility, displayName }: Profil
 	}, []);
 
 	function onToggle(next: boolean) {
+		if (
+			next &&
+			!window.confirm(
+				"This publishes your library at a public link. Titles, statuses, ratings and favorites become visible; notes and unrated watchlist entries stay private. Publish?",
+			)
+		) {
+			return;
+		}
 		startTransition(async () => {
 			try {
 				const updated = await updateProfileVisibility(next);
@@ -49,8 +57,8 @@ export function ProfileVisibilityCard({ initialVisibility, displayName }: Profil
 			<div className="flex flex-col gap-1">
 				<h2 className="text-lg font-semibold text-foreground">Public profile</h2>
 				<p className="text-sm text-muted">
-					Share what you&apos;re watching at a public link. Your notes and unrated watchlist entries
-					stay private.
+					Share what you&apos;re watching at a public link. A public page shows titles, statuses,
+					ratings and favorites. Notes and unrated watchlist entries stay private.
 				</p>
 			</div>
 
@@ -66,14 +74,24 @@ export function ProfileVisibilityCard({ initialVisibility, displayName }: Profil
 			</Switch.Root>
 
 			{errorMessage && (
-				<p role="alert" className="text-sm text-danger">
+				<p role="alert" className="text-sm text-danger-soft-foreground">
 					{errorMessage}
 				</p>
 			)}
 
 			{visibility.isPublic && visibility.slug && (
 				<div className="flex flex-col gap-2 rounded-md border border-border p-3">
-					<span className="text-sm text-muted">Your shareable link:</span>
+					<div className="flex flex-wrap items-center justify-between gap-2">
+						<span className="text-sm text-muted">Your shareable link:</span>
+						<a
+							href={`/u/${visibility.slug}`}
+							target="_blank"
+							rel="noreferrer"
+							className="text-sm font-medium text-accent-soft-foreground underline underline-offset-4 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+						>
+							View public page
+						</a>
+					</div>
 					<div className="flex items-center gap-2">
 						<code className="min-w-0 flex-1 truncate rounded-sm bg-default px-2 py-1 text-sm text-foreground">
 							{origin || ""}/u/{visibility.slug}
