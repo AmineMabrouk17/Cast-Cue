@@ -10,20 +10,21 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-	/* Base palette */
-	--cinema-bg: oklch(0.13 0.006 285);
-	--cinema-elevated: oklch(0.1 0.005 285);
-	--cinema-card: oklch(0.17 0.007 285);
-	--cinema-accent-surface: oklch(0.26 0.01 285);
-	--cinema-fg: oklch(0.98 0 0);
-	--cinema-muted: oklch(0.72 0.008 285);
-	--cinema-red: oklch(0.56 0.22 27.5);
-	--cinema-red-hover: oklch(0.63 0.21 27.5);
-	--cinema-gold: oklch(0.84 0.16 88);
+	/* Base palette: warm ink, cream light, vermilion and marquee gold. */
+	--cinema-bg: oklch(0.16 0.012 60);
+	--cinema-elevated: oklch(0.13 0.012 60);
+	--cinema-card: oklch(0.21 0.014 60);
+	--cinema-accent-surface: oklch(0.28 0.02 45);
+	--cinema-fg: oklch(0.965 0.012 85);
+	--cinema-muted: oklch(0.76 0.02 75);
+	--cinema-red: oklch(0.58 0.2 30);
+	--cinema-red-hover: oklch(0.54 0.21 30);
+	--cinema-gold: oklch(0.84 0.15 82);
+	--cinema-cream: oklch(0.93 0.035 85);
 
-	/* Typography stacks (fonts loaded via <link> in the document head) */
-	--font-body-stack: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-	--font-display-stack: "Space Grotesk", var(--font-body-stack);
+	/* Self-hosted via next/font; fallbacks keep the metrics close. */
+	--font-body-stack: var(--font-body), "Manrope", ui-sans-serif, system-ui, sans-serif;
+	--font-display-stack: var(--font-display), "Fraunces", Georgia, serif;
 }
 
 /*
@@ -59,29 +60,29 @@
 	/* Default interactive surface */
 	--default: var(--cinema-accent-surface);
 	--default-foreground: var(--cinema-fg);
-	--default-hover: oklch(0.31 0.012 285);
+	--default-hover: oklch(0.33 0.018 55);
 
 	/* Primary action color: cinematic red */
 	--accent: var(--cinema-red);
 	--accent-foreground: oklch(1 0 0);
 	--accent-hover: var(--cinema-red-hover);
-	--accent-soft: color-mix(in oklab, var(--cinema-red) 16%, transparent);
-	--accent-soft-foreground: oklch(0.74 0.17 27.5);
-	--accent-soft-hover: color-mix(in oklab, var(--cinema-red) 26%, transparent);
+	--accent-soft: color-mix(in oklab, var(--cinema-red) 18%, transparent);
+	--accent-soft-foreground: oklch(0.82 0.12 45);
+	--accent-soft-hover: color-mix(in oklab, var(--cinema-red) 28%, transparent);
 
-	/* Borders: white at low alpha */
-	--border: oklch(1 0 0 / 0.1);
-	--border-secondary: oklch(1 0 0 / 0.12);
-	--border-tertiary: oklch(1 0 0 / 0.14);
-	--separator: oklch(1 0 0 / 0.08);
-	--separator-secondary: oklch(1 0 0 / 0.1);
-	--separator-tertiary: oklch(1 0 0 / 0.12);
+	/* Borders: warm light at low alpha */
+	--border: oklch(0.95 0.02 80 / 0.12);
+	--border-secondary: oklch(0.95 0.02 80 / 0.15);
+	--border-tertiary: oklch(0.95 0.02 80 / 0.18);
+	--separator: oklch(0.95 0.02 80 / 0.1);
+	--separator-secondary: oklch(0.95 0.02 80 / 0.12);
+	--separator-tertiary: oklch(0.95 0.02 80 / 0.15);
 
 	/* Form fields */
 	--field-background: var(--cinema-card);
 	--field-foreground: var(--cinema-fg);
-	--field-border: oklch(1 0 0 / 0.14);
-	--field-border-hover: oklch(1 0 0 / 0.2);
+	--field-border: oklch(0.95 0.02 80 / 0.16);
+	--field-border-hover: oklch(0.95 0.02 80 / 0.24);
 	--field-border-focus: var(--cinema-red);
 	--field-hover: oklch(0.19 0.007 285);
 	--field-focus: var(--cinema-red);
@@ -102,8 +103,10 @@
 	--color-primary-hover: var(--accent-hover);
 	--color-primary-foreground: var(--accent-foreground);
 	--color-gold: var(--cinema-gold);
+	--color-cream: var(--cinema-cream);
 	--color-elevated: var(--cinema-elevated);
 	--color-accent-surface: var(--cinema-accent-surface);
+	--color-accent-text: var(--accent-soft-foreground);
 
 	--font-display: var(--font-display-stack);
 	--font-body: var(--font-body-stack);
@@ -152,7 +155,8 @@ h4,
 h5,
 h6 {
 	font-family: var(--font-display-stack);
-	letter-spacing: -0.02em;
+	font-optical-sizing: auto;
+	letter-spacing: -0.025em;
 }
 
 /* Browser surfaces belong to the design system too. */

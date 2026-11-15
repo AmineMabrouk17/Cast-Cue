@@ -1,9 +1,22 @@
 import type { Metadata } from "next";
+import { Fraunces, Manrope } from "next/font/google";
 import "./globals.css";
 
 import { AppFooter } from "@/components/app-footer";
 import { AppNavbar } from "@/components/app-navbar";
 import { Providers } from "./providers";
+
+const display = Fraunces({
+	subsets: ["latin"],
+	variable: "--font-display",
+	display: "swap",
+});
+
+const body = Manrope({
+	subsets: ["latin"],
+	variable: "--font-body",
+	display: "swap",
+});
 
 const DEFAULT_TITLE = "Cast n Cue — Track everything you watch";
 const DEFAULT_DESCRIPTION =
@@ -44,7 +57,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className="dark" suppressHydrationWarning>
+		<html lang="en" className={`dark ${display.variable} ${body.variable}`} suppressHydrationWarning>
 			<body className="min-h-screen bg-background font-body text-foreground antialiased">
 				<a
 					href="#main-content"
@@ -52,14 +65,6 @@ export default function RootLayout({
 				>
 					Skip to content
 				</a>
-				<link rel="preconnect" href="https://fonts.googleapis.com" />
-				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-				{/* App Router: links rendered in the root layout apply to every page. */}
-				{/* eslint-disable-next-line @next/next/no-page-custom-font */}
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"
-				/>
 				<Providers>
 					<div id="main-content" tabIndex={-1} className="flex min-h-screen flex-col outline-none">
 						<AppNavbar />

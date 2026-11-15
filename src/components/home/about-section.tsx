@@ -51,7 +51,7 @@ export function AboutSection() {
 							<Link
 								key={genre}
 								href={`/search?q=${encodeURIComponent(genre)}`}
-								className="rounded-full border border-border px-4 py-1.5 text-sm text-muted transition-colors duration-300 hover:border-accent hover:text-accent"
+								className="rounded-full border border-border px-4 py-1.5 text-sm text-muted transition-colors duration-300 hover:border-accent hover:text-accent-text"
 							>
 								{genre}
 							</Link>
