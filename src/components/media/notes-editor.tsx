@@ -9,7 +9,7 @@ const AUTOSAVE_DEBOUNCE_MS = 800;
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const SAVE_STATUS_LABELS: Partial<Record<SaveStatus, string>> = {
-	saving: "Saving...",
+	saving: "Saving…",
 	saved: "Saved",
 };
 
@@ -25,39 +25,101 @@ export function NotesEditor({
 	const [note, setNote] = useState(initialNote ?? "");
 	const [status, setStatus] = useState<SaveStatus>("idle");
 	const [error, setError] = useState<string | null>(null);
-	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const noteRef = useRef(note);
+	const savedRef = useRef(initialNote ?? "");
+	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const inFlightRef = useRef<Promise<void> | null>(null);
+	const mountedRef = useRef(true);
 
-	noteRef.current = note;
-
-	function handleChange(value: string) {
-		setNote(value);
-		setError(null);
-		setStatus("saving");
+	function clearTimer() {
 		if (timerRef.current) {
 			clearTimeout(timerRef.current);
+			timerRef.current = null;
 		}
-		timerRef.current = setTimeout(() => {
-			void persist(noteRef.current);
-		}, AUTOSAVE_DEBOUNCE_MS);
 	}
 
-	async function persist(value: string) {
-		try {
-			await saveNote(mediaType, mediaId, value);
-			setStatus("saved");
-			setError(null);
-		} catch {
-			setStatus("error");
-			setError("Couldn't save note. Try again.");
+	function schedule(delay = AUTOSAVE_DEBOUNCE_MS) {
+		clearTimer();
+		timerRef.current = setTimeout(() => {
+			timerRef.current = null;
+			void flush();
+		}, delay);
+	}
+
+	async function flush() {
+		// One request at a time. A second save while this one is in flight would
+		// let an older response land last and overwrite newer text.
+		if (inFlightRef.current) return;
+
+		const value = noteRef.current;
+		if (value === savedRef.current) {
+			if (mountedRef.current) setStatus("saved");
+			return;
 		}
+
+		if (mountedRef.current) setStatus("saving");
+
+		const request = (async () => {
+			try {
+				await saveNote(mediaType, mediaId, value);
+				savedRef.current = value;
+				if (!mountedRef.current) return;
+				if (noteRef.current === value) {
+					setStatus("saved");
+					setError(null);
+				} else {
+					// Newer text arrived while this request was in flight. Keep the
+					// saving state and queue the latest value; never flash "Saved".
+					setStatus("saving");
+					schedule();
+				}
+			} catch {
+				if (mountedRef.current) {
+					setStatus("error");
+					setError("Couldn't save note. Try again.");
+				}
+			} finally {
+				inFlightRef.current = null;
+				if (mountedRef.current && noteRef.current !== savedRef.current && !timerRef.current) {
+					schedule();
+				}
+			}
+		})();
+
+		inFlightRef.current = request;
+		await request;
+	}
+
+	function handleChange(value: string) {
+		noteRef.current = value;
+		setNote(value);
+		setError(null);
+
+		if (value === savedRef.current) {
+			clearTimer();
+			setStatus("saved");
+			return;
+		}
+
+		setStatus("saving");
+		schedule();
 	}
 
 	useEffect(() => {
+		mountedRef.current = true;
 		return () => {
-			if (timerRef.current) {
-				clearTimeout(timerRef.current);
-				void saveNote(mediaType, mediaId, noteRef.current).catch(() => {});
+			mountedRef.current = false;
+			clearTimer();
+			// Flush the last edit after the current request, never beside it.
+			const latest = noteRef.current;
+			if (latest === savedRef.current) return;
+			const send = () => {
+				void saveNote(mediaType, mediaId, latest).catch(() => {});
+			};
+			if (inFlightRef.current) {
+				void inFlightRef.current.finally(send);
+			} else {
+				send();
 			}
 		};
 	}, [mediaId, mediaType]);
@@ -70,6 +132,7 @@ export function NotesEditor({
 					<span
 						className={`text-xs ${status === "error" ? "text-danger-soft-foreground" : "text-muted"}`}
 						role={status === "saved" ? "status" : undefined}
+						aria-live="polite"
 					>
 						{SAVE_STATUS_LABELS[status]}
 					</span>
