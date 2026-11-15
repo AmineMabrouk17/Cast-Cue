@@ -15,10 +15,10 @@ const BROWSE_GENRES = [
 	"Crime",
 ];
 
-const STATS = [
-	{ value: "40K+", label: "Titles tracked" },
-	{ value: "120+", label: "Genres explored" },
-	{ value: "1M+", label: "Ratings given" },
+const FACTS = [
+	{ value: "3", label: "Levels of tracking: movie, series, episode" },
+	{ value: "½", label: "Star precision on every rating" },
+	{ value: "0", label: "Public posts you did not ask for" },
 ];
 
 export function AboutSection() {
@@ -40,12 +40,12 @@ export function AboutSection() {
 						shelf of stories — always ready for an encore.
 					</p>
 					<div className="grid grid-cols-3 gap-6 pt-4">
-						{STATS.map((stat) => (
-							<div key={stat.label}>
+						{FACTS.map((fact) => (
+							<div key={fact.label}>
 								<p className="font-display text-4xl font-bold text-accent sm:text-5xl">
-									{stat.value}
+									{fact.value}
 								</p>
-								<p className="text-sm text-muted">{stat.label}</p>
+								<p className="text-sm leading-snug text-muted">{fact.label}</p>
 							</div>
 						))}
 					</div>

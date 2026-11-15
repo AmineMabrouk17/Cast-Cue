@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "./logo";
 
@@ -27,8 +26,6 @@ const LINK_CLASS = "text-sm text-muted transition-colors duration-300 hover:text
 const HEADING_CLASS = "text-sm font-semibold uppercase tracking-widest text-foreground";
 
 export function AppFooter() {
-	const [subscribed, setSubscribed] = useState(false);
-
 	return (
 		<footer className="border-t border-border bg-elevated">
 			<div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-4">
@@ -64,41 +61,28 @@ export function AppFooter() {
 					</ul>
 				</nav>
 				<div>
-					<h3 className={HEADING_CLASS}>Newsletter</h3>
-					<p className="pt-3 text-sm text-muted">
-						One email a week with what&apos;s worth watching. No spam, ever.
+					<h3 className={HEADING_CLASS}>Your library</h3>
+					<p className="pt-3 text-sm leading-relaxed text-muted">
+						Private by default. Sign in to start a library, or import the history you already
+						keep elsewhere.
 					</p>
-					{subscribed ? (
-						<p role="status" className="pt-3 text-sm text-accent">
-							You&apos;re on the list. Lights down, movie on.
-						</p>
-					) : (
-						<form
-							className="flex flex-col gap-3 pt-3"
-							onSubmit={(event) => {
-								event.preventDefault();
-								setSubscribed(true);
-							}}
-						>
-							<label htmlFor="newsletter-email" className="sr-only">
-								Email address
-							</label>
-							<input
-								id="newsletter-email"
-								name="email"
-								type="email"
-								required
-								placeholder="you@example.com"
-								className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
-							/>
-							<button
-								type="submit"
-								className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-colors duration-300 hover:bg-accent-hover"
-							>
-								Join
-							</button>
-						</form>
-					)}
+					<ul className="flex flex-col gap-2 pt-3">
+						<li>
+							<Link href="/search" className={LINK_CLASS}>
+								Find something to watch
+							</Link>
+						</li>
+						<li>
+							<Link href="/dashboard/import" className={LINK_CLASS}>
+								Import from Letterboxd or Trakt
+							</Link>
+						</li>
+						<li>
+							<Link href="/dashboard/settings" className={LINK_CLASS}>
+								Manage your public profile
+							</Link>
+						</li>
+					</ul>
 				</div>
 			</div>
 			<div className="border-t border-border py-6">
