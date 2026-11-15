@@ -1,5 +1,5 @@
 import { AboutSection } from "@/components/home/about-section";
-import { HeroCarousel } from "@/components/home/hero-carousel";
+import { EditorialHero } from "@/components/home/editorial-hero";
 import { MediaEmptyState } from "@/components/media/media-empty-state";
 import { MediaGrid } from "@/components/media/media-grid";
 import { SectionHeader } from "@/components/shared/section-header";
@@ -16,8 +16,7 @@ export function LandingPage({
 }) {
 	return (
 		<main className="flex flex-1 flex-col">
-			<h1 className="sr-only">Cast n Cue — track the movies, series, and episodes you watch</h1>
-			<HeroCarousel slides={slides} />
+			<EditorialHero slide={slides[0] ?? null} />
 			<section
 				id="trending"
 				className="mx-auto flex w-full max-w-7xl scroll-mt-24 flex-col gap-16 px-4 py-16 sm:px-6"

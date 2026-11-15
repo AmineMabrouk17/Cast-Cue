@@ -16,6 +16,7 @@ export interface HeroSlide {
 	year: number | null;
 	runtime: number | null;
 	genres: string[];
+	posterPath: string | null;
 	backdropUrl: string | null;
 	href: string;
 }
@@ -35,6 +36,7 @@ function toHeroSlide(detail: MediaDetail): HeroSlide {
 		year: detail.year,
 		runtime: detail.runtime,
 		genres: detail.genres,
+		posterPath: detail.posterPath,
 		backdropUrl: tmdbBackdropUrl(detail.backdropPath, "w1280"),
 		href: `/media/${detail.type}/${detail.id}`,
 	};
