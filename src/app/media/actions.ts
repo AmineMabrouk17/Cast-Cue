@@ -161,6 +161,39 @@ export async function addToLibrary(mediaType: MediaType, mediaId: number): Promi
 	return bookmark;
 }
 
+export async function markMovieWatched(mediaId: number): Promise<BookmarkState> {
+	const session = await requireSession();
+	if (!Number.isSafeInteger(mediaId) || mediaId <= 0) {
+		throw new Error("Invalid media id");
+	}
+	const db = getCloudflareContext().env.DB;
+	await addBookmark(db, session.user.id, "movie", mediaId);
+	const bookmark = await setBookmarkStatus(db, session.user.id, "movie", mediaId, "completed");
+	if (!bookmark) {
+		throw new Error("Bookmark not found");
+	}
+	revalidatePath(`/media/movie/${mediaId}`);
+	revalidatePath("/dashboard");
+	revalidatePath("/dashboard/library");
+	return bookmark;
+}
+
+export async function markEpisodeWatched(key: EpisodeBookmarkKey): Promise<BookmarkState> {
+	const session = await requireSession();
+	if (!isEpisodeBookmarkKey(key)) {
+		throw new Error("Invalid episode key");
+	}
+	const db = getCloudflareContext().env.DB;
+	await addEpisodeBookmark(db, session.user.id, key);
+	const bookmark = await setBookmarkStatus(db, session.user.id, "episode", key.episodeId, "completed");
+	if (!bookmark) {
+		throw new Error("Bookmark not found");
+	}
+	revalidateEpisodePaths(key);
+	revalidatePath("/dashboard");
+	return bookmark;
+}
+
 export async function setStatus(
 	mediaType: MediaType,
 	mediaId: number,

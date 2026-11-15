@@ -6,6 +6,7 @@ import {
 	getEpisodeBookmarksForSeason,
 	listUserBookmarks,
 	listUserBookmarksByStatus,
+	type EpisodeBookmarkKey,
 	type UserBookmark,
 } from "@/lib/bookmarks";
 import {
@@ -88,6 +89,7 @@ async function resolveContinueMovie(mediaId: number): Promise<ContinueWatchingIt
 		subtitle: `${media.year ? `${media.year} · ` : ""}Movie`,
 		posterPath: media.posterPath,
 		href: `/media/movie/${media.id}`,
+		action: { kind: "movie", mediaId: media.id, label: "Mark watched" },
 	};
 }
 
@@ -122,11 +124,22 @@ async function resolveContinueSeries(
 			return status !== "completed" && status !== "dropped";
 		});
 		if (next) {
+			const key: EpisodeBookmarkKey = {
+				episodeId: next.id,
+				seriesId,
+				seasonNumber: next.seasonNumber,
+				episodeNumber: next.episodeNumber,
+			};
 			return {
 				title: brief.name,
 				subtitle: `Up next · S${next.seasonNumber}E${next.episodeNumber} · ${next.name}`,
 				posterPath: brief.posterPath,
 				href: `/media/episode/${seriesId}/${next.seasonNumber}/${next.episodeNumber}`,
+				action: {
+					kind: "episode",
+					key,
+					label: `Mark S${next.seasonNumber}E${next.episodeNumber} watched`,
+				},
 			};
 		}
 	}

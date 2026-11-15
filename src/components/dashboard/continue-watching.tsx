@@ -1,20 +1,58 @@
+"use client";
+
+import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { markEpisodeWatched, markMovieWatched } from "@/app/media/actions";
+import type { EpisodeBookmarkKey } from "@/lib/bookmarks";
 import { tmdbPosterUrl } from "@/lib/tmdb";
 import { SectionHeader } from "@/components/shared/section-header";
+
+export interface ContinueWatchingAction {
+	kind: "movie" | "episode";
+	label: string;
+	mediaId?: number;
+	key?: EpisodeBookmarkKey;
+}
 
 export interface ContinueWatchingItem {
 	title: string;
 	subtitle: string;
 	posterPath: string | null;
 	href: string;
+	action?: ContinueWatchingAction;
 }
 
 function ContinueWatchingCard({ item }: { item: ContinueWatchingItem }) {
+	const router = useRouter();
 	const poster = tmdbPosterUrl(item.posterPath, "w154");
+	const [isPending, startTransition] = useTransition();
+	const [error, setError] = useState<string | null>(null);
+
+	function markWatched() {
+		if (!item.action) return;
+		const action = item.action;
+		setError(null);
+		startTransition(async () => {
+			try {
+				if (action.kind === "movie" && action.mediaId) {
+					await markMovieWatched(action.mediaId);
+				} else if (action.kind === "episode" && action.key) {
+					await markEpisodeWatched(action.key);
+				}
+				router.refresh();
+			} catch {
+				setError("Couldn't update this bookmark. Try again.");
+			}
+		});
+	}
 
 	return (
-		<Link href={item.href} className="group block">
-			<div className="flex items-center gap-4 rounded-xl border border-border bg-surface p-3 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-accent/40 group-hover:shadow-lg">
+		<div className="group flex flex-col gap-3 rounded-xl border border-border bg-surface p-3 transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/40 hover:shadow-lg">
+			<Link
+				href={item.href}
+				className="flex min-w-0 items-center gap-4 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+			>
 				<div className="relative aspect-[2/3] w-20 shrink-0 overflow-hidden rounded-lg border border-border">
 					{poster ? (
 						/* eslint-disable-next-line @next/next/no-img-element */
@@ -33,18 +71,30 @@ function ContinueWatchingCard({ item }: { item: ContinueWatchingItem }) {
 						</div>
 					)}
 					<div className="bg-poster-overlay pointer-events-none absolute inset-x-0 bottom-0 h-2/3" />
-					<span className="absolute inset-0 m-auto flex size-9 scale-75 items-center justify-center rounded-full bg-accent text-accent-foreground opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100">
-						<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="size-4">
-							<path d="M8 5v14l11-7L8 5z" />
-						</svg>
-					</span>
 				</div>
 				<div className="flex min-w-0 flex-col gap-1.5">
 					<span className="line-clamp-1 text-sm font-medium text-foreground">{item.title}</span>
 					<span className="line-clamp-2 text-xs leading-relaxed text-muted">{item.subtitle}</span>
 				</div>
-			</div>
-		</Link>
+			</Link>
+			{item.action ? (
+				<div className="flex flex-wrap items-center justify-between gap-2">
+					<button
+						type="button"
+						onClick={markWatched}
+						disabled={isPending}
+						className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+					>
+						{isPending ? "Saving…" : item.action.label}
+					</button>
+					{error ? (
+						<p role="alert" className="text-xs text-danger">
+							{error}
+						</p>
+					) : null}
+				</div>
+			) : null}
+		</div>
 	);
 }
 
