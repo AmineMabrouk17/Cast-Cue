@@ -15,6 +15,7 @@ export function NotesView({ items }: { items: NoteItem[] }) {
 			<MediaEmptyState
 				title="No notes yet"
 				message="Write a private note on any bookmarked movie, series, or episode and it will show up here."
+				action={{ label: "Find a title to note", href: "/search" }}
 			/>
 		);
 	}

@@ -253,6 +253,7 @@ export async function DashboardView() {
 					<MediaEmptyState
 						title="Nothing in progress"
 						message="Mark a bookmark as Watching and it will show up here."
+						action={{ label: "Find something to watch", href: "/search" }}
 					/>
 				</section>
 			)}

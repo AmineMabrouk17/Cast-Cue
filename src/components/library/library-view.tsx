@@ -281,7 +281,11 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 						</div>
 					</>
 				) : (
-					<MediaEmptyState title={empty.title} message={empty.message} />
+					<MediaEmptyState
+						title={empty.title}
+						message={empty.message}
+						action={{ label: "Find something to watch", href: "/search" }}
+					/>
 				)}
 			</Tabs.Panel>
 		</Tabs>
