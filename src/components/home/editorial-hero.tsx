@@ -29,8 +29,15 @@ function ImportIcon() {
 	);
 }
 
-export function EditorialHero({ slide }: { slide: HeroSlide | null }) {
+export function EditorialHero({
+	slide,
+	example,
+}: {
+	slide: HeroSlide | null;
+	example: HeroSlide | null;
+}) {
 	const poster = tmdbPosterUrl(slide?.posterPath ?? null, "w342");
+	const examplePoster = tmdbPosterUrl(example?.posterPath ?? null, "w342");
 	const runtime = formatRuntime(slide?.runtime ?? null);
 
 	return (
@@ -136,14 +143,14 @@ export function EditorialHero({ slide }: { slide: HeroSlide | null }) {
 								</span>
 							</div>
 							<div className="mt-3 flex items-center gap-3">
-								{poster ? (
+								{examplePoster ? (
 									/* eslint-disable-next-line @next/next/no-img-element */
-									<img src={poster} alt="" width={56} height={84} className="h-20 w-14 rounded-md border border-border object-cover" />
+									<img src={examplePoster} alt="" width={56} height={84} className="h-20 w-14 rounded-md border border-border object-cover" />
 								) : (
 									<div className="flex h-20 w-14 items-center justify-center rounded-md border border-border bg-surface text-[10px] text-muted">—</div>
 								)}
 								<div className="min-w-0 flex-1">
-									<p className="text-sm font-medium text-foreground">{slide?.name ?? "Your first title"}</p>
+									<p className="text-sm font-medium text-foreground">{example?.name ?? "Your first title"}</p>
 									<p className="text-xs text-muted">S2E4 · The Long Way Around</p>
 									<div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-border">
 										<span className="block h-full w-[62%] rounded-full bg-gold" />

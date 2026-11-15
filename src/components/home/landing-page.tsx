@@ -32,7 +32,7 @@ export function LandingPage({
 }) {
 	return (
 		<main className="flex flex-1 flex-col">
-			<EditorialHero slide={slides[0] ?? null} />
+			<EditorialHero slide={slides[0] ?? null} example={slides[1] ?? slides[0] ?? null} />
 			<HowItWorks />
 			<section
 				id="trending"
