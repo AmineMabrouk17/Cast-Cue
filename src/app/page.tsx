@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { AboutSection } from "@/components/home/about-section";
-import { HeroCarousel } from "@/components/home/hero-carousel";
-import { MediaEmptyState } from "@/components/media/media-empty-state";
-import { MediaGrid } from "@/components/media/media-grid";
-import { SectionHeader } from "@/components/shared/section-header";
+import { LandingPage } from "@/components/home/landing-page";
 import { getHeroSlides, getTrendingWithDetails } from "@/lib/hero";
 import { getServerSession } from "@/lib/session";
 
@@ -39,37 +35,10 @@ export default async function Home() {
 	]);
 
 	return (
-		<main className="flex flex-1 flex-col">
-			<h1 className="sr-only">Cast n Cue — track the movies, series, and episodes you watch</h1>
-			<HeroCarousel slides={slides} />
-			<section
-				id="trending"
-				className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 py-16 sm:px-6"
-			>
-				<div className="flex flex-col gap-6">
-					<SectionHeader title="Trending movies this week" />
-					{trendingMovies.length > 0 ? (
-						<MediaGrid items={trendingMovies} />
-					) : (
-						<MediaEmptyState
-							title="Nothing to show"
-							message="Trending titles are unavailable right now."
-						/>
-					)}
-				</div>
-				<div className="flex flex-col gap-6">
-					<SectionHeader title="Trending series this week" />
-					{trendingSeries.length > 0 ? (
-						<MediaGrid items={trendingSeries} />
-					) : (
-						<MediaEmptyState
-							title="Nothing to show"
-							message="Trending titles are unavailable right now."
-						/>
-					)}
-				</div>
-			</section>
-			<AboutSection />
-		</main>
+		<LandingPage
+			slides={slides}
+			trendingMovies={trendingMovies}
+			trendingSeries={trendingSeries}
+		/>
 	);
 }
