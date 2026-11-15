@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Tabs } from "@heroui/react/tabs";
 import { searchTmdb, type MediaSummary, type MediaType } from "@/lib/tmdb";
 import { parseSeasonEpisodeNotation } from "@/lib/episode-notation";
 import {
@@ -14,6 +13,7 @@ import { MediaEmptyState } from "@/components/media/media-empty-state";
 import { MediaGridSkeleton } from "@/components/media/media-grid-skeleton";
 import { EpisodeSearchResults } from "@/components/media/episode-search-results";
 import { SearchBox } from "@/components/search-box";
+import { SearchTabs } from "@/components/search/search-tabs";
 
 export const dynamic = "force-dynamic";
 
@@ -96,45 +96,44 @@ async function SearchResults({ query }: { query: string }) {
 			? "episode"
 			: (groups.find((group) => group.items.length > 0)?.type ?? "episode");
 
+	const panels = Object.fromEntries(
+		groups.map((group) => [
+			group.type,
+			group.type === "episode" ? (
+				episodeSearch.unavailable ? (
+					<MediaEmptyState
+						title="Episode search unavailable"
+						message="The episode lookup service could not be reached. Try again shortly."
+					/>
+				) : episodeSearch.results.length > 0 ? (
+					<EpisodeSearchResults results={episodeSearch.results} />
+				) : (
+					<MediaEmptyState
+						title={group.emptyTitle}
+						message={`No episodes matched “${query}”.`}
+					/>
+				)
+			) : group.items.length > 0 ? (
+				<MediaGrid items={group.items as MediaSummary[]} />
+			) : (
+				<MediaEmptyState
+					title={group.emptyTitle}
+					message={`No ${group.label.toLowerCase()} matched “${searchQuery}”.`}
+				/>
+			),
+		]),
+	);
+
 	return (
-		<Tabs className="w-full" defaultSelectedKey={defaultTab}>
-			<Tabs.ListContainer>
-				<Tabs.List aria-label="Search results">
-					{groups.map((group) => (
-						<Tabs.Tab key={group.type} id={group.type}>
-							{group.label} ({group.items.length})
-							<Tabs.Indicator />
-						</Tabs.Tab>
-					))}
-				</Tabs.List>
-			</Tabs.ListContainer>
-			{groups.map((group) => (
-				<Tabs.Panel key={group.type} className="pt-6" id={group.type}>
-					{group.type === "episode" ? (
-						episodeSearch.unavailable ? (
-							<MediaEmptyState
-								title="Episode search unavailable"
-								message="The episode lookup service could not be reached. Try again shortly."
-							/>
-						) : episodeSearch.results.length > 0 ? (
-							<EpisodeSearchResults results={episodeSearch.results} />
-						) : (
-							<MediaEmptyState
-								title={group.emptyTitle}
-								message={`No episodes matched “${query}”.`}
-							/>
-						)
-					) : group.items.length > 0 ? (
-						<MediaGrid items={group.items as MediaSummary[]} />
-					) : (
-						<MediaEmptyState
-							title={group.emptyTitle}
-							message={`No ${group.label.toLowerCase()} matched “${searchQuery}”.`}
-						/>
-					)}
-				</Tabs.Panel>
-			))}
-		</Tabs>
+		<SearchTabs
+			tabs={groups.map((group) => ({
+				id: group.type,
+				label: group.label,
+				count: group.items.length,
+			}))}
+			initialTab={defaultTab}
+			panels={panels}
+		/>
 	);
 }
 

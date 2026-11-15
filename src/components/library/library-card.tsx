@@ -1,11 +1,8 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react/button";
-import { ListBox } from "@heroui/react/list-box";
-import { Label } from "@heroui/react/label";
-import { Select } from "@heroui/react/select";
 import {
 	removeEpisodeFromLibrary,
 	removeFromLibrary,
@@ -17,7 +14,6 @@ import {
 import {
 	BOOKMARK_STATUS_LABELS,
 	BOOKMARK_STATUSES,
-	isBookmarkStatus,
 	type BookmarkState,
 	type BookmarkStatus,
 } from "@/lib/bookmarks";
@@ -141,6 +137,62 @@ function PosterThumbnail({
 	);
 }
 
+function StatusMenu({
+	status,
+	isPending,
+	onChangeStatus,
+}: {
+	status: BookmarkStatus;
+	isPending: boolean;
+	onChangeStatus: (status: BookmarkStatus) => void;
+}) {
+	const detailsRef = useRef<HTMLDetailsElement>(null);
+
+	function choose(next: BookmarkStatus) {
+		detailsRef.current?.removeAttribute("open");
+		onChangeStatus(next);
+	}
+
+	return (
+		<details ref={detailsRef} className="relative min-w-0 flex-1">
+			<summary className="flex min-h-9 cursor-pointer list-none items-center justify-between gap-2 rounded-md border border-border bg-surface px-2 text-xs font-medium text-foreground transition-colors hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-details-marker]:hidden">
+				<span className="truncate">{BOOKMARK_STATUS_LABELS[status]}</span>
+				<svg
+					aria-hidden="true"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					className="size-3 shrink-0 text-muted"
+				>
+					<path d="m6 9 6 6 6-6" />
+				</svg>
+			</summary>
+			<div
+				role="menu"
+				aria-label="Change status"
+				className="absolute left-0 right-0 z-30 mt-1 flex flex-col rounded-md border border-border bg-surface p-1 shadow-lg"
+			>
+				{BOOKMARK_STATUSES.map((option) => (
+					<button
+						key={option}
+						type="button"
+						role="menuitem"
+						disabled={isPending}
+						onClick={() => choose(option)}
+						className={`rounded px-2 py-2 text-left text-xs transition-colors hover:bg-accent-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+							option === status ? "font-semibold text-accent-soft-foreground" : "text-foreground"
+						}`}
+					>
+						{BOOKMARK_STATUS_LABELS[option]}
+					</button>
+				))}
+			</div>
+		</details>
+	);
+}
+
 function CardActions({
 	status,
 	favorite,
@@ -161,32 +213,11 @@ function CardActions({
 	return (
 		<div className="mt-auto flex flex-col gap-1.5 pt-1">
 			<div className="flex items-center gap-1.5">
-				<Select.Root
-					selectedKey={status}
-					onSelectionChange={(key) => {
-						if (typeof key === "string" && isBookmarkStatus(key)) {
-							onChangeStatus(key);
-						}
-					}}
-					isDisabled={isPending}
-					className="min-w-0 flex-1"
-				>
-					<Label className="sr-only">Change status</Label>
-					<Select.Trigger>
-						<Select.Value />
-						<Select.Indicator />
-					</Select.Trigger>
-					<Select.Popover>
-						<ListBox>
-							{BOOKMARK_STATUSES.map((item) => (
-								<ListBox.Item key={item} id={item} textValue={BOOKMARK_STATUS_LABELS[item]}>
-									{BOOKMARK_STATUS_LABELS[item]}
-									<ListBox.ItemIndicator />
-								</ListBox.Item>
-							))}
-						</ListBox>
-					</Select.Popover>
-				</Select.Root>
+				<StatusMenu
+					status={status}
+					isPending={isPending}
+					onChangeStatus={onChangeStatus}
+				/>
 				<Button
 					aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
 					isIconOnly
@@ -259,7 +290,7 @@ function TitleCard({
 	}
 
 	return (
-		<div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+		<div className="group relative flex h-full flex-col overflow-visible rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={href}
 				className="block"
@@ -270,7 +301,7 @@ function TitleCard({
 					}
 				}}
 			>
-				<div className="relative aspect-[2/3] w-full overflow-hidden bg-elevated">
+				<div className="relative aspect-[2/3] w-full overflow-hidden rounded-t-xl bg-elevated">
 					{selectMode ? (
 						<SelectionCheckbox title={media.name} selected={selected} onToggle={onToggleSelect} />
 					) : null}
@@ -352,7 +383,7 @@ function EpisodeCard({
 	}
 
 	return (
-		<div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+		<div className="group relative flex h-full flex-col overflow-visible rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={item.href}
 				className="block"
@@ -363,7 +394,7 @@ function EpisodeCard({
 					}
 				}}
 			>
-				<div className="relative aspect-[2/3] w-full overflow-hidden bg-elevated">
+				<div className="relative aspect-[2/3] w-full overflow-hidden rounded-t-xl bg-elevated">
 					{selectMode ? (
 						<SelectionCheckbox title={item.title} selected={selected} onToggle={onToggleSelect} />
 					) : null}
