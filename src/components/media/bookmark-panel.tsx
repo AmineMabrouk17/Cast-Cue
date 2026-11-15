@@ -76,7 +76,7 @@ export function BookmarkPanel({
 				>
 					Add to Library
 				</Button>
-				{error ? <p className="text-xs text-danger">{error}</p> : null}
+				{error ? <p className="text-xs text-danger-soft-foreground">{error}</p> : null}
 			</div>
 		);
 	}
@@ -108,7 +108,7 @@ export function BookmarkPanel({
 			</div>
 			<RatingWidget mediaType={mediaType} mediaId={mediaId} value={bookmark.rating} />
 			<NotesEditor mediaType={mediaType} mediaId={mediaId} initialNote={bookmark.note} />
-			{error ? <p className="text-xs text-danger">{error}</p> : null}
+			{error ? <p className="text-xs text-danger-soft-foreground">{error}</p> : null}
 		</div>
 	);
 }

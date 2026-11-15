@@ -68,7 +68,7 @@ export function NotesEditor({
 				<span className="text-sm font-medium text-foreground">Notes</span>
 				{SAVE_STATUS_LABELS[status] ? (
 					<span
-						className={`text-xs ${status === "error" ? "text-danger" : "text-muted"}`}
+						className={`text-xs ${status === "error" ? "text-danger-soft-foreground" : "text-muted"}`}
 						role={status === "saved" ? "status" : undefined}
 					>
 						{SAVE_STATUS_LABELS[status]}
@@ -82,7 +82,7 @@ export function NotesEditor({
 				rows={3}
 				className="w-full resize-y rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
 			/>
-			{error ? <p className="text-xs text-danger">{error}</p> : null}
+			{error ? <p className="text-xs text-danger-soft-foreground">{error}</p> : null}
 		</div>
 	);
 }

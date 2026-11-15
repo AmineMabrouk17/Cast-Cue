@@ -50,7 +50,7 @@ export function SignInButton({ callbackUrl }: { callbackUrl?: string }) {
 				{session ? "Continue" : isSigningIn ? "Opening Google…" : "Sign in with Google"}
 			</Button>
 			{error ? (
-				<p role="alert" className="text-sm text-danger">
+				<p role="alert" className="text-sm text-danger-soft-foreground">
 					{error}
 				</p>
 			) : null}

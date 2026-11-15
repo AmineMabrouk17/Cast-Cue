@@ -44,6 +44,7 @@ async function resolveItem(reference: UserBookmark): Promise<NoteItem | null> {
 			subtitle: series.name,
 			imageUrl,
 			note,
+			updatedAt: reference.updatedAt,
 		};
 	}
 
@@ -55,6 +56,7 @@ async function resolveItem(reference: UserBookmark): Promise<NoteItem | null> {
 		subtitle: media.year ? `${media.year} · ${MEDIA_TYPE_LABELS[media.type]}` : MEDIA_TYPE_LABELS[media.type],
 		imageUrl: tmdbPosterUrl(media.posterPath, "w185"),
 		note,
+		updatedAt: reference.updatedAt,
 	};
 }
 

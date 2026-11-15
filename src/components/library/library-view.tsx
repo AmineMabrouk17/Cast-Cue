@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { Button } from "@heroui/react/button";
 import { Tabs } from "@heroui/react/tabs";
 import {
@@ -104,6 +104,8 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 	const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set());
 	const [isPending, startTransition] = useTransition();
 	const [actionError, setActionError] = useState<string | null>(null);
+	const [notice, setNotice] = useState<string | null>(null);
+	const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const counts = useMemo(() => {
 		const count: Record<LibraryTab, number> = {
@@ -162,11 +164,22 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 		setSelectedIds(new Set());
 	}
 
-	function runBulk(action: () => Promise<BulkActionResult[]>) {
+	function notify(message: string) {
+		setNotice(message);
+		if (noticeTimer.current) clearTimeout(noticeTimer.current);
+		noticeTimer.current = setTimeout(() => setNotice(null), 4000);
+	}
+
+	function runBulk(
+		action: () => Promise<BulkActionResult[]>,
+		message: (count: number) => string,
+	) {
 		setActionError(null);
 		startTransition(async () => {
 			try {
-				applyBulkResults(await action());
+				const results = await action();
+				applyBulkResults(results);
+				notify(message(results.length));
 			} catch {
 				setActionError("Something went wrong. Try again.");
 			}
@@ -187,6 +200,7 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 				const removed = new Set(await bulkRemoveFromLibrary(selectedBulkItems()));
 				setItems((prev) => prev.filter((item) => !removed.has(itemId(item))));
 				setSelectedIds(new Set());
+				notify(`${removed.size} removed from your library`);
 			} catch {
 				setActionError("Couldn't remove items. Try again.");
 			}
@@ -237,7 +251,12 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 											size="sm"
 											variant="tertiary"
 											isDisabled={isPending}
-											onPress={() => runBulk(() => bulkSetStatus(selectedBulkItems(), status))}
+											onPress={() =>
+												runBulk(
+													() => bulkSetStatus(selectedBulkItems(), status),
+													(count) => `${count} moved to ${BOOKMARK_STATUS_LABELS[status]}`,
+												)
+											}
 										>
 											{BOOKMARK_STATUS_LABELS[status]}
 										</Button>
@@ -246,7 +265,12 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 										size="sm"
 										variant="tertiary"
 										isDisabled={isPending}
-										onPress={() => runBulk(() => bulkSetFavorite(selectedBulkItems(), true))}
+										onPress={() =>
+											runBulk(
+												() => bulkSetFavorite(selectedBulkItems(), true),
+												(count) => `${count} marked favorite`,
+											)
+										}
 									>
 										Favorite
 									</Button>
@@ -254,7 +278,12 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 										size="sm"
 										variant="tertiary"
 										isDisabled={isPending}
-										onPress={() => runBulk(() => bulkSetFavorite(selectedBulkItems(), false))}
+										onPress={() =>
+											runBulk(
+												() => bulkSetFavorite(selectedBulkItems(), false),
+												(count) => `${count} no longer favorite`,
+											)
+										}
 									>
 										Unfavorite
 									</Button>
@@ -272,7 +301,12 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 								</>
 							) : null}
 						</div>
-						{actionError ? <p className="text-xs text-danger">{actionError}</p> : null}
+						{notice ? (
+							<p role="status" className="text-sm text-muted">
+								{notice}
+							</p>
+						) : null}
+						{actionError ? <p role="alert" className="text-xs text-danger-soft-foreground">{actionError}</p> : null}
 						<div className={`${MEDIA_GRID_CLASS} items-start`}>
 							{filtered.map((item) => (
 								<LibraryCard
@@ -291,6 +325,7 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 											)
 										) {
 											removeItem(item);
+											notify("Removed from your library");
 										}
 									}}
 								/>

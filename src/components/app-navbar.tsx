@@ -286,15 +286,15 @@ export function AppNavbar() {
 									<DropdownMenu>
 										<DropdownSection>
 											<Header>Overview</Header>
-											<DropdownItem id="dashboard" textValue="Dashboard" onAction={() => router.push("/dashboard")}>
+											<DropdownItem id="dashboard" href="/dashboard" textValue="Dashboard">
 												<DashboardIcon className="size-4 shrink-0 text-muted" />
 												<Label>Dashboard</Label>
 											</DropdownItem>
-											<DropdownItem id="library" textValue="Library" onAction={() => router.push("/dashboard/library")}>
+											<DropdownItem id="library" href="/dashboard/library" textValue="Library">
 												<LibraryIcon className="size-4 shrink-0 text-muted" />
 												<Label>Library</Label>
 											</DropdownItem>
-											<DropdownItem id="notes" textValue="Notes" onAction={() => router.push("/dashboard/notes")}>
+											<DropdownItem id="notes" href="/dashboard/notes" textValue="Notes">
 												<NotesIcon className="size-4 shrink-0 text-muted" />
 												<Label>Notes</Label>
 											</DropdownItem>
@@ -303,7 +303,7 @@ export function AppNavbar() {
 										<DropdownSection>
 											<Header>Account</Header>
 											<DropdownItem id="signout" textValue="Sign out" variant="danger" onAction={handleSignOut}>
-												<SignOutIcon className="size-4 shrink-0 text-danger" />
+												<SignOutIcon className="size-4 shrink-0 text-danger-soft-foreground" />
 												<Label>Sign out</Label>
 											</DropdownItem>
 										</DropdownSection>
@@ -366,7 +366,7 @@ export function AppNavbar() {
 			{signOutError ? (
 				<div
 					role="alert"
-					className="absolute right-4 top-16 z-50 rounded-md border border-border bg-background px-3 py-2 text-sm text-danger shadow-md"
+					className="absolute right-4 top-16 z-50 rounded-md border border-border bg-background px-3 py-2 text-sm text-danger-soft-foreground shadow-md"
 				>
 					{signOutError}
 				</div>
