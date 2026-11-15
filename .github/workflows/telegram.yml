@@ -1,6 +1,7 @@
 name: Telegram Notification
 
 on:
+  workflow_dispatch:
   push:
   pull_request:
     types:
@@ -64,8 +65,9 @@ jobs:
 
           TEXT=$(printf '%s' "$TEXT" | head -c 3500)
 
-          curl -fsS "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+          RESPONSE=$(curl -fsS "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${CHAT_ID}" \
             --data-urlencode "text=${TEXT}" \
-            --data-urlencode "disable_web_page_preview=true" \
-            -o /dev/null
+            --data-urlencode "disable_web_page_preview=true")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"ok":true' 
