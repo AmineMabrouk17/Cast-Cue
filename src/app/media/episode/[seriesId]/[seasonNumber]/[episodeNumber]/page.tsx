@@ -3,7 +3,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { notFound } from "next/navigation";
 import { getBookmark } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
-import { getEpisodeDetail, getSeriesBrief } from "@/lib/tmdb";
+import { getEpisodeDetail, getSeasonEpisodes, getSeriesBrief } from "@/lib/tmdb";
 import { getTvmazeEpisodeSchedule } from "@/lib/tvmaze";
 import { EpisodeDetailView } from "@/components/media/episode-detail-view";
 
@@ -73,7 +73,15 @@ export default async function EpisodeDetailPage({
 		notFound();
 	}
 
-	const tvmaze = await getTvmazeEpisodeSchedule(series.name, series.year, seasonNumber, episodeNumber);
+	const [tvmaze, seasonData] = await Promise.all([
+		getTvmazeEpisodeSchedule(series.name, series.year, seasonNumber, episodeNumber),
+		getSeasonEpisodes(seriesId, seasonNumber),
+	]);
+	const siblings = seasonData?.episodes ?? [];
+	const previousEpisode =
+		siblings.find((sibling) => sibling.episodeNumber === episodeNumber - 1) ?? null;
+	const nextEpisode =
+		siblings.find((sibling) => sibling.episodeNumber === episodeNumber + 1) ?? null;
 
 	const session = await getServerSession();
 	const isSignedIn = Boolean(session);
@@ -88,6 +96,8 @@ export default async function EpisodeDetailPage({
 			tvmaze={tvmaze}
 			bookmark={bookmark}
 			isSignedIn={isSignedIn}
+			previousEpisode={previousEpisode}
+			nextEpisode={nextEpisode}
 		/>
 	);
 }

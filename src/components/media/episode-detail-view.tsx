@@ -111,12 +111,16 @@ export function EpisodeDetailView({
 	tvmaze,
 	bookmark,
 	isSignedIn,
+	previousEpisode,
+	nextEpisode,
 }: {
 	series: SeriesBrief;
 	episode: EpisodeSummary;
 	tvmaze: TvmazeEpisode | null;
 	bookmark: BookmarkState | null;
 	isSignedIn: boolean;
+	previousEpisode: EpisodeSummary | null;
+	nextEpisode: EpisodeSummary | null;
 }) {
 	const airDate = tvmaze?.airdate ?? episode.airDate;
 	const runtime = tvmaze?.runtime ?? episode.runtime;
@@ -131,10 +135,10 @@ export function EpisodeDetailView({
 
 					<div className="flex min-w-0 flex-col gap-3">
 						<Link
-							href={`/media/series/${series.id}`}
-							className="text-sm font-medium text-muted transition-colors hover:text-foreground"
+							href={`/media/series/${series.id}?season=${episode.seasonNumber}`}
+							className="w-fit text-sm font-medium text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 						>
-							← {series.name}
+							← {series.name} · Season {episode.seasonNumber}
 						</Link>
 						<h1 className="text-2xl font-bold text-foreground md:text-3xl">
 							S{episode.seasonNumber}E{episode.episodeNumber} · {episode.name}
@@ -164,6 +168,26 @@ export function EpisodeDetailView({
 						) : (
 							<p className="text-sm italic text-muted">No overview available for this episode.</p>
 						)}
+						{previousEpisode || nextEpisode ? (
+							<nav aria-label="Episode navigation" className="mt-1 flex flex-wrap gap-2">
+								{previousEpisode ? (
+									<Link
+										href={`/media/episode/${series.id}/${previousEpisode.seasonNumber}/${previousEpisode.episodeNumber}`}
+										className="inline-flex min-h-11 items-center rounded-lg border border-border px-3 text-sm text-foreground transition-colors hover:border-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+									>
+										← S{previousEpisode.seasonNumber}E{previousEpisode.episodeNumber} · {previousEpisode.name}
+									</Link>
+								) : null}
+								{nextEpisode ? (
+									<Link
+										href={`/media/episode/${series.id}/${nextEpisode.seasonNumber}/${nextEpisode.episodeNumber}`}
+										className="inline-flex min-h-11 items-center rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+									>
+										Next · S{nextEpisode.seasonNumber}E{nextEpisode.episodeNumber} · {nextEpisode.name} →
+									</Link>
+								) : null}
+							</nav>
+						) : null}
 					</div>
 				</div>
 			</section>
