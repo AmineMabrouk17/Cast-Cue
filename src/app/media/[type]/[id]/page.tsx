@@ -3,7 +3,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { notFound } from "next/navigation";
 import { getMediaDetail, type MediaType } from "@/lib/tmdb";
 import { getOmdbRatings } from "@/lib/omdb";
-import { getBookmark } from "@/lib/bookmarks";
+import { getBookmark, getSeriesResume } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
 import { MediaDetailView } from "@/components/media/media-detail";
 import { EpisodeGuide } from "@/components/media/episode-guide";
@@ -75,9 +75,10 @@ export default async function MediaDetailPage({
 
 	const session = await getServerSession();
 	const isSignedIn = Boolean(session);
-	const bookmark = session
-		? await getBookmark(getCloudflareContext().env.DB, session.user.id, type, mediaId)
-		: null;
+	const db = getCloudflareContext().env.DB;
+	const bookmark = session ? await getBookmark(db, session.user.id, type, mediaId) : null;
+	const resume =
+		session && type === "series" ? await getSeriesResume(db, session.user.id, mediaId) : null;
 
 	return (
 		<div className="flex flex-1 flex-col pb-16">
@@ -89,6 +90,7 @@ export default async function MediaDetailPage({
 					seriesYear={media.year}
 					requestedSeason={season}
 					userId={session?.user.id ?? null}
+					resume={resume}
 				/>
 			) : null}
 		</div>
