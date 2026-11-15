@@ -55,3 +55,6 @@ next-env.d.ts
 /.opencode/
 /.agents/
 /skills-lock.json
+
+# impeccable runtime snapshots
+/.impeccable/critique/
