@@ -352,3 +352,36 @@ export async function listUserBookmarksWithNotes(db: D1Database, userId: string)
 		.all<UserBookmarkRow>();
 	return rows.results.map(toUserBookmark);
 }
+
+export interface SeriesResume {
+	seasonNumber: number;
+	episodeNumber: number;
+	status: BookmarkStatus;
+}
+
+/**
+ * The most recently touched episode of a series. The series bookmark's
+ * updatedAt only moves when the series itself is edited, so "where was I?"
+ * has to come from the episode rows.
+ */
+export async function getSeriesResume(
+	db: D1Database,
+	userId: string,
+	seriesId: number,
+): Promise<SeriesResume | null> {
+	const row = await db
+		.prepare(
+			`SELECT seasonNumber, episodeNumber, status FROM bookmarks
+			 WHERE userId = ? AND mediaType = 'episode' AND seriesId = ?
+			   AND seasonNumber IS NOT NULL AND episodeNumber IS NOT NULL
+			 ORDER BY updatedAt DESC LIMIT 1`,
+		)
+		.bind(userId, seriesId)
+		.first<{ seasonNumber: number; episodeNumber: number; status: BookmarkStatus }>();
+	if (!row) return null;
+	return {
+		seasonNumber: row.seasonNumber,
+		episodeNumber: row.episodeNumber,
+		status: row.status,
+	};
+}

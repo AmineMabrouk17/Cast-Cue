@@ -14,7 +14,10 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-// Enable calling `getCloudflareContext()` in `next dev`.
-// See https://opennext.js.org/cloudflare/bindings#local-access-to-bindings.
+// Enable calling `getCloudflareContext()` in `next dev`. Starting the
+// Miniflare proxy during `next build` makes workerd compete for the local D1
+// file with any other build and fail with SQLITE_BUSY.
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
-initOpenNextCloudflareForDev();
+if (process.env.NODE_ENV === "development") {
+	initOpenNextCloudflareForDev();
+}

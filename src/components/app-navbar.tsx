@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "@heroui/react/avatar";
 import {
 	Dropdown,
@@ -21,9 +21,21 @@ import { Logo } from "./logo";
 const NAV_LINKS = [
 	{ href: "/", label: "Home" },
 	{ href: "/search", label: "Search" },
+	{ href: "/dashboard", label: "Dashboard" },
 	{ href: "/dashboard/library", label: "Library" },
 	{ href: "/dashboard/notes", label: "Notes" },
 ] as const;
+
+const ACCOUNT_LINKS = [
+	{ href: "/dashboard/import", label: "Import" },
+	{ href: "/dashboard/stats", label: "Stats" },
+	{ href: "/dashboard/settings", label: "Settings" },
+] as const;
+
+function isActive(href: string, pathname: string): boolean {
+	if (href === "/" || href === "/dashboard") return pathname === href;
+	return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 function initials(name: string) {
 	return name
@@ -108,10 +120,10 @@ function CloseIcon({ className }: { className?: string }) {
 }
 
 const ICON_BUTTON_CLASS =
-	"flex size-9 items-center justify-center rounded-full border border-border text-foreground transition-colors duration-300 hover:border-accent hover:text-accent";
+	"flex size-11 items-center justify-center rounded-full border border-border text-foreground transition-colors duration-300 hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 const MOBILE_LINK_CLASS =
-	"block rounded-lg px-3 py-2 text-sm text-muted transition-colors duration-300 hover:bg-accent-surface hover:text-foreground";
+	"block rounded-lg px-3 py-2 text-sm text-muted transition-colors duration-300 hover:bg-accent-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
 function DashboardIcon({ className }: { className?: string }) {
 	return (
@@ -192,10 +204,23 @@ function SignOutIcon({ className }: { className?: string }) {
 
 export function AppNavbar() {
 	const router = useRouter();
+	const pathname = usePathname();
 	const { data: session, isPending } = authClient.useSession();
 	const user = session?.user;
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [signOutError, setSignOutError] = useState<string | null>(null);
+	const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+	useEffect(() => {
+		if (!menuOpen) return;
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (event.key !== "Escape") return;
+			setMenuOpen(false);
+			menuButtonRef.current?.focus();
+		};
+		document.addEventListener("keydown", onKeyDown);
+		return () => document.removeEventListener("keydown", onKeyDown);
+	}, [menuOpen]);
 
 	async function handleSignOut() {
 		setSignOutError(null);
@@ -226,13 +251,24 @@ export function AppNavbar() {
 						<Link
 							key={link.href}
 							href={link.href}
-							className="text-sm font-medium text-muted transition-colors duration-300 hover:text-foreground"
+							aria-current={isActive(link.href, pathname) ? "page" : undefined}
+							className={`flex min-h-11 items-center text-sm font-medium transition-colors duration-300 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+								isActive(link.href, pathname) ? "text-foreground" : "text-muted"
+							}`}
 						>
 							{link.label}
 						</Link>
 					))}
 				</nav>
 				<div className="flex items-center gap-2">
+					{!isPending && !user ? (
+						<Link
+							href="/login"
+							className="hidden h-11 items-center rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:inline-flex"
+						>
+							Start tracking
+						</Link>
+					) : null}
 					<Link href="/search" className={ICON_BUTTON_CLASS} aria-label="Search">
 						<SearchIcon className="size-4" />
 					</Link>
@@ -279,10 +315,12 @@ export function AppNavbar() {
 							</Link>
 						))}
 					<button
+						ref={menuButtonRef}
 						type="button"
 						onClick={() => setMenuOpen((open) => !open)}
 						aria-label={menuOpen ? "Close menu" : "Open menu"}
 						aria-expanded={menuOpen}
+						aria-controls="mobile-menu"
 						className={`${ICON_BUTTON_CLASS} lg:hidden`}
 					>
 						{menuOpen ? <CloseIcon className="size-4" /> : <MenuIcon className="size-4" />}
@@ -291,25 +329,36 @@ export function AppNavbar() {
 			</div>
 			{menuOpen ? (
 				<nav
+					id="mobile-menu"
 					aria-label="Mobile"
 					className="border-b border-border bg-background/95 backdrop-blur-md lg:hidden"
 				>
 					<div className="mx-auto flex w-full max-w-7xl flex-col gap-1 px-4 py-4 sm:px-6">
 						{NAV_LINKS.map((link) => (
-							<Link key={link.href} href={link.href} className={MOBILE_LINK_CLASS} onClick={closeMenu}>
+							<Link
+								key={link.href}
+								href={link.href}
+								aria-current={isActive(link.href, pathname) ? "page" : undefined}
+								className={`${MOBILE_LINK_CLASS} ${isActive(link.href, pathname) ? "bg-accent-surface text-foreground" : ""}`}
+								onClick={closeMenu}
+							>
 								{link.label}
 							</Link>
 						))}
 						<div className="my-2 border-t border-border" />
-						{user ? (
-							<Link href="/dashboard" className={MOBILE_LINK_CLASS} onClick={closeMenu}>
-								Dashboard
+						<p className="px-3 pb-1 text-xs font-medium uppercase tracking-widest text-muted">
+							Your account
+						</p>
+						{ACCOUNT_LINKS.map((link) => (
+							<Link key={link.href} href={link.href} className={MOBILE_LINK_CLASS} onClick={closeMenu}>
+								{link.label}
 							</Link>
-						) : (
+						))}
+						{!user ? (
 							<Link href="/login" className={MOBILE_LINK_CLASS} onClick={closeMenu}>
 								Sign in
 							</Link>
-						)}
+						) : null}
 					</div>
 				</nav>
 			) : null}

@@ -27,7 +27,7 @@ export async function generateMetadata({
 	const title = query ? `“${query}” search results` : "Search";
 	const description = query
 		? "Movies, series, and episodes matching your search."
-		: "Find movies and series on TMDB, and episodes by name or season/episode notation.";
+		: "Find movies and series on TMDB, or jump straight to an episode with S2E4.";
 	return {
 		title,
 		description,
@@ -147,7 +147,7 @@ export default async function SearchPage({
 	const query = q?.trim() ?? "";
 
 	return (
-		<main className="flex flex-1 flex-col gap-6 p-8">
+		<main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
 			<header className="flex flex-col gap-1">
 				<h1 className="text-2xl font-bold text-foreground">
 					{query ? `Results for “${query}”` : "Search"}
@@ -155,7 +155,7 @@ export default async function SearchPage({
 				<p className="text-muted">
 					{query
 						? "Movies, series, and episodes matching your search."
-						: "Find movies and series on TMDB, and episodes by name or season/episode notation."}
+						: "Find movies and series on TMDB, or jump straight to an episode with S2E4."}
 				</p>
 			</header>
 			{query ? (

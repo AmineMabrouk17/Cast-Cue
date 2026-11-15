@@ -94,7 +94,7 @@ async function ProfileContent({ user }: { user: PublicProfileUser }) {
 					// eslint-disable-next-line @next/next/no-img-element
 					<img src={user.image} alt="" className="h-16 w-16 rounded-full border border-border object-cover" />
 				) : (
-					<span className="flex h-16 w-16 items-center justify-center rounded-full bg-content2 text-xl font-bold text-foreground">
+					<span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-secondary text-xl font-bold text-foreground">
 						{user.name.slice(0, 1).toUpperCase()}
 					</span>
 				)}
@@ -113,7 +113,7 @@ async function ProfileContent({ user }: { user: PublicProfileUser }) {
 					{items.map((item) => (
 						<li key={item.key}>
 							<Link href={item.href} className="group flex flex-col gap-2">
-								<span className="block aspect-2/3 w-full overflow-hidden rounded-md border border-border bg-content2">
+								<span className="block aspect-2/3 w-full overflow-hidden rounded-md border border-border bg-surface-secondary">
 									{item.imageUrl ? (
 										// eslint-disable-next-line @next/next/no-img-element
 										<img src={item.imageUrl} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />

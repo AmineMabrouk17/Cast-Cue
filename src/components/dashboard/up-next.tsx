@@ -51,7 +51,7 @@ function UpNextCard({ item }: { item: UpNextItem }) {
 export function UpNextSection({ items }: { items: UpNextItem[] }) {
 	return (
 		<section className="flex flex-col gap-5">
-			<SectionHeader eyebrow="Airing Soon" title="Up next" size="sm" />
+			<SectionHeader title="Up next" size="sm" />
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				{items.map((item) => (
 					<UpNextCard key={item.href} item={item} />

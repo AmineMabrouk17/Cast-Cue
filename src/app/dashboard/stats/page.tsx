@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { listUserBookmarks, type UserBookmark } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
 import { getEpisodeDetail, getMediaDetail, getSeriesBrief, tmdbPosterUrl } from "@/lib/tmdb";
+import { MediaEmptyState } from "@/components/media/media-empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -112,6 +113,16 @@ async function StatsContent() {
 	}
 	const maxRatingCount = Math.max(1, ...ratingCounts.values());
 
+	if (bookmarks.length === 0) {
+		return (
+			<MediaEmptyState
+				title="No stats yet"
+				message="Complete a movie or an episode, and this page will start counting."
+				action={{ label: "Find something to watch", href: "/search" }}
+			/>
+		);
+	}
+
 	const favoriteItems: FavoriteItem[] = (
 		await Promise.all(
 			favorites.map(async (bookmark): Promise<FavoriteItem | null> => {
@@ -157,7 +168,7 @@ async function StatsContent() {
 		<div className="flex flex-col gap-8">
 			<section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 				{stats.map((stat) => (
-					<div key={stat.label} className="flex flex-col gap-1 rounded-lg border border-border bg-content1 p-4">
+					<div key={stat.label} className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4">
 						<span className="text-3xl font-bold text-foreground">{stat.value}</span>
 						<span className="text-sm text-muted">{stat.label}</span>
 					</div>
@@ -166,20 +177,26 @@ async function StatsContent() {
 
 			<section className="flex flex-col gap-3">
 				<h2 className="text-lg font-semibold text-foreground">Ratings</h2>
-				<ul className="flex flex-col gap-1.5" aria-label="Ratings distribution">
-					{[...ratingCounts.entries()].reverse().map(([step, count]) => (
-						<li key={step} className="flex items-center gap-3 text-sm">
-							<span className="w-10 shrink-0 text-right tabular-nums text-muted">★ {step}</span>
-							<span className="h-4 flex-1 overflow-hidden rounded-sm bg-default">
-								<span
-									className="block h-full rounded-sm bg-primary"
-									style={{ width: `${(count / maxRatingCount) * 100}%` }}
-								/>
-							</span>
-							<span className="w-6 shrink-0 tabular-nums text-muted">{count}</span>
-						</li>
-					))}
-				</ul>
+				{rated.length === 0 ? (
+					<p className="text-sm text-muted">
+						No ratings yet — open a title in your library and give it a star score.
+					</p>
+				) : (
+					<ul className="flex flex-col gap-1.5" aria-label="Ratings distribution">
+						{[...ratingCounts.entries()].reverse().map(([step, count]) => (
+							<li key={step} className="flex items-center gap-3 text-sm">
+								<span className="w-12 shrink-0 text-right tabular-nums text-muted">★ {step}</span>
+								<span aria-hidden="true" className="h-4 flex-1 overflow-hidden rounded-sm bg-default">
+									<span
+										className="block h-full rounded-sm bg-primary"
+										style={{ width: `${(count / maxRatingCount) * 100}%` }}
+									/>
+								</span>
+								<span className="min-w-6 shrink-0 tabular-nums text-muted">{count}</span>
+							</li>
+						))}
+					</ul>
+				)}
 			</section>
 
 			<section className="flex flex-col gap-3">
@@ -193,7 +210,7 @@ async function StatsContent() {
 						{favoriteItems.map((item) => (
 							<li key={item.key}>
 								<Link href={item.href} className="group flex flex-col gap-2">
-									<span className="block aspect-2/3 w-full overflow-hidden rounded-md border border-border bg-content2">
+									<span className="block aspect-2/3 w-full overflow-hidden rounded-md border border-border bg-surface-secondary">
 										{item.imageUrl ? (
 											// eslint-disable-next-line @next/next/no-img-element
 											<img
@@ -219,7 +236,7 @@ async function StatsContent() {
 			{(resolvedMovies.length > 0 || resolvedEpisodes.length > 0) && (
 				<section className="flex flex-col gap-3">
 					<h2 className="text-lg font-semibold text-foreground">Recently completed</h2>
-					<ul className="flex max-h-80 flex-col divide-y divide-divider overflow-y-auto rounded-md border border-border bg-content1">
+					<ul className="flex max-h-80 flex-col divide-y divide-separator overflow-y-auto rounded-md border border-border bg-surface">
 						{resolvedMovies.map((movie) => (
 							<li key={`m-${movie.mediaId}`} className="flex items-center justify-between gap-4 px-4 py-2 text-sm">
 								<Link href={`/media/movie/${movie.mediaId}`} className="truncate font-medium text-foreground hover:underline">
@@ -255,7 +272,7 @@ function StatsFallback() {
 
 export default function StatsPage() {
 	return (
-		<main className="flex flex-1 flex-col gap-6 p-8">
+		<main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
 			<header className="flex flex-col gap-1">
 				<h1 className="text-2xl font-bold text-foreground">Your stats</h1>
 				<p className="text-muted">What you&apos;ve watched, how long you&apos;ve watched it, and what you loved.</p>

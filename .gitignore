@@ -50,3 +50,11 @@ next-env.d.ts
 
 
 !.dev.vars.example
+
+# local agent tooling (installed per machine, not part of the app)
+/.opencode/
+/.agents/
+/skills-lock.json
+
+# impeccable runtime snapshots
+/.impeccable/critique/

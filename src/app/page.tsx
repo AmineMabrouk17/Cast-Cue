@@ -40,13 +40,14 @@ export default async function Home() {
 
 	return (
 		<main className="flex flex-1 flex-col">
+			<h1 className="sr-only">Cast n Cue — track the movies, series, and episodes you watch</h1>
 			<HeroCarousel slides={slides} />
 			<section
 				id="trending"
 				className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 py-16 sm:px-6"
 			>
 				<div className="flex flex-col gap-6">
-					<SectionHeader eyebrow="Trending Now" title="Movies everyone is watching" />
+					<SectionHeader title="Movies everyone is watching" />
 					{trendingMovies.length > 0 ? (
 						<MediaGrid items={trendingMovies} />
 					) : (
@@ -57,7 +58,7 @@ export default async function Home() {
 					)}
 				</div>
 				<div className="flex flex-col gap-6">
-					<SectionHeader eyebrow="Just Added" title="Series worth bingeing" />
+					<SectionHeader title="Series worth bingeing" />
 					{trendingSeries.length > 0 ? (
 						<MediaGrid items={trendingSeries} />
 					) : (

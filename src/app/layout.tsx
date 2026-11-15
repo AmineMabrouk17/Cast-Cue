@@ -46,6 +46,12 @@ export default function RootLayout({
 	return (
 		<html lang="en" className="dark" suppressHydrationWarning>
 			<body className="min-h-screen bg-background font-body text-foreground antialiased">
+				<a
+					href="#main-content"
+					className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-foreground"
+				>
+					Skip to content
+				</a>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 				{/* App Router: links rendered in the root layout apply to every page. */}
@@ -55,7 +61,7 @@ export default function RootLayout({
 					href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"
 				/>
 				<Providers>
-					<div className="flex min-h-screen flex-col">
+					<div id="main-content" tabIndex={-1} className="flex min-h-screen flex-col outline-none">
 						<AppNavbar />
 						{children}
 						<AppFooter />

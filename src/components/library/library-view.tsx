@@ -174,6 +174,13 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 	}
 
 	function runBulkRemove() {
+		if (
+			!window.confirm(
+				`Remove ${selectedIds.size} bookmark${selectedIds.size === 1 ? "" : "s"}? Their ratings and notes will be deleted.`,
+			)
+		) {
+			return;
+		}
 		setActionError(null);
 		startTransition(async () => {
 			try {
@@ -275,13 +282,27 @@ export function LibraryView({ initialItems }: { initialItems: LibraryItem[] }) {
 									selected={selectedIds.has(itemId(item))}
 									onToggleSelect={() => toggleSelected(itemId(item))}
 									onBookmarkChange={(bookmark) => updateBookmark(item, bookmark)}
-									onRemove={() => removeItem(item)}
+									onRemove={() => {
+										const label =
+											item.kind === "title" ? item.media.name : item.title;
+										if (
+											window.confirm(
+												`Remove “${label}” from your library? Its rating and note will be deleted.`,
+											)
+										) {
+											removeItem(item);
+										}
+									}}
 								/>
 							))}
 						</div>
 					</>
 				) : (
-					<MediaEmptyState title={empty.title} message={empty.message} />
+					<MediaEmptyState
+						title={empty.title}
+						message={empty.message}
+						action={{ label: "Find something to watch", href: "/search" }}
+					/>
 				)}
 			</Tabs.Panel>
 		</Tabs>

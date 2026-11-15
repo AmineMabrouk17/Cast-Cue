@@ -15,10 +15,10 @@ const BROWSE_GENRES = [
 	"Crime",
 ];
 
-const STATS = [
-	{ value: "40K+", label: "Titles tracked" },
-	{ value: "120+", label: "Genres explored" },
-	{ value: "1M+", label: "Ratings given" },
+const FACTS = [
+	{ value: "3", label: "Levels of tracking: movie, series, episode" },
+	{ value: "½", label: "Star precision on every rating" },
+	{ value: "0", label: "Public posts you did not ask for" },
 ];
 
 export function AboutSection() {
@@ -26,12 +26,6 @@ export function AboutSection() {
 		<section id="about" className="border-y border-border bg-elevated">
 			<div className="mx-auto grid w-full max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-start">
 				<div className="flex flex-col gap-5">
-					<div className="flex items-center gap-3">
-						<span className="h-0.5 w-8 rounded-full bg-accent" aria-hidden />
-						<span className="text-sm font-medium uppercase tracking-widest text-accent">
-							About Cast n Cue
-						</span>
-					</div>
 					<h2 className="text-3xl font-bold sm:text-4xl">Every story deserves a spotlight.</h2>
 					<p className="max-w-xl text-sm leading-relaxed text-muted sm:text-base">
 						Cast n Cue is your personal stage for everything you watch. Keep a running record of
@@ -40,12 +34,12 @@ export function AboutSection() {
 						shelf of stories — always ready for an encore.
 					</p>
 					<div className="grid grid-cols-3 gap-6 pt-4">
-						{STATS.map((stat) => (
-							<div key={stat.label}>
+						{FACTS.map((fact) => (
+							<div key={fact.label}>
 								<p className="font-display text-4xl font-bold text-accent sm:text-5xl">
-									{stat.value}
+									{fact.value}
 								</p>
-								<p className="text-sm text-muted">{stat.label}</p>
+								<p className="text-sm leading-snug text-muted">{fact.label}</p>
 							</div>
 						))}
 					</div>

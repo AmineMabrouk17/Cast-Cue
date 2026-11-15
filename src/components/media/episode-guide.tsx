@@ -1,14 +1,29 @@
+import Link from "next/link";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { getEpisodeBookmarksForSeason, type BookmarkState } from "@/lib/bookmarks";
+import {
+	getEpisodeBookmarksForSeason,
+	type BookmarkState,
+	type SeriesResume,
+} from "@/lib/bookmarks";
 import { getSeasonEpisodes, getSeriesSeasons, type SeasonSummary } from "@/lib/tmdb";
 import { getTvmazeSchedule } from "@/lib/tvmaze";
 import { EpisodeList } from "./episode-list";
 import { SeasonSelector } from "./season-selector";
 
-function resolveSeason(seasons: SeasonSummary[], requested: string | undefined): SeasonSummary {
+function resolveSeason(
+	seasons: SeasonSummary[],
+	requested: string | undefined,
+	resume: SeriesResume | null,
+): SeasonSummary {
 	if (requested) {
 		const seasonNumber = Number(requested);
 		const match = seasons.find((season) => season.seasonNumber === seasonNumber);
+		if (match) {
+			return match;
+		}
+	}
+	if (resume) {
+		const match = seasons.find((season) => season.seasonNumber === resume.seasonNumber);
 		if (match) {
 			return match;
 		}
@@ -22,12 +37,14 @@ export async function EpisodeGuide({
 	seriesYear,
 	requestedSeason,
 	userId,
+	resume,
 }: {
 	seriesId: number;
 	seriesName: string;
 	seriesYear: number | null;
 	requestedSeason: string | undefined;
 	userId: string | null;
+	resume: SeriesResume | null;
 }) {
 	const db = getCloudflareContext().env.DB;
 	const seasons = (await getSeriesSeasons(seriesId)).filter((season) => season.episodeCount > 0);
@@ -35,9 +52,13 @@ export async function EpisodeGuide({
 		return null;
 	}
 
-	const selectedSeason = resolveSeason(seasons, requestedSeason);
+	const selectedSeason = resolveSeason(seasons, requestedSeason, resume);
 	const seasonData = await getSeasonEpisodes(seriesId, selectedSeason.seasonNumber);
 	const episodes = seasonData?.episodes ?? [];
+	const resumeEpisode =
+		resume && selectedSeason.seasonNumber === resume.seasonNumber
+			? episodes.find((episode) => episode.episodeNumber === resume.episodeNumber)
+			: undefined;
 
 	const tvmaze = await getTvmazeSchedule(seriesName, seriesYear);
 	const bookmarks = userId
@@ -52,6 +73,23 @@ export async function EpisodeGuide({
 					Season guide with TVmaze airdates where available. Click an episode for details.
 				</p>
 			</header>
+			{resume && resumeEpisode ? (
+				<Link
+					href={`/media/episode/${seriesId}/${resume.seasonNumber}/${resume.episodeNumber}`}
+					className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-accent/40 bg-accent-soft px-4 py-3 text-sm transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+				>
+					<span className="text-foreground">
+						<span className="font-semibold">
+							{resume.status === "completed" ? "Last completed" : "Pick up at"}{" "}
+							{`S${resume.seasonNumber}E${resume.episodeNumber}`}
+						</span>
+						<span className="text-muted"> · {resumeEpisode.name}</span>
+					</span>
+					<span className="font-semibold text-accent-soft-foreground">
+						{resume.status === "completed" ? "View episode →" : "Continue →"}
+					</span>
+				</Link>
+			) : null}
 			<SeasonSelector seasons={seasons} selectedSeason={selectedSeason.seasonNumber} />
 			{episodes.length > 0 ? (
 				<EpisodeList episodes={episodes} tvmaze={tvmaze.episodes} bookmarks={bookmarks} />

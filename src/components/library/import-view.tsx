@@ -67,7 +67,7 @@ export function ImportView() {
 
 	if (phase === "done" && result) {
 		return (
-			<section className="flex flex-col gap-4 rounded-lg border border-border bg-content1 p-6">
+			<section className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-6">
 				<h2 className="text-xl font-semibold text-foreground">Import complete</h2>
 				<p className="text-muted">
 					Imported <strong>{result.imported}</strong> titles.
@@ -85,7 +85,7 @@ export function ImportView() {
 	}
 
 	return (
-		<section className="flex flex-col gap-4 rounded-lg border border-border bg-content1 p-6">
+		<section className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-6">
 			<div className="flex flex-col gap-2">
 				<h2 className="text-lg font-semibold text-foreground">1. Choose a CSV export</h2>
 				<p className="text-sm text-muted">
@@ -101,7 +101,7 @@ export function ImportView() {
 						type="file"
 						accept=".csv,text/csv"
 						onChange={(event) => onFileChosen(event.target.files?.[0])}
-						className="text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-default file:px-4 file:py-2 file:text-sm file:font-medium file:text-default-fg"
+						className="text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-default file:px-4 file:py-2 file:text-sm file:font-medium file:text-default-foreground"
 					/>
 				</label>
 				{fileName && <p className="text-sm text-muted">File: {fileName}</p>}
@@ -133,7 +133,7 @@ export function ImportView() {
 						</p>
 					</div>
 
-					<ul className="flex max-h-72 flex-col divide-y divide-divider overflow-y-auto rounded-md border border-border">
+					<ul className="flex max-h-72 flex-col divide-y divide-separator overflow-y-auto rounded-md border border-border">
 						{preview.matched.map((match) => (
 							<li key={match.rowIndex} className="flex items-center justify-between gap-4 px-4 py-2 text-sm">
 								<span className="min-w-0 truncate text-foreground">{match.title}</span>

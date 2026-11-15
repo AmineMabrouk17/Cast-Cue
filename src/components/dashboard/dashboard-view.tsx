@@ -23,7 +23,7 @@ import { UpNextSection, type UpNextItem } from "./up-next";
 import { WatchlistRoulette, type RouletteCandidate } from "./watchlist-roulette";
 
 const MAX_CONTINUE_ITEMS = 8;
-const MAX_SEASONS_TO_CHECK = 4;
+const MAX_SEASONS_TO_CHECK = 12;
 const MAX_UP_NEXT_SERIES = 25;
 const MAX_UP_NEXT_RESULTS = 8;
 const MAX_ROULETTE_POOL = 20;
@@ -68,7 +68,7 @@ function WelcomeHero({ name }: { name: string }) {
 			</p>
 			<Link
 				href="/search"
-				className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-glow transition-colors duration-300 hover:bg-accent-hover"
+				className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition-colors duration-300 hover:bg-accent-hover"
 			>
 				<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="size-4">
 					<path d="M8 5v14l11-7L8 5z" />
@@ -117,9 +117,10 @@ async function resolveContinueSeries(
 			getSeasonEpisodes(seriesId, season.seasonNumber),
 			getEpisodeBookmarksForSeason(db, userId, seriesId, season.seasonNumber),
 		]);
-		const next = (seasonData?.episodes ?? []).find(
-			(episode) => bookmarks.get(episode.id)?.status !== "completed",
-		);
+		const next = (seasonData?.episodes ?? []).find((episode) => {
+			const status = bookmarks.get(episode.id)?.status;
+			return status !== "completed" && status !== "dropped";
+		});
 		if (next) {
 			return {
 				title: brief.name,
@@ -209,9 +210,28 @@ export async function DashboardView() {
 		return <WelcomeHero name={session.user.name} />;
 	}
 
+	// The series row only moves when the series is edited. Order by the most
+	// recently touched episode so "continue" means "what I watched last".
+	const lastActivity = new Map<string, string>();
+	for (const bookmark of all) {
+		const key =
+			bookmark.mediaType === "episode"
+				? `series:${bookmark.seriesId}`
+				: `${bookmark.mediaType}:${bookmark.mediaId}`;
+		const current = lastActivity.get(key);
+		if (!current || bookmark.updatedAt > current) {
+			lastActivity.set(key, bookmark.updatedAt);
+		}
+	}
+	const orderedWatching = [...watching].sort((a, b) => {
+		const keyA = a.mediaType === "movie" ? `movie:${a.mediaId}` : `series:${a.mediaId}`;
+		const keyB = b.mediaType === "movie" ? `movie:${b.mediaId}` : `series:${b.mediaId}`;
+		return (lastActivity.get(keyB) ?? "").localeCompare(lastActivity.get(keyA) ?? "");
+	});
+
 	const continueItems = (
 		await Promise.all(
-			watching.slice(0, MAX_CONTINUE_ITEMS).map(async (bookmark) => {
+			orderedWatching.slice(0, MAX_CONTINUE_ITEMS).map(async (bookmark) => {
 				if (bookmark.mediaType === "movie") {
 					return resolveContinueMovie(bookmark.mediaId);
 				}
@@ -241,7 +261,7 @@ export async function DashboardView() {
 	return (
 		<div className="flex flex-col gap-12">
 			<header className="flex flex-col gap-2">
-				<h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+				<h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
 				<p className="text-muted">Jump back in where you left off.</p>
 			</header>
 			<QuickLinks />
@@ -249,10 +269,11 @@ export async function DashboardView() {
 				<ContinueWatchingSection items={continueItems} />
 			) : (
 				<section className="flex flex-col gap-5">
-					<SectionHeader eyebrow="Keep Watching" title="Continue watching" size="sm" />
+					<SectionHeader title="Continue watching" size="sm" />
 					<MediaEmptyState
 						title="Nothing in progress"
 						message="Mark a bookmark as Watching and it will show up here."
+						action={{ label: "Find something to watch", href: "/search" }}
 					/>
 				</section>
 			)}

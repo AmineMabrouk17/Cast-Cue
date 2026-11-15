@@ -76,11 +76,25 @@ function InfoIcon() {
 	);
 }
 
+function PauseIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="currentColor" className="size-4" aria-hidden>
+			<path d="M7 5h4v14H7zM13 5h4v14h-4z" />
+		</svg>
+	);
+}
+
 export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 	const [activeIndex, setActiveIndex] = useState(0);
+	const [isPaused, setIsPaused] = useState(false);
+	const [isHovering, setIsHovering] = useState(false);
 
 	useEffect(() => {
 		if (slides.length <= 1) return;
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			setIsPaused(true);
+			return;
+		}
 
 		let hidden = document.hidden;
 		const handleVisibility = () => {
@@ -89,23 +103,25 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 		document.addEventListener("visibilitychange", handleVisibility);
 
 		const interval = window.setInterval(() => {
-			setActiveIndex((current) => (hidden ? current : (current + 1) % slides.length));
+			setActiveIndex((current) =>
+				hidden || isPaused || isHovering ? current : (current + 1) % slides.length,
+			);
 		}, AUTO_ADVANCE_MS);
 
 		return () => {
 			window.clearInterval(interval);
 			document.removeEventListener("visibilitychange", handleVisibility);
 		};
-	}, [activeIndex, slides.length]);
+	}, [activeIndex, isPaused, isHovering, slides.length]);
 
 	if (slides.length === 0) {
 		return (
 			<section className="relative flex h-[92vh] min-h-[560px] w-full items-center overflow-hidden">
 				<div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6">
 					<div className="flex max-w-3xl flex-col gap-5">
-						<h1 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
+						<h2 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
 							Cast n <span className="text-accent">Cue</span>
-						</h1>
+						</h2>
 						<p className="max-w-[36rem] text-sm leading-relaxed text-muted sm:text-base">
 							Track the movies, series, and episodes you watch.
 						</p>
@@ -122,14 +138,21 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 	const runtime = formatRuntime(activeSlide.runtime);
 
 	return (
-		<section className="relative h-[92vh] min-h-[560px] w-full overflow-hidden">
+		<section
+			className="relative h-[92vh] min-h-[560px] w-full overflow-hidden"
+			onMouseEnter={() => setIsHovering(true)}
+			onMouseLeave={() => setIsHovering(false)}
+			onFocus={() => setIsHovering(true)}
+			onBlur={() => setIsHovering(false)}
+		>
 			{slides.map((slide, index) =>
 				slide.backdropUrl ? (
 					<div key={`${slide.type}-${slide.id}`} className="absolute inset-0">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							src={slide.backdropUrl}
-							alt={`${slide.name} backdrop`}
+							alt=""
+							aria-hidden="true"
 							width={1280}
 							height={720}
 							loading={index === 0 ? "eager" : "lazy"}
@@ -145,14 +168,10 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 			<div className="bg-bottom-fade pointer-events-none absolute inset-x-0 bottom-0 h-48" />
 			<div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-4 sm:px-6">
 				<div key={active} className="animate-hero-enter flex max-w-3xl flex-col gap-5">
-					<span className="inline-flex w-fit items-center gap-2 rounded-full border border-accent/60 bg-background/40 px-3 py-1 text-xs font-medium uppercase tracking-widest text-accent backdrop-blur-sm">
-						<span className="size-1.5 rounded-full bg-accent" aria-hidden />
-						{activeSlide.type === "movie" ? "Featured Movie" : "Featured Series"}
-					</span>
-					<h1 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
+					<h2 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
 						<span className="text-accent">{firstWord}</span>
 						{rest ? ` ${rest}` : ""}
-					</h1>
+					</h2>
 					<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-foreground">
 						<span className="inline-flex items-center gap-1.5">
 							<StarIcon />
@@ -185,38 +204,53 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 					<div className="mt-2 flex flex-wrap items-center gap-3">
 						<Link
 							href={activeSlide.href}
-							className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-glow transition-colors duration-300 hover:bg-accent-hover"
+							className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition-colors duration-300 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 						>
 							<PlayIcon />
-							Watch Now
+							View details
 						</Link>
 						<Link
-							href={activeSlide.href}
-							className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface/50 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur-md transition-colors duration-300 hover:border-accent/60 hover:bg-accent-surface"
+							href="#trending"
+							className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface/50 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur-md transition-colors duration-300 hover:border-accent/60 hover:bg-accent-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 						>
 							<InfoIcon />
-							More Info
+							Browse trending
 						</Link>
 					</div>
 				</div>
 			</div>
 			{slides.length > 1 && (
-				<div className="absolute inset-x-0 bottom-6 z-20 flex justify-center gap-2">
-					{slides.map((slide, index) => (
-						<button
-							key={`${slide.type}-${slide.id}`}
-							type="button"
-							aria-label={`Go to slide ${index + 1}`}
-							aria-current={index === active ? "true" : undefined}
-							onClick={() => setActiveIndex(index)}
-							className={`transition-all duration-300 ${
-								index === active
-									? "h-1.5 w-8 rounded-full bg-accent"
-									: "h-1.5 w-4 rounded-full bg-foreground/30 transition-colors duration-300 hover:bg-foreground/60"
-							}`}
-						/>
-					))}
-				</div>
+				<>
+					<button
+						type="button"
+						onClick={() => setIsPaused((paused) => !paused)}
+						aria-label={isPaused ? "Play featured titles" : "Pause featured titles"}
+						aria-pressed={isPaused}
+						className="absolute bottom-5 right-4 z-20 flex size-11 items-center justify-center rounded-full border border-border bg-background/70 text-foreground backdrop-blur-md transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:right-6"
+					>
+						{isPaused ? <PlayIcon /> : <PauseIcon />}
+					</button>
+					<div className="absolute inset-x-0 bottom-6 z-20 flex justify-center gap-2">
+						{slides.map((slide, index) => (
+							<button
+								key={`${slide.type}-${slide.id}`}
+								type="button"
+								aria-label={`Go to slide ${index + 1}`}
+								aria-current={index === active ? "true" : undefined}
+								onClick={() => setActiveIndex(index)}
+								className="flex size-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+							>
+								<span
+									className={`block h-1.5 rounded-full transition-all duration-300 ${
+										index === active
+											? "w-8 bg-accent"
+											: "w-4 bg-foreground/30 hover:bg-foreground/60"
+									}`}
+								/>
+							</button>
+						))}
+					</div>
+				</>
 			)}
 		</section>
 	);
