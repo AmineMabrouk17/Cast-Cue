@@ -241,7 +241,7 @@ export async function DashboardView() {
 	return (
 		<div className="flex flex-col gap-12">
 			<header className="flex flex-col gap-2">
-				<h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+				<h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
 				<p className="text-muted">Jump back in where you left off.</p>
 			</header>
 			<QuickLinks />
