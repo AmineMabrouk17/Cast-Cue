@@ -261,6 +261,14 @@ export function AppNavbar() {
 					))}
 				</nav>
 				<div className="flex items-center gap-2">
+					{!isPending && !user ? (
+						<Link
+							href="/login"
+							className="hidden items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:inline-flex"
+						>
+							Start tracking
+						</Link>
+					) : null}
 					<Link href="/search" className={ICON_BUTTON_CLASS} aria-label="Search">
 						<SearchIcon className="size-4" />
 					</Link>
