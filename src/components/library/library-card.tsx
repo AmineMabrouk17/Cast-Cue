@@ -259,7 +259,7 @@ function TitleCard({
 	}
 
 	return (
-		<div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+		<div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={href}
 				className="block"
@@ -352,7 +352,7 @@ function EpisodeCard({
 	}
 
 	return (
-		<div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+		<div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={item.href}
 				className="block"
