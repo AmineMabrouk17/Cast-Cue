@@ -121,7 +121,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 					<div className="flex max-w-3xl flex-col gap-5">
 						<h2 className="text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
 							Cast n <span className="text-accent">Cue</span>
-						</h1>
+						</h2>
 						<p className="max-w-[36rem] text-sm leading-relaxed text-muted sm:text-base">
 							Track the movies, series, and episodes you watch.
 						</p>
