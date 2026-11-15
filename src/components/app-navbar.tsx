@@ -209,6 +209,9 @@ export function AppNavbar() {
 	const user = session?.user;
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [signOutError, setSignOutError] = useState<string | null>(null);
+	const visibleLinks = user
+		? NAV_LINKS
+		: NAV_LINKS.filter((link) => link.href === "/" || link.href === "/search");
 	const menuButtonRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
@@ -247,7 +250,7 @@ export function AppNavbar() {
 			<div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
 				<Logo />
 				<nav aria-label="Primary" className="hidden items-center gap-8 lg:flex">
-					{NAV_LINKS.map((link) => (
+					{visibleLinks.map((link) => (
 						<Link
 							key={link.href}
 							href={link.href}
@@ -264,7 +267,7 @@ export function AppNavbar() {
 					{!isPending && !user ? (
 						<Link
 							href="/login"
-							className="hidden h-11 items-center rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:inline-flex"
+							className="inline-flex h-11 items-center rounded-lg bg-accent px-3 text-xs font-semibold text-accent-foreground sm:px-4 sm:text-sm transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:inline-flex"
 						>
 							Start tracking
 						</Link>
@@ -335,7 +338,7 @@ export function AppNavbar() {
 					className="border-b border-border bg-background/95 backdrop-blur-md lg:hidden"
 				>
 					<div className="mx-auto flex w-full max-w-7xl flex-col gap-1 px-4 py-4 sm:px-6">
-						{NAV_LINKS.map((link) => (
+						{visibleLinks.map((link) => (
 							<Link
 								key={link.href}
 								href={link.href}

@@ -1,25 +1,17 @@
-"use client";
-
 import Link from "next/link";
 import { Logo } from "./logo";
 
 const BROWSE_LINKS = [
 	{ href: "/", label: "Home" },
 	{ href: "/search", label: "Search" },
-	{ href: "/dashboard", label: "Dashboard" },
-	{ href: "/dashboard/library", label: "Library" },
-	{ href: "/dashboard/notes", label: "Notes" },
+	{ href: "/login", label: "Start tracking" },
 ] as const;
 
-const GENRE_LINKS = [
-	"Action",
-	"Comedy",
-	"Drama",
-	"Horror",
-	"Sci-Fi",
-	"Thriller",
-	"Romance",
-	"Animation",
+const APP_LINKS = [
+	{ href: "/dashboard", label: "Dashboard" },
+	{ href: "/dashboard/import", label: "Import" },
+	{ href: "/dashboard/stats", label: "Stats" },
+	{ href: "/dashboard/settings", label: "Settings" },
 ] as const;
 
 const LINK_CLASS = "text-sm text-muted transition-colors duration-300 hover:text-foreground";
@@ -48,13 +40,13 @@ export function AppFooter() {
 						))}
 					</ul>
 				</nav>
-				<nav aria-label="Genres">
-					<h2 className={HEADING_CLASS}>Search by genre</h2>
+				<nav aria-label="The app">
+					<h2 className={HEADING_CLASS}>The app</h2>
 					<ul className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3">
-						{GENRE_LINKS.map((genre) => (
-							<li key={genre}>
-								<Link href={`/search?q=${encodeURIComponent(genre)}`} className={LINK_CLASS}>
-									{genre}
+						{APP_LINKS.map((link) => (
+							<li key={link.href}>
+								<Link href={link.href} className={LINK_CLASS}>
+									{link.label}
 								</Link>
 							</li>
 						))}

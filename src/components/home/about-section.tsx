@@ -26,12 +26,10 @@ export function AboutSection() {
 		<section id="about" className="border-y border-border bg-elevated">
 			<div className="mx-auto grid w-full max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-start">
 				<div className="flex flex-col gap-5">
-					<h2 className="text-3xl font-bold sm:text-4xl">Every story deserves a spotlight.</h2>
+					<h2 className="max-w-[16ch] text-3xl font-bold leading-tight sm:text-4xl">The library remembers so you don&apos;t have to.</h2>
 					<p className="max-w-xl text-sm leading-relaxed text-muted sm:text-base">
-						Cast n Cue is your personal stage for everything you watch. Keep a running record of
-						the movies, series, and episodes you finish, rate each one while the credits roll, and
-						jot down the thoughts worth remembering. Your viewing history becomes a spotlighted
-						shelf of stories — always ready for an encore.
+						Cast n Cue keeps the exact place you stopped, the half-star you gave it, and the note
+						you wrote while the credits rolled. No feed, no public scores, no one else&apos;s taste.
 					</p>
 					<div className="grid grid-cols-3 gap-6 pt-4">
 						{FACTS.map((fact) => (
