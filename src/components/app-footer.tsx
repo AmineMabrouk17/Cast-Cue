@@ -37,7 +37,7 @@ export function AppFooter() {
 					</p>
 				</div>
 				<nav aria-label="Browse">
-					<h3 className={HEADING_CLASS}>Browse</h3>
+					<h2 className={HEADING_CLASS}>Browse</h2>
 					<ul className="flex flex-col gap-2 pt-3">
 						{BROWSE_LINKS.map((link) => (
 							<li key={link.href}>
@@ -49,7 +49,7 @@ export function AppFooter() {
 					</ul>
 				</nav>
 				<nav aria-label="Genres">
-					<h3 className={HEADING_CLASS}>Genres</h3>
+					<h2 className={HEADING_CLASS}>Genres</h2>
 					<ul className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3">
 						{GENRE_LINKS.map((genre) => (
 							<li key={genre}>
@@ -61,7 +61,7 @@ export function AppFooter() {
 					</ul>
 				</nav>
 				<div>
-					<h3 className={HEADING_CLASS}>Your library</h3>
+					<h2 className={HEADING_CLASS}>Your library</h2>
 					<p className="pt-3 text-sm leading-relaxed text-muted">
 						Private by default. Sign in to start a library, or import the history you already
 						keep elsewhere.
