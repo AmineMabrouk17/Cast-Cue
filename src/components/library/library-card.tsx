@@ -239,7 +239,7 @@ function CardActions({
 					<TrashIcon />
 				</Button>
 			</div>
-			{error ? <p className="text-xs text-danger">{error}</p> : null}
+			{error ? <p className="text-xs text-danger-soft-foreground">{error}</p> : null}
 		</div>
 	);
 }
@@ -307,7 +307,7 @@ function TitleCard({
 					) : null}
 					<PosterThumbnail src={poster} alt={media.name} type={media.type} />
 					{bookmark.favorite ? (
-						<div className="absolute left-2 top-2 z-10 rounded-md bg-black/70 p-1 text-danger backdrop-blur-sm">
+						<div className="absolute left-2 top-2 z-10 rounded-md bg-black/70 p-1 text-danger-soft-foreground backdrop-blur-sm">
 							<HeartIcon filled />
 						</div>
 					) : null}
@@ -400,7 +400,7 @@ function EpisodeCard({
 					) : null}
 					<PosterThumbnail src={item.imageUrl} alt={item.title} type="episode" />
 					{item.bookmark.favorite ? (
-						<div className="absolute left-2 top-2 z-10 rounded-md bg-black/70 p-1 text-danger backdrop-blur-sm">
+						<div className="absolute left-2 top-2 z-10 rounded-md bg-black/70 p-1 text-danger-soft-foreground backdrop-blur-sm">
 							<HeartIcon filled />
 						</div>
 					) : null}

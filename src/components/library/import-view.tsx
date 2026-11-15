@@ -114,7 +114,7 @@ export function ImportView() {
 				</p>
 			)}
 			{(phase === "error" || errorMessage) && errorMessage && (
-				<p role="alert" className="text-sm text-danger">
+				<p role="alert" className="text-sm text-danger-soft-foreground">
 					{errorMessage}
 				</p>
 			)}

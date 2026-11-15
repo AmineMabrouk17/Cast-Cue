@@ -138,7 +138,7 @@ export function RatingWidget({
 					{rating !== null ? formatRating(rating) : "Unrated"}
 				</span>
 			</div>
-			{error ? <p className="text-xs text-danger">{error}</p> : null}
+			{error ? <p className="text-xs text-danger-soft-foreground">{error}</p> : null}
 		</div>
 	);
 }

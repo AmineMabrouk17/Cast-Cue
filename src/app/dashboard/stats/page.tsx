@@ -65,7 +65,7 @@ async function StatsContent() {
 
 	const [movies, episodes] = await Promise.all([
 		Promise.all(
-			completedMovies.map(async (bookmark): Promise<WatchedMovie | null> => {
+			completedMovies.slice(0, 20).map(async (bookmark): Promise<WatchedMovie | null> => {
 				const detail = await getMediaDetail("movie", bookmark.mediaId);
 				if (!detail) return null;
 				return {
@@ -78,7 +78,7 @@ async function StatsContent() {
 			}),
 		),
 		Promise.all(
-			completedEpisodes.map(async (bookmark): Promise<WatchedEpisode | null> => {
+			completedEpisodes.slice(0, 20).map(async (bookmark): Promise<WatchedEpisode | null> => {
 				if (bookmark.seriesId === null || bookmark.seasonNumber === null || bookmark.episodeNumber === null) {
 					return null;
 				}
@@ -216,6 +216,9 @@ async function StatsContent() {
 											<img
 												src={item.imageUrl}
 												alt=""
+												width={185}
+												height={278}
+												loading="lazy"
 												className="h-full w-full object-cover transition-transform group-hover:scale-105"
 											/>
 										) : null}
@@ -235,7 +238,7 @@ async function StatsContent() {
 
 			{(resolvedMovies.length > 0 || resolvedEpisodes.length > 0) && (
 				<section className="flex flex-col gap-3">
-					<h2 className="text-lg font-semibold text-foreground">Recently completed</h2>
+					<h2 className="text-lg font-semibold text-foreground">Completed</h2>
 					<ul className="flex max-h-80 flex-col divide-y divide-separator overflow-y-auto rounded-md border border-border bg-surface">
 						{resolvedMovies.map((movie) => (
 							<li key={`m-${movie.mediaId}`} className="flex items-center justify-between gap-4 px-4 py-2 text-sm">

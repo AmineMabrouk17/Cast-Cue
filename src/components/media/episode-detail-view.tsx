@@ -35,6 +35,8 @@ function BackdropBackground({ series }: { series: SeriesBrief }) {
 			<img
 				src={initialBackdrop}
 				alt=""
+				width={1280}
+				height={720}
 				onError={() => setImageError(true)}
 				className="absolute inset-0 size-full object-cover"
 			/>
@@ -98,6 +100,8 @@ function EpisodeHeaderImage({
 			<img
 				src={src}
 				alt={episode.name}
+				width={780}
+				height={439}
 				onError={handleError}
 				className="size-full object-cover"
 			/>

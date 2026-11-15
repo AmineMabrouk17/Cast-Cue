@@ -173,7 +173,7 @@ export function EpisodeBookmarkPanel({
 				>
 					Add to Library
 				</Button>
-				{error ? <p className="text-xs text-danger">{error}</p> : null}
+				{error ? <p className="text-xs text-danger-soft-foreground">{error}</p> : null}
 			</div>
 		);
 	}
@@ -225,7 +225,7 @@ export function EpisodeBookmarkPanel({
 
 			<NotesEditor initialNote={bookmark.note} episodeKey={episodeKey} onError={setError} />
 
-			{error ? <p className="text-xs text-danger">{error}</p> : null}
+			{error ? <p className="text-xs text-danger-soft-foreground">{error}</p> : null}
 		</div>
 	);
 }
