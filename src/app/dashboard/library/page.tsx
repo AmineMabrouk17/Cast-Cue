@@ -39,7 +39,6 @@ async function resolveItem(reference: UserBookmark): Promise<LibraryItem | null>
 			getSeriesBrief(reference.seriesId),
 			getEpisodeDetail(reference.seriesId, reference.seasonNumber, reference.episodeNumber),
 		]);
-		if (!series || !episode) return null;
 		return {
 			kind: "episode",
 			key: {
@@ -49,20 +48,28 @@ async function resolveItem(reference: UserBookmark): Promise<LibraryItem | null>
 				episodeNumber: reference.episodeNumber,
 			},
 			href: `/media/episode/${reference.seriesId}/${reference.seasonNumber}/${reference.episodeNumber}`,
-			title: `S${reference.seasonNumber} E${reference.episodeNumber} · ${episode.name}`,
-			subtitle: series.name,
-			imageUrl: episode.stillPath
+			title: `S${reference.seasonNumber} E${reference.episodeNumber}${episode ? ` · ${episode.name}` : ""}`,
+			subtitle: series?.name ?? "Metadata unavailable",
+			imageUrl: episode?.stillPath
 				? tmdbStillUrl(episode.stillPath, "w300")
-				: tmdbPosterUrl(series.posterPath, "w342"),
+				: tmdbPosterUrl(series?.posterPath ?? null, "w342"),
 			bookmark: toBookmarkState(reference),
 		};
 	}
 
 	const media = await getMediaSummary(mediaType, reference.mediaId);
-	if (!media) return null;
 	return {
 		kind: "title",
-		media,
+		media: media ?? {
+			id: reference.mediaId,
+			type: mediaType,
+			name: "Metadata unavailable",
+			overview: "",
+			posterPath: null,
+			backdropPath: null,
+			voteAverage: 0,
+			year: null,
+		},
 		bookmark: toBookmarkState(reference),
 	};
 }
