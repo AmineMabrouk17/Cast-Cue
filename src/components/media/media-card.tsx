@@ -48,7 +48,10 @@ export function MediaCard({ media }: { media: MediaCardItem }) {
 						</span>
 					) : null}
 					{media.voteAverage > 0 ? (
-						<span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-gold backdrop-blur-sm">
+						<span
+							className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-xs font-semibold text-gold backdrop-blur-sm"
+							title={`TMDB score ${media.voteAverage.toFixed(1)}`}
+						>
 							<svg
 								aria-hidden="true"
 								viewBox="0 0 24 24"
@@ -57,6 +60,7 @@ export function MediaCard({ media }: { media: MediaCardItem }) {
 							>
 								<path d="M12 2l2.9 6.26 6.85.72-5.1 4.62 1.43 6.73L12 16.9l-6.08 3.43 1.43-6.73-5.1-4.62 6.85-.72L12 2z" />
 							</svg>
+							<span className="sr-only">TMDB score </span>
 							{media.voteAverage.toFixed(1)}
 						</span>
 					) : null}
