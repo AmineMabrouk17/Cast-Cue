@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "@heroui/react/button";
 import { Switch } from "@heroui/react/switch";
 import { updateProfileVisibility } from "@/app/dashboard/settings/actions";
@@ -14,7 +14,12 @@ export function ProfileVisibilityCard({ initialVisibility, displayName }: Profil
 	const [visibility, setVisibility] = useState(initialVisibility);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+	const [origin, setOrigin] = useState("");
 	const [isPending, startTransition] = useTransition();
+
+	useEffect(() => {
+		setOrigin(window.location.origin);
+	}, []);
 
 	function onToggle(next: boolean) {
 		startTransition(async () => {
@@ -30,9 +35,13 @@ export function ProfileVisibilityCard({ initialVisibility, displayName }: Profil
 
 	async function onCopy() {
 		if (!visibility.slug) return;
-		await navigator.clipboard.writeText(`${window.location.origin}/u/${visibility.slug}`);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
+		try {
+			await navigator.clipboard.writeText(`${window.location.origin}/u/${visibility.slug}`);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch {
+			setErrorMessage("Could not copy the link. Select it and copy it manually.");
+		}
 	}
 
 	return (
@@ -46,11 +55,13 @@ export function ProfileVisibilityCard({ initialVisibility, displayName }: Profil
 			</div>
 
 			<Switch.Root isSelected={visibility.isPublic} isDisabled={isPending} onChange={onToggle}>
-				<span className="text-sm text-foreground">Share my library publicly as {displayName}</span>
-				<Switch.Content className="group ml-2 inline-flex cursor-pointer">
-					<Switch.Control className="flex h-6 w-10 items-center rounded-full bg-default p-0.5 transition-colors group-data-[selected=true]:bg-primary">
+				<Switch.Content className="group flex min-h-11 cursor-pointer items-center gap-3">
+					<Switch.Control className="flex h-6 w-10 shrink-0 items-center rounded-full bg-default p-0.5 transition-colors group-data-[selected=true]:bg-primary">
 						<Switch.Thumb className="h-5 w-5 rounded-full bg-white shadow-sm transition-transform group-data-[selected=true]:translate-x-4" />
 					</Switch.Control>
+					<span className="text-sm text-foreground">
+						Share my library publicly as {displayName}
+					</span>
 				</Switch.Content>
 			</Switch.Root>
 
@@ -65,11 +76,14 @@ export function ProfileVisibilityCard({ initialVisibility, displayName }: Profil
 					<span className="text-sm text-muted">Your shareable link:</span>
 					<div className="flex items-center gap-2">
 						<code className="min-w-0 flex-1 truncate rounded-sm bg-default px-2 py-1 text-sm text-foreground">
-							{typeof window !== "undefined" ? window.location.origin : ""}/u/{visibility.slug}
+							{origin || ""}/u/{visibility.slug}
 						</code>
 						<Button size="sm" variant="ghost" onPress={onCopy}>
 							{copied ? "Copied" : "Copy"}
 						</Button>
+						<span role="status" className="sr-only">
+							{copied ? "Public profile link copied" : ""}
+						</span>
 					</div>
 				</div>
 			)}
