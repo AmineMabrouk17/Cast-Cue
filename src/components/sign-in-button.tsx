@@ -45,7 +45,7 @@ export function SignInButton({ callbackUrl }: { callbackUrl?: string }) {
 				size="lg"
 				isDisabled={isPending || isSigningIn}
 				onPress={handlePress}
-				className="w-full"
+				className="min-h-11 w-full"
 			>
 				{session ? "Continue" : isSigningIn ? "Opening Google…" : "Sign in with Google"}
 			</Button>

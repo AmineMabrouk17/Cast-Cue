@@ -238,12 +238,16 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 								aria-label={`Go to slide ${index + 1}`}
 								aria-current={index === active ? "true" : undefined}
 								onClick={() => setActiveIndex(index)}
-								className={`transition-all duration-300 ${
-									index === active
-										? "h-1.5 w-8 rounded-full bg-accent"
-										: "h-1.5 w-4 rounded-full bg-foreground/30 transition-colors duration-300 hover:bg-foreground/60"
-								}`}
-							/>
+								className="flex size-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+							>
+								<span
+									className={`block h-1.5 rounded-full transition-all duration-300 ${
+										index === active
+											? "w-8 bg-accent"
+											: "w-4 bg-foreground/30 hover:bg-foreground/60"
+									}`}
+								/>
+							</button>
 						))}
 					</div>
 				</>

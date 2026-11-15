@@ -252,7 +252,7 @@ export function AppNavbar() {
 							key={link.href}
 							href={link.href}
 							aria-current={isActive(link.href, pathname) ? "page" : undefined}
-							className={`text-sm font-medium transition-colors duration-300 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+							className={`flex min-h-11 items-center text-sm font-medium transition-colors duration-300 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
 								isActive(link.href, pathname) ? "text-foreground" : "text-muted"
 							}`}
 						>
@@ -264,7 +264,7 @@ export function AppNavbar() {
 					{!isPending && !user ? (
 						<Link
 							href="/login"
-							className="hidden items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:inline-flex"
+							className="hidden h-11 items-center rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:inline-flex"
 						>
 							Start tracking
 						</Link>
