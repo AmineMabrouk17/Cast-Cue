@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchField } from "@heroui/react/search-field";
 
@@ -13,14 +13,17 @@ export function SearchBox({ className = "w-full max-w-xs" }: { className?: strin
 	const committedQueryRef = useRef(query);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	function commit(value: string) {
-		const trimmed = value.trim();
-		if (trimmed === committedQueryRef.current) return;
-		committedQueryRef.current = trimmed;
-		const params = new URLSearchParams();
-		if (trimmed) params.set("q", trimmed);
-		router.replace(`/search?${params.toString()}`);
-	}
+	const commit = useCallback(
+		(value: string) => {
+			const trimmed = value.trim();
+			if (trimmed === committedQueryRef.current) return;
+			committedQueryRef.current = trimmed;
+			const params = new URLSearchParams();
+			if (trimmed) params.set("q", trimmed);
+			router.replace(`/search?${params.toString()}`);
+		},
+		[router],
+	);
 
 	useEffect(() => {
 		const urlQuery = searchParams.get("q") ?? "";
@@ -39,7 +42,7 @@ export function SearchBox({ className = "w-full max-w-xs" }: { className?: strin
 		return () => {
 			if (timerRef.current) clearTimeout(timerRef.current);
 		};
-	}, [query]);
+	}, [query, commit]);
 
 	return (
 		<SearchField.Root
