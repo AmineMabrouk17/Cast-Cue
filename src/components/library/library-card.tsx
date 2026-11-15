@@ -363,7 +363,7 @@ function EpisodeCard({
 					}
 				}}
 			>
-				<div className="relative aspect-[2/3] w-full overflow-hidden bg-elevated">
+				<div className="relative aspect-video w-full overflow-hidden bg-elevated">
 					{selectMode ? (
 						<SelectionCheckbox title={item.title} selected={selected} onToggle={onToggleSelect} />
 					) : null}
