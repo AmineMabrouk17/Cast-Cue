@@ -14,7 +14,7 @@ evidence, not the posters.
 | `compare-about-footer.png` | Invented 40K+/120+/1M+ stats and the non-functional newsletter replaced by three true facts and a real "Your library" path. Eyebrow labels removed. |
 | `compare-login.png` | The grey, unexplained sign-in button replaced by a real page: back link, promise, Google action, and what the app stores. |
 | `compare-about-footer.gif` | The same about/footer comparison, alternating before and after. |
-| `animatic.mp4` | A 88-second narrated animatic of the PR: the problem, the five moves, two key hunks, the proof, and the rollback. |
+| `animatic.mp4` | An 88-second narrated animatic of the PR: the problem, the five moves, two key hunks, the proof, and the rollback. |
 
 Detector: one warning (`overused-font`, Space Grotesk), accepted as the committed
 display voice in `DESIGN.md`. No errors. `pnpm typecheck` and `pnpm lint` pass with 0
