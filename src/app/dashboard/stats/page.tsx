@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { listUserBookmarks, type UserBookmark } from "@/lib/bookmarks";
 import { getServerSession } from "@/lib/session";
 import { getEpisodeDetail, getMediaDetail, getSeriesBrief, tmdbPosterUrl } from "@/lib/tmdb";
+import { MediaEmptyState } from "@/components/media/media-empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -112,6 +113,16 @@ async function StatsContent() {
 	}
 	const maxRatingCount = Math.max(1, ...ratingCounts.values());
 
+	if (bookmarks.length === 0) {
+		return (
+			<MediaEmptyState
+				title="No stats yet"
+				message="Complete a movie or an episode, and this page will start counting."
+				action={{ label: "Find something to watch", href: "/search" }}
+			/>
+		);
+	}
+
 	const favoriteItems: FavoriteItem[] = (
 		await Promise.all(
 			favorites.map(async (bookmark): Promise<FavoriteItem | null> => {
@@ -166,20 +177,26 @@ async function StatsContent() {
 
 			<section className="flex flex-col gap-3">
 				<h2 className="text-lg font-semibold text-foreground">Ratings</h2>
-				<ul className="flex flex-col gap-1.5" aria-label="Ratings distribution">
-					{[...ratingCounts.entries()].reverse().map(([step, count]) => (
-						<li key={step} className="flex items-center gap-3 text-sm">
-							<span className="w-10 shrink-0 text-right tabular-nums text-muted">★ {step}</span>
-							<span className="h-4 flex-1 overflow-hidden rounded-sm bg-default">
-								<span
-									className="block h-full rounded-sm bg-primary"
-									style={{ width: `${(count / maxRatingCount) * 100}%` }}
-								/>
-							</span>
-							<span className="w-6 shrink-0 tabular-nums text-muted">{count}</span>
-						</li>
-					))}
-				</ul>
+				{rated.length === 0 ? (
+					<p className="text-sm text-muted">
+						No ratings yet — open a title in your library and give it a star score.
+					</p>
+				) : (
+					<ul className="flex flex-col gap-1.5" aria-label="Ratings distribution">
+						{[...ratingCounts.entries()].reverse().map(([step, count]) => (
+							<li key={step} className="flex items-center gap-3 text-sm">
+								<span className="w-12 shrink-0 text-right tabular-nums text-muted">★ {step}</span>
+								<span aria-hidden="true" className="h-4 flex-1 overflow-hidden rounded-sm bg-default">
+									<span
+										className="block h-full rounded-sm bg-primary"
+										style={{ width: `${(count / maxRatingCount) * 100}%` }}
+									/>
+								</span>
+								<span className="min-w-6 shrink-0 tabular-nums text-muted">{count}</span>
+							</li>
+						))}
+					</ul>
+				)}
 			</section>
 
 			<section className="flex flex-col gap-3">
