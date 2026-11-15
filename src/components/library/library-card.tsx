@@ -290,7 +290,7 @@ function TitleCard({
 	}
 
 	return (
-		<div className="group relative flex h-full flex-col overflow-visible rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+		<div className="group relative flex flex-col overflow-visible rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={href}
 				className="block"
@@ -383,7 +383,7 @@ function EpisodeCard({
 	}
 
 	return (
-		<div className="group relative flex h-full flex-col overflow-visible rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+		<div className="group relative flex flex-col overflow-visible rounded-xl border border-border bg-surface shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
 			<Link
 				href={item.href}
 				className="block"
@@ -394,7 +394,7 @@ function EpisodeCard({
 					}
 				}}
 			>
-				<div className="relative aspect-[2/3] w-full overflow-hidden rounded-t-xl bg-elevated">
+				<div className="relative aspect-video w-full overflow-hidden rounded-t-xl bg-elevated">
 					{selectMode ? (
 						<SelectionCheckbox title={item.title} selected={selected} onToggle={onToggleSelect} />
 					) : null}

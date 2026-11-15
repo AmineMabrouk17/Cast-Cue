@@ -272,8 +272,9 @@ export function AppNavbar() {
 					<Link href="/search" className={ICON_BUTTON_CLASS} aria-label="Search">
 						<SearchIcon className="size-4" />
 					</Link>
-					{!isPending &&
-						(user ? (
+					{isPending ? (
+						<div aria-hidden="true" className="size-11" />
+					) : user ? (
 							<Dropdown>
 								<DropdownTrigger aria-label="Account menu">
 									<Avatar.Root size="sm" className="ring-2 ring-transparent transition-shadow focus-visible:ring-accent">
@@ -309,11 +310,11 @@ export function AppNavbar() {
 									</DropdownMenu>
 								</DropdownPopover>
 							</Dropdown>
-						) : (
-							<Link href="/login" className={`${ICON_BUTTON_CLASS} hidden sm:flex`} aria-label="Sign in">
-								<UserIcon className="size-4" />
-							</Link>
-						))}
+					) : (
+						<Link href="/login" className={`${ICON_BUTTON_CLASS} hidden sm:flex`} aria-label="Sign in">
+							<UserIcon className="size-4" />
+						</Link>
+					)}
 					<button
 						ref={menuButtonRef}
 						type="button"

@@ -47,7 +47,7 @@ export default async function Home() {
 				className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 py-16 sm:px-6"
 			>
 				<div className="flex flex-col gap-6">
-					<SectionHeader title="Movies everyone is watching" />
+					<SectionHeader title="Trending movies this week" />
 					{trendingMovies.length > 0 ? (
 						<MediaGrid items={trendingMovies} />
 					) : (
@@ -58,7 +58,7 @@ export default async function Home() {
 					)}
 				</div>
 				<div className="flex flex-col gap-6">
-					<SectionHeader title="Series worth bingeing" />
+					<SectionHeader title="Trending series this week" />
 					{trendingSeries.length > 0 ? (
 						<MediaGrid items={trendingSeries} />
 					) : (

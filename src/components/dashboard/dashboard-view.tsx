@@ -30,12 +30,9 @@ const MAX_UP_NEXT_RESULTS = 8;
 const MAX_ROULETTE_POOL = 20;
 
 const QUICK_LINKS = [
-	{ href: "/dashboard/library", label: "Library" },
-	{ href: "/dashboard/notes", label: "Notes" },
 	{ href: "/dashboard/import", label: "Import" },
 	{ href: "/dashboard/stats", label: "Stats" },
 	{ href: "/dashboard/settings", label: "Settings" },
-	{ href: "/search", label: "Search" },
 ] as const;
 
 function QuickLinks() {
