@@ -58,7 +58,7 @@ export function WatchlistRoulette({ pool }: { pool: RouletteCandidate[] }) {
 				<div className="flex items-center gap-3">
 					<Link
 						href={candidate.href}
-						className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-glow transition-colors duration-300 hover:bg-accent-hover"
+						className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors duration-300 hover:bg-accent-hover"
 					>
 						<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="size-4">
 							<path d="M8 5v14l11-7L8 5z" />

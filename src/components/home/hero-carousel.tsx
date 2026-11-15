@@ -204,7 +204,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 					<div className="mt-2 flex flex-wrap items-center gap-3">
 						<Link
 							href={activeSlide.href}
-							className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-glow transition-colors duration-300 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+							className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition-colors duration-300 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 						>
 							<PlayIcon />
 							View details
