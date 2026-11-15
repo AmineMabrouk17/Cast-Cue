@@ -49,7 +49,7 @@ export function AppFooter() {
 					</ul>
 				</nav>
 				<nav aria-label="Genres">
-					<h2 className={HEADING_CLASS}>Genres</h2>
+					<h2 className={HEADING_CLASS}>Search by genre</h2>
 					<ul className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3">
 						{GENRE_LINKS.map((genre) => (
 							<li key={genre}>
