@@ -92,7 +92,7 @@ async function ProfileContent({ user }: { user: PublicProfileUser }) {
 			<header className="flex items-center gap-4">
 				{user.image ? (
 					// eslint-disable-next-line @next/next/no-img-element
-					<img src={user.image} alt="" className="h-16 w-16 rounded-full border border-border object-cover" />
+					<img src={user.image} alt="" width={64} height={64} className="h-16 w-16 rounded-full border border-border object-cover" />
 				) : (
 					<span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-secondary text-xl font-bold text-foreground">
 						{user.name.slice(0, 1).toUpperCase()}
@@ -116,7 +116,14 @@ async function ProfileContent({ user }: { user: PublicProfileUser }) {
 								<span className="block aspect-2/3 w-full overflow-hidden rounded-md border border-border bg-surface-secondary">
 									{item.imageUrl ? (
 										// eslint-disable-next-line @next/next/no-img-element
-										<img src={item.imageUrl} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+										<img
+											src={item.imageUrl}
+											alt=""
+											width={185}
+											height={278}
+											loading="lazy"
+											className="h-full w-full object-cover transition-transform group-hover:scale-105"
+										/>
 									) : null}
 								</span>
 								<span className="min-w-0">

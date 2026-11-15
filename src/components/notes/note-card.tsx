@@ -38,6 +38,8 @@ function NoteThumbnail({ src, title }: { src: string | null; title: string }) {
 			<img
 				src={src}
 				alt={title}
+				width={64}
+				height={96}
 				loading="lazy"
 				decoding="async"
 				onLoad={() => setIsLoaded(true)}

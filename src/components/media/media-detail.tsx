@@ -97,6 +97,8 @@ function BackdropBackground({ media }: { media: MediaDetail }) {
 			<img
 				src={initialBackdrop}
 				alt=""
+				width={1280}
+				height={720}
 				onError={() => setImageError(true)}
 				className="absolute inset-0 size-full object-cover"
 			/>
