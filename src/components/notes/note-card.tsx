@@ -51,6 +51,11 @@ function NoteThumbnail({ src, title }: { src: string | null; title: string }) {
 }
 
 export function NoteCard({ item }: { item: NoteItem }) {
+	const updated = new Date(item.updatedAt);
+	const updatedLabel = Number.isNaN(updated.getTime())
+		? null
+		: updated.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
+
 	return (
 		<div className="group rounded-xl border border-border bg-surface/50 p-4 transition-all duration-300 hover:border-accent/40 hover:bg-surface hover:shadow-md">
 			<Link href={item.href} className="flex gap-4">
@@ -60,9 +65,17 @@ export function NoteCard({ item }: { item: NoteItem }) {
 						<span className="line-clamp-1 text-sm font-semibold text-foreground transition-colors group-hover:text-accent">
 							{item.title}
 						</span>
-						<span className="line-clamp-1 text-xs text-muted">{item.subtitle}</span>
+						<span className="line-clamp-1 text-xs text-muted">
+							{item.subtitle}
+							{updatedLabel ? (
+								<>
+									{" · "}
+									<time dateTime={item.updatedAt}>{updatedLabel}</time>
+								</>
+							) : null}
+						</span>
 					</div>
-					<p className="line-clamp-3 text-xs leading-relaxed text-foreground/80">{item.note}</p>
+					<p className="line-clamp-3 text-sm leading-relaxed text-foreground">{item.note}</p>
 				</div>
 			</Link>
 		</div>

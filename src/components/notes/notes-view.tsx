@@ -7,6 +7,7 @@ export interface NoteItem {
 	subtitle: string;
 	imageUrl: string | null;
 	note: string;
+	updatedAt: string;
 }
 
 export function NotesView({ items }: { items: NoteItem[] }) {
