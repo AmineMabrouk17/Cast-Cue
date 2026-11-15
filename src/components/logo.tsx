@@ -15,7 +15,7 @@ export function Logo() {
 			</span>
 			<span className="font-display text-lg font-bold tracking-tight">
 				<span className="text-foreground">Cast n </span>
-				<span className="text-accent">Cue</span>
+				<span className="text-accent-text">Cue</span>
 			</span>
 		</Link>
 	);
