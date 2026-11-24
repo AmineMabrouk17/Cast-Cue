@@ -27,9 +27,9 @@ Bookmark movies, series, and individual episodes, follow your progress, rate the
 
 ## ▶ Launch film
 
-[![Watch the 60-second launch film](docs/brag/poster-en.jpg)](docs/brag/launch-film-en.mp4)
+[![Watch the 60-second launch film](docs/brag/preview-en.gif)](docs/brag/launch-film-en.mp4)
 
-60 seconds · English · [Arabic version](docs/brag/launch-film-ar.mp4)
+▶ **[Full 60s MP4](docs/brag/launch-film-en.mp4)** · English · [Arabic version](docs/brag/launch-film-ar.mp4)
 
 ## ✨ Why Cast n Cue?
 
