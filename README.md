@@ -25,6 +25,12 @@ Bookmark movies, series, and individual episodes, follow your progress, rate the
 
 ---
 
+## ▶ Launch film
+
+[![Watch the 60-second launch film](docs/brag/preview-en.gif)](docs/brag/launch-film-en.mp4)
+
+▶ **[Full 60s MP4](docs/brag/launch-film-en.mp4)** · English
+
 ## ✨ Why Cast n Cue?
 
 Watching TV is one thing — **keeping up with it** is another. Cast n Cue is a personal media tracker built for people who juggle a dozen shows at once and need one calm place to hold it all:
